@@ -1,0 +1,23 @@
+<Configuration status="INFO">
+<!-- Define custom levels before using them for filtering below. -->
+<CustomLevels>
+    <CustomLevel name="DIAG" intLevel="350" />
+    <CustomLevel name="NOTICE" intLevel="450" />
+    <CustomLevel name="VERBOSE" intLevel="550" />
+</CustomLevels>
+
+<Appenders>
+    <appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
+        <param name="Target" value="System.out" />
+        <layout class="com.jcabi.log.MulticolorLayout">
+            <param name="ConversionPattern" value="[%color{%p}] %m%n" />
+        </layout>
+    </appender>
+</Appenders>
+<Loggers>
+    <Root level="trace">
+        <!-- Only events at DIAG level or more specific are sent to the console. -->
+        <AppenderRef ref="Console" level="info" />
+    </Root>
+</Loggers>
+</Configuration>

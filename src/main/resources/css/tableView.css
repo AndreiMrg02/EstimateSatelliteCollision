@@ -1,0 +1,55 @@
+/* Set the background image for the tableview */
+.table-view {
+    -fx-background-size: cover;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+    -fx-text-fill: #ffffff;
+    -fx-effect: dropshadow(three-pass-box, #33415c, 15, 0, 0, 0);
+}
+
+/* Style the table rows with a hover effect */
+.table-row-cell {
+    -fx-table-cell-border-color: #000000;
+    -fx-effect: dropshadow(three-pass-box, #000000, 5, 0, 0, 0);
+    -fx-background-color: rgb(51, 65, 92);
+    -fx-background-insets: 0, 1 1 0 0, 2 2 1 1, 2 2 2 2;
+}
+
+/* Style the selected row with a stronger glow */
+.table-row-cell:selected {
+    -fx-background-color: #33415c;
+    -fx-effect: dropshadow(three-pass-box, #33415c, 15, 0, 0, 0);
+}
+
+/* Add a smooth transition for the hover effect */
+.table-row-cell:hover {
+    -fx-background-color: #33415c;
+    -fx-effect: dropshadow(three-pass-box, #33415c, 15, 0, 0, 0);
+    -fx-background-insets: 0, 1 1 1 1, 2 2 2 2;
+    -fx-transition: background-color 0.3s, -fx-background-insets 0.3s;
+}
+
+.table-column {
+    -fx-text-fill: #ffffff;
+}
+
+.table-column-header {
+    -fx-background-color: #33415c;
+    -fx-border-color: #1a1a1a;
+}
+
+.table-view:focused {
+    -fx-faint-focus-color: transparent;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: #33415c;
+}
+
+.table-view .column-header-background .label {
+    -fx-text-fill: #000000;
+}
+
+.table-view .column-header .arrow {
+    -fx-background-color: #ffffff;
+}
