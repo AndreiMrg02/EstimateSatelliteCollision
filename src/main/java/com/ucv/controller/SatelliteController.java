@@ -1,11 +1,12 @@
 package com.ucv.controller;
 
 
+import com.ucv.datamodel.satellite.DisplaySatelliteModel;
+import com.ucv.datamodel.satellite.PositionDifference;
+import com.ucv.datamodel.satellite.SpatialObject;
+import com.ucv.datamodel.xml.Item;
 import com.ucv.run.DownloadTLE;
-import com.ucv.satellite.PositionDifference;
-import com.ucv.satellite.SpatialObject;
 import com.ucv.satellite.TlePropagator;
-import com.ucv.xml.model.Item;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -33,14 +34,16 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
+import static com.ucv.database.DBManager.getStatesAllSatelliteName;
 import static com.ucv.database.DBManager.getStatesBySatelliteName;
 
 
 public class SatelliteController implements Initializable {
-    ObservableList<Item> items = FXCollections.observableArrayList();
-    Map<String, Item> listOfUniqueSatellite = new HashMap<>();
-    ArrayList<String> listOfTle;
-    List<SpatialObject> spatialObjectList;
+    private ObservableList<Item> items = FXCollections.observableArrayList();
+    private Map<String, Item> listOfUniqueSatellite = new HashMap<>();
+    private ArrayList<String> listOfTle;
+    private List<SpatialObject> spatialObjectList;
+    private Set<DisplaySatelliteModel> stringDisplaySatelliteModelMap;
     @FXML
     private Button viewTLEButton;
     @FXML
@@ -59,6 +62,14 @@ public class SatelliteController implements Initializable {
     private TableColumn<Item, String> sat2NameColumn = new TableColumn<>("SAT_2_NAME");
     @FXML
     private TableColumn<Item, String> pcColumn = new TableColumn<>("PC");
+    private List<String> satName = new ArrayList<>();
+    public Set<DisplaySatelliteModel> getStringDisplaySatelliteModelMap() {
+        return stringDisplaySatelliteModelMap;
+    }
+
+    public void setStringDisplaySatelliteModelMap(Set<DisplaySatelliteModel> stringDisplaySatelliteModelMap) {
+        this.stringDisplaySatelliteModelMap = stringDisplaySatelliteModelMap;
+    }
 
     /*
 
@@ -88,6 +99,7 @@ public class SatelliteController implements Initializable {
         sat2NameColumn.setCellValueFactory(new PropertyValueFactory<>("sat2Name"));
         pcColumn.setCellValueFactory(new PropertyValueFactory<>("pc"));
         listOfTle = new ArrayList<>();
+        stringDisplaySatelliteModelMap = new LinkedHashSet<>();
 
     }
 
@@ -144,136 +156,107 @@ public class SatelliteController implements Initializable {
                 System.out.println("Eroare: " + e.getMessage());
             }
         }
-        LinkedHashSet<SpacecraftState> statesOne = getStatesBySatelliteName("FENGYUN 1C DEB");
-        LinkedHashSet<SpacecraftState> statesTwo = getStatesBySatelliteName("SL-8 R/B");
-        List<SpacecraftState> stateOneList = new ArrayList<>(statesOne);
-        List<SpacecraftState> stateTwoList = new ArrayList<>(statesTwo);
+        estimateCollisionBetweenAllSatellites();
+    }
 
-        estimateCollision(stateOneList, stateTwoList);
+    private void estimateCollisionBetweenAllSatellites() {
+        List<String> satelliteNames = getStatesAllSatelliteName();
+        int size = satelliteNames.size();
+
+        for (int i = 0; i < size; i++) {
+            String entryOne = satelliteNames.get(i);
+            List<SpacecraftState> statesOne = getStatesBySatelliteName(entryOne);
+            for (int j = i + 1; j < size; j++) {
+                String entryTwo = satelliteNames.get(j);
+                List<SpacecraftState> statesTwo = getStatesBySatelliteName(entryTwo);
+
+                List<SpacecraftState> stateOneList = new ArrayList<>(statesOne);
+                List<SpacecraftState> stateTwoList = new ArrayList<>(statesTwo);
+
+                estimateCollision(stateOneList, stateTwoList, entryOne, entryTwo);
+            }
+        }
     }
 
 
-    private void estimateCollision(List<SpacecraftState> stateOneList, List<SpacecraftState> stateTwoList) {
 
+    private void estimateCollision(List<SpacecraftState> stateOneList, List<SpacecraftState> stateTwoList, String entryOne, String entryTwo) {
         Ephemeris ephemerisSatelliteOne = new Ephemeris(stateOneList, 4);
         Ephemeris ephemerisSatelliteTwo = new Ephemeris(stateTwoList, 4);
-        final PositionDifference difference = new PositionDifference();
-
+        final PositionDifference closestApproach = new PositionDifference();
         AbsoluteDate startDate = extractStartDate(stateOneList, stateTwoList);
+        if (startDate == null) {
+            System.out.println("There is no common start date between:" + entryOne +
+                    " and " + entryTwo);
+            return;
+        }
         AbsoluteDate endDate = extractEndDate(stateOneList, stateTwoList);
+        if (endDate == null) {
+            System.out.println("There is no common end date between:" + entryOne +
+                    " and " + entryTwo);
+            return;
+        }
 
+        if (!satName.contains(entryOne)) {
+            stringDisplaySatelliteModelMap.add(new DisplaySatelliteModel(startDate, endDate, entryOne, ephemerisSatelliteOne, stateOneList));
+        }
+        satName.add(entryOne);
+
+        // Propagate both ephemeris to find the closest approach
         ephemerisSatelliteOne.setStepHandler(60, currentState -> {
-            SpacecraftState state = ephemerisSatelliteTwo.propagate(currentState.getDate());
-            Vector3D positionDifference = currentState.getPosition().subtract(state.getPosition());
-            if (difference.getDifference() > positionDifference.getNorm()) {
-                difference.setDifference(positionDifference.getNorm());
-                difference.setDate(currentState.getDate());
+            SpacecraftState stateTwo = ephemerisSatelliteTwo.propagate(currentState.getDate());
+            Vector3D positionDifference = currentState.getPosition().subtract(stateTwo.getPosition());
+            double distance = positionDifference.getNorm();
+            if (closestApproach.getDifference() > distance) {
+                closestApproach.setDifference(distance);
+                closestApproach.setDate(currentState.getDate());
             }
         });
+
+        // Propagate both ephemeris
         ephemerisSatelliteOne.propagate(startDate, endDate);
-        ephemerisSatelliteOne.clearStepHandlers(); //Dupa propagate pentru afisare
-        System.out.println("Difference(Close Approach): " + difference.getDifference() + " meters at date: " + difference.getDate().toDate(TimeScalesFactory.getUTC()));
-
+        // Clear step handlers after propagation
+        ephemerisSatelliteOne.clearStepHandlers();
+        // Once the closest approach is found, estimate collision probability based on closest approach distance
+        // Calculate collision probability
+        final double threshold = 3500; // Set your threshold value here
+        double collisionProbability = estimateCollisionProbability(closestApproach.getDifference(), threshold);
+        System.out.println("Closest approach between Satellites: " + entryOne + " and " + entryTwo + " is: " + closestApproach.getDifference() + " meters at date: " + closestApproach.getDate().toDate(TimeScalesFactory.getUTC()));
+        System.out.println("Collision probability is: " + String.format("%.10f%%", collisionProbability));
     }
 
-/*
-    private void estimateCollision(List<SpacecraftState> stateOneList, List<SpacecraftState> stateTwoList) {
-
-        Ephemeris ephemerisSatelliteOne = new Ephemeris(stateOneList, 4);
-        Ephemeris ephemerisSatelliteTwo = new Ephemeris(stateTwoList, 4);
-        final PositionDifference difference = new PositionDifference();
-
-        AbsoluteDate startDate = extractStartDate(stateOneList, stateTwoList);
-        AbsoluteDate endDate = extractEndDate(stateOneList, stateTwoList);
-
-        ephemerisSatelliteOne.setStepHandler(60, currentState -> {
-            SpacecraftState state = ephemerisSatelliteTwo.propagate(currentState.getDate());
-            Vector3D positionDifference = currentState.getPosition().subtract(state.getPosition());
-            if (difference.getDifference() > positionDifference.getNorm()) {
-                difference.setDifference(positionDifference.getNorm());
-                difference.setDate(currentState.getDate());
-            }
-        });
-
-        SpacecraftState spacecraftState = ephemerisSatelliteOne.propagate(startDate, endDate);
-        System.out.println(spacecraftState.getPosition());
-        ephemerisSatelliteOne.clearStepHandlers(); //Dupa propagate pentru afisare
+    private double estimateCollisionProbability(double closestApproachDistance, double threshold) {
+        double scale = 0.3;  // Factorul de scalare pentru a ajusta sensibilitatea
+        double ratio = (closestApproachDistance / threshold);
+        double collisionProbability = Math.exp(-scale * ratio);  // Aplică factorul de scalare în exponent
+        return collisionProbability * 100;  // Converteste în procente
     }
-    private AbsoluteDate extractStartDate(LinkedHashSet<SpacecraftState> stateOneList, LinkedHashSet<SpacecraftState> stateTwoList) {
 
-        Optional<SpacecraftState> spacecraftStateOne = stateOneList.stream().findFirst();
-        Optional<SpacecraftState> spacecraftStateTwo = stateTwoList.stream().findFirst();
-        AbsoluteDate absoluteDateOne = new AbsoluteDate();
-        AbsoluteDate absoluteDateTwo = new AbsoluteDate();
-        if (spacecraftStateOne.isPresent() && spacecraftStateTwo.isPresent()) {
-            absoluteDateOne = spacecraftStateOne.get().getDate();
-            absoluteDateTwo = spacecraftStateTwo.get().getDate();
-        }
-        if (absoluteDateTwo.isBefore(absoluteDateTwo)) {
-            return absoluteDateTwo;
-        }
-        return absoluteDateOne;
-    }
-*/
 
     private AbsoluteDate extractStartDate(List<SpacecraftState> stateOneList, List<SpacecraftState> stateTwoList) {
-
-        AbsoluteDate absoluteDateOne = new AbsoluteDate();
-        AbsoluteDate absoluteDateTwo = new AbsoluteDate();
         if (!stateOneList.isEmpty() && !stateTwoList.isEmpty()) {
-            absoluteDateOne = stateOneList.get(0).getDate();
-            absoluteDateTwo = stateTwoList.get(0).getDate();
+            for (SpacecraftState stateOne : stateOneList) {
+                for (SpacecraftState stateTwo : stateTwoList) {
+                    if (stateOne.getDate().equals(stateTwo.getDate())) {
+                        return stateOne.getDate();
+                    }
+                }
+            }
         }
-        if (absoluteDateTwo.isBefore(absoluteDateOne)) {
-            return absoluteDateTwo;
-        }
-        return absoluteDateOne;
+        return null;
     }
 
-
-  /*  private AbsoluteDate extractEndDate(LinkedHashSet<SpacecraftState> stateOneList, LinkedHashSet<SpacecraftState> stateTwoList) {
-
-        SpacecraftState lastSpacecraftOne = null;
-        SpacecraftState lastSpacecraftTwo = null;
-
-        for (SpacecraftState state : stateOneList) {
-            lastSpacecraftOne = state;
-        }
-        for (SpacecraftState state : stateTwoList) {
-            lastSpacecraftTwo = state;
-        }
-
-        AbsoluteDate absoluteDateOne = new AbsoluteDate();
-        AbsoluteDate absoluteDateTwo = new AbsoluteDate();
-
-        if (lastSpacecraftOne != null) {
-            absoluteDateOne = lastSpacecraftOne.getDate();
-        }
-        if (lastSpacecraftTwo != null) {
-            absoluteDateTwo = lastSpacecraftTwo.getDate();
-        }
-        if (absoluteDateTwo.isBefore(absoluteDateTwo)) {
-            return absoluteDateTwo;
-        }
-        return absoluteDateOne;
-    }
-*/
     private AbsoluteDate extractEndDate(List<SpacecraftState> stateOneList, List<SpacecraftState> stateTwoList) {
-        AbsoluteDate absoluteDateOne = new AbsoluteDate();
-        AbsoluteDate absoluteDateTwo = new AbsoluteDate();
-
         if (!stateOneList.isEmpty() && !stateTwoList.isEmpty()) {
-            absoluteDateOne = stateOneList.get(stateOneList.size() - 1).getDate();
-            absoluteDateTwo = stateTwoList.get(stateTwoList.size() - 1).getDate();
+            for (int i = stateOneList.size() - 1; i >= 0; i--) {
+                for (int j = stateTwoList.size() - 1; j >= 0; j--) {
+                    if (stateOneList.get(i).getDate().equals(stateTwoList.get(j).getDate())) {
+                        return stateOneList.get(i).getDate();
+                    }
+                }
+            }
         }
-        if (absoluteDateTwo.isAfter(absoluteDateOne)) {
-            return absoluteDateTwo;
-        }
-        return absoluteDateOne;
-    }
-
-    private Date parseDate(AbsoluteDate abslouteDate) {
-        return  abslouteDate.toDate(TimeScalesFactory.getUTC());
+        return null;
     }
 
     /*

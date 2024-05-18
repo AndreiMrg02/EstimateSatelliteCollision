@@ -1,4 +1,4 @@
-package com.ucv.satellite;
+package com.ucv.datamodel.satellite;
 
 import org.orekit.time.AbsoluteDate;
 

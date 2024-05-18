@@ -2,6 +2,7 @@ package com.ucv.satellite;
 
 
 import com.ucv.database.DBManager;
+import com.ucv.datamodel.satellite.SpatialObject;
 import org.apache.log4j.Logger;
 import org.orekit.bodies.CelestialBodyFactory;
 import org.orekit.bodies.OneAxisEllipsoid;
@@ -77,7 +78,7 @@ public class TlePropagator extends Thread {
     public void run() {
 
         final List<SpacecraftState> states = new LinkedList<>();
-        propagator.setStepHandler(60, states::add); // 60 SECONDS
+        propagator.setStepHandler(600, states::add); // 60 SECONDS
         AbsoluteDate startDate = new AbsoluteDate(spatialObject.getTca(), TimeScalesFactory.getUTC()).shiftedBy(Constants.JULIAN_DAY * (-1));
         AbsoluteDate endDate = new AbsoluteDate(spatialObject.getTca(), TimeScalesFactory.getUTC()).shiftedBy(Constants.JULIAN_DAY);
         propagator.propagate(startDate, endDate);

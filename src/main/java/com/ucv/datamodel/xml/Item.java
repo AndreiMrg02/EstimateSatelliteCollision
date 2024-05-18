@@ -1,4 +1,4 @@
-package com.ucv.xml.model;
+package com.ucv.datamodel.xml;
 
 
 import javax.xml.bind.annotation.XmlAccessType;

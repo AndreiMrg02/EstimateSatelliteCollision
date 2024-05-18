@@ -1,4 +1,4 @@
-package com.ucv.database.model;
+package com.ucv.datamodel.database;
 
 import jakarta.persistence.*;
 import java.util.Date;

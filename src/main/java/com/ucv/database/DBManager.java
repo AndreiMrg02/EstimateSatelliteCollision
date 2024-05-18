@@ -1,6 +1,6 @@
 package com.ucv.database;
 
-import com.ucv.database.model.State;
+import com.ucv.datamodel.database.State;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 import org.hipparchus.geometry.euclidean.threed.Vector3D;
@@ -11,10 +11,7 @@ import org.orekit.time.AbsoluteDate;
 import org.orekit.time.TimeScalesFactory;
 import org.orekit.utils.TimeStampedPVCoordinates;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.LinkedHashSet;
-import java.util.List;
+import java.util.*;
 
 import static com.ucv.Util.HibernateUtil.getCurrentSession;
 import static com.ucv.Util.UtilConstant.MU;
@@ -47,27 +44,41 @@ public class DBManager {
 
     }
 
-    public static synchronized LinkedHashSet<SpacecraftState> getStatesBySatelliteName(String satelliteName) {
+    public static synchronized List<SpacecraftState> getStatesBySatelliteName(String satelliteName) {
         try (Session session = getCurrentSession()) {
 
-            String sqlStatement = "FROM com.ucv.database.model.State s WHERE s.satName = :satelliteName";
+            String sqlStatement = "FROM com.ucv.datamodel.database.State s WHERE s.satName = :satelliteName";
             Query<State> query = session.createQuery(sqlStatement, State.class);
             query.setParameter("satelliteName", satelliteName);
 
 
             List<State> stateEntities = query.list();
-            LinkedHashSet<State> states = new LinkedHashSet<>(stateEntities);
+            List<State> states = new ArrayList<>(stateEntities);
             // Convertiți entitățile în stări SpacecraftState
             return convertEntitiesToSpacecraftStates(states, MU);
         } catch (Exception ex) {
             System.out.println("Eroarea vine din functia de getByName: " + ex.getMessage());
             ex.printStackTrace();
-            return new LinkedHashSet<>();
+            return new ArrayList<>();
+        }
+    }
+    public static synchronized List<String> getStatesAllSatelliteName() {
+        try (Session session = getCurrentSession()) {
+
+            String sqlStatement = "SELECT DISTINCT s.satName FROM com.ucv.datamodel.database.State s";
+            Query<String> query = session.createQuery(sqlStatement, String.class);
+
+            List<String> satelliteNameList = query.list();
+            return new ArrayList<>(satelliteNameList);
+        } catch (Exception ex) {
+            System.out.println("Eroarea vine din functia de getByName: " + ex.getMessage());
+            ex.printStackTrace();
+            return new ArrayList<>();
         }
     }
 
-    private static LinkedHashSet<SpacecraftState> convertEntitiesToSpacecraftStates(LinkedHashSet<State> stateEntities, double mu) {
-        LinkedHashSet<SpacecraftState> spacecraftStates = new LinkedHashSet<>();
+    private static List<SpacecraftState> convertEntitiesToSpacecraftStates(List<State> stateEntities, double mu) {
+        List<SpacecraftState> spacecraftStates = new ArrayList<>();
 
         for (State stateEntity : stateEntities) {
             SpacecraftState spacecraftState = convertEntityToSpacecraftState(stateEntity, mu);

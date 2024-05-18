@@ -1,7 +1,7 @@
 package com.ucv.run;
 
-import com.ucv.xml.model.Item;
-import com.ucv.xml.model.Xml;
+import com.ucv.datamodel.xml.Item;
+import com.ucv.datamodel.xml.Xml;
 
 
 import javax.net.ssl.HttpsURLConnection;

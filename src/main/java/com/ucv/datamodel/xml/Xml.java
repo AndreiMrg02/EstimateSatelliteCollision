@@ -1,4 +1,4 @@
-package com.ucv.xml.model;
+package com.ucv.datamodel.xml;
 
 
 
