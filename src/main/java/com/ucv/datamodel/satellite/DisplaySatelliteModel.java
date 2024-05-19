@@ -12,12 +12,14 @@ public class DisplaySatelliteModel {
     private String name;
     private Ephemeris ephemeris;
     private List<SpacecraftState> spacecraftStateList;
-    public DisplaySatelliteModel(AbsoluteDate startDate, AbsoluteDate endDate, String name, Ephemeris ephemeris, List<SpacecraftState> spacecraftStateList) {
+    private AbsoluteDate closeApproachDate;
+    public DisplaySatelliteModel(AbsoluteDate startDate, AbsoluteDate endDate, String name, Ephemeris ephemeris, List<SpacecraftState> spacecraftStateList,AbsoluteDate closeApproachDate) {
         this.startDate = startDate;
         this.endDate = endDate;
         this.name = name;
         this.ephemeris = ephemeris;
         this.spacecraftStateList = spacecraftStateList;
+        this.closeApproachDate = closeApproachDate;
 
 
     }
@@ -68,5 +70,13 @@ public class DisplaySatelliteModel {
 
     public void setSpacecraftStateList(List<SpacecraftState> spacecraftStateList) {
         this.spacecraftStateList = spacecraftStateList;
+    }
+
+    public AbsoluteDate getCloseApproachDate() {
+        return closeApproachDate;
+    }
+
+    public void setCloseApproachDate(AbsoluteDate closeApproachDate) {
+        this.closeApproachDate = closeApproachDate;
     }
 }

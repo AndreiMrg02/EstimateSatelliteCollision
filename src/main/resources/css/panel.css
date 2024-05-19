@@ -1,9 +1,10 @@
 #mainPanel {
-    -fx-background-image: url('https://i.pinimg.com/originals/99/16/40/991640b7f51410df94fb7c5450411bb7.jpg');
+    -fx-background-image: url('/img/wallpaper2.jpg');
     -fx-background-size: cover;
     -fx-background-position: center center;
     -fx-background-repeat: no-repeat;
 }
+/*
 .text-area .text {
     -fx-text-alignment: center;
     -fx-font-weight: bold;
@@ -39,7 +40,7 @@
     -fx-background-color: #219d54;
 }
 .progress-bar .track {
-    -fx-background-color: red; /* Culoarea fundalului barei de progres */
+    -fx-background-color: red; !* Culoarea fundalului barei de progres *!
 }
 .modern-border {
     -fx-background-color: #ffffff; " + // culoarea fundalului
@@ -47,4 +48,4 @@
     -fx-border-width: 2; " + // grosimea bordurii
     -fx-border-radius: 5; " + // raza colțurilor
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 10, 0, 0, 0);"); // umbra
-}
+}*/

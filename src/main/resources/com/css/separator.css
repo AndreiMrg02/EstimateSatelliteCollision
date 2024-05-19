@@ -1,0 +1,31 @@
+.separator {
+    /* Set the orientation of the separator */
+    -fx-orientation: horizontal;
+
+    /* Style the line of the separator with a single fine line */
+    -fx-background-color: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
+    -fx-pref-height: 2; /* Sets the thickness of the separator to 1px for a fine line */
+    -fx-background-insets: 0;
+
+    /* Adding a subtle glow effect instead of a drop shadow for a more modern look */
+    -fx-effect: dropshadow(gaussian, rgba(64, 140, 255, 0.5), 15, 0.0, 0, 0);
+
+    /* Smooth transition effect for dynamic interaction */
+    -fx-transition: background-color 0.5s, effect 0.5s;
+}
+
+.separator:hover {
+    /* Change gradient direction and intensify the glow on hover */
+    -fx-background-color: linear-gradient(to right, #00f2fe 0%, #4facfe 100%);
+    -fx-effect: dropshadow(gaussian, rgba(64, 140, 255, 0.8), 15, 0.0, 0, 0);
+}
+
+.separator:horizontal {
+    /* Ensure minimal visual interruption in horizontal orientation */
+    -fx-padding: 5 0;  /* Small vertical padding for better visual integration */
+}
+
+.separator:vertical {
+    /* Ensure minimal visual interruption in vertical orientation */
+    -fx-padding: 0 5;  /* Small horizontal padding for better visual integration */
+}

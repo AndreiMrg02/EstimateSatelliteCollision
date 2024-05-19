@@ -1,0 +1,22 @@
+.button {
+    -fx-background-color: transparent;
+    -fx-padding: 7px 13px;
+    -fx-border-color: #f8f3f3;
+    -fx-border-width: 1px;
+    -fx-border-radius: 4px;
+    -fx-font-size: 19px;
+    -fx-text-fill: #ffffff;
+    -fx-font: BOLD;
+    -fx-cursor: hand;
+    -fx-transition: all 0.2s ease-in;
+}
+
+.button:hover {
+    -fx-text-fill: #ffffff;
+    -fx-border-color: #39bda7;
+    -fx-effect: dropshadow(gaussian, #39bda7, 10, 0, 0, 0);
+}
+
+.buttonBackgroundHovered {
+    -fx-background-color: rgba(0, 0, 0, 0.05);
+}

@@ -1,0 +1,7 @@
+#earthPanel {
+    -fx-background-color: white; /* Sau orice culoare dorești */
+    -fx-background-radius: 15;   /* Ajustează raza colțurilor după preferințe */
+    -fx-border-radius: 15;       /* Ajustează raza colțurilor bordurii după preferințe */
+    -fx-border-color: black;     /* Sau orice culoare dorești pentru bordură */
+    -fx-border-width: 2;         /* Lățimea bordurii */
+}

@@ -14,9 +14,9 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane id="mainPanel" fx:id="mainPanel" prefHeight="779.0" prefWidth="1446.0" stylesheets="@../../../css/panel.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ucv.controller.MainController">
+<BorderPane id="mainPanel" fx:id="mainPanel" prefHeight="900.0" prefWidth="1800.0" stylesheets="@../../../css/panel.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ucv.controller.MainController">
    <left>
-      <AnchorPane id="dataPanel" fx:id="dataPanel" cache="true" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="726.0" prefWidth="670.0" styleClass="dataPanel" stylesheets="@../../../css/panel.css" BorderPane.alignment="CENTER">
+      <AnchorPane id="dataPanel" fx:id="dataPanel" cache="true" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="862.0" prefWidth="850.0" styleClass="dataPanel" stylesheets="@../../../css/panel.css" BorderPane.alignment="CENTER">
          <children>
             <TextArea fx:id="valueField" layoutX="424.0" layoutY="104.0" prefHeight="38.0" prefWidth="242.0" styleClass="text-area" wrapText="true" />
             <Text id="titleLabel" fill="WHITE" layoutX="253.0" layoutY="46.0" strokeLineCap="BUTT" strokeType="OUTSIDE" strokeWidth="0.0" text="Build Query" textAlignment="CENTER" wrappingWidth="149.33740234375">
@@ -56,7 +56,7 @@
             </Text>
             <Button id="submitButton" fx:id="extractDataButton" layoutX="257.0" layoutY="163.0" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#extractData" prefHeight="44.0" prefWidth="129.0" stylesheets="@../../../css/panel.css" text="Extract Data" />
             <ProgressIndicator fx:id="progressBar" layoutX="14.0" layoutY="11.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="62.0" prefWidth="49.0" progress="0.0" styleClass="progress-bar" />
-            <BorderPane fx:id="tableViewPane" layoutX="2.0" layoutY="217.0" prefHeight="368.0" prefWidth="666.0" />
+            <BorderPane fx:id="tableViewPane" layoutX="2.0" layoutY="217.0" prefHeight="368.0" prefWidth="849.0" />
          </children>
       </AnchorPane>
    </left>
