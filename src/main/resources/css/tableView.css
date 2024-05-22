@@ -41,7 +41,7 @@
     -fx-border-color: #1a1a1a;
     -fx-font-weight: bold;
     -fx-font-size: 15px;
-    -fx-text-fill: #ffffff; /* White text */
+    -fx-text-fill: #000000; /* White text */
 }
 
 /* Focus effect for the table view */
@@ -54,7 +54,7 @@
 }
 
 .table-view .column-header-background .label {
-    -fx-text-fill: #ffffff;
+    -fx-text-fill: #000000;
 }
 
 .table-view .column-header .arrow {

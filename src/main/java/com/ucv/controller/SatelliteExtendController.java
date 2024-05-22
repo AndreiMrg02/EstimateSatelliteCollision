@@ -10,18 +10,20 @@ import com.ucv.run.DownloadTLE;
 import com.ucv.satellite.TlePropagator;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.hipparchus.geometry.euclidean.threed.Vector3D;
+import org.orekit.errors.TimeStampedCacheException;
+import org.orekit.orbits.Orbit;
 import org.orekit.propagation.SpacecraftState;
 import org.orekit.propagation.analytical.Ephemeris;
 import org.orekit.time.AbsoluteDate;
@@ -35,6 +37,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.ucv.database.DBManager.getStatesAllSatelliteName;
 import static com.ucv.database.DBManager.getStatesBySatelliteName;
@@ -86,7 +89,7 @@ public class SatelliteExtendController implements Initializable {
      * Write Tle in a file
 
      */
-    public static void writeToFile(List<String> content, String directoryPath, String fileName) {
+    public static void writeToFile(ArrayList<String> content, String directoryPath, String fileName) {
         Path filePath = Paths.get(directoryPath, fileName);
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath.toString()))) {
@@ -116,18 +119,11 @@ public class SatelliteExtendController implements Initializable {
         sat2NameColumn.setCellValueFactory(new PropertyValueFactory<>("sat2Name"));
         pcColumn.setCellValueFactory(new PropertyValueFactory<>("collisionProbability"));
         twoSatellitesSelected = new ArrayList<>();
-        createContextMenu();
+        getSelectedSatellites();
     }
+    private void getSelectedSatellites() {
 
-    /*
-
-     * This function load all tle's from the space track website.
-     *  For each satellite will be executed a query.
-
-     */
-    private void createContextMenu() {
-
-      satelliteTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+        satelliteTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 String satellite1Name = newValue.getSat1Name();
                 String satellite2Name = newValue.getSat2Name();
@@ -145,6 +141,12 @@ public class SatelliteExtendController implements Initializable {
         });
     }
 
+    /*
+
+     * This function load all tle's from the space track website.
+     *  For each satellite will be executed a query.
+
+     */
 
     private void loadAllTle() {
         String specificTagBuilder = "%3C";
@@ -183,6 +185,7 @@ public class SatelliteExtendController implements Initializable {
             TlePropagator object = new TlePropagator(spatialObject);
             object.start();
             threads.add(object);
+            System.out.println("Au fost adaugate starile pentru satelitul: "+ spatialObject.getName() + "cu TLE-ul: "+ spatialObject.getTle());
         }
 
         // asteapta ca firele de executie create anterior sa isi termine executia
@@ -197,6 +200,7 @@ public class SatelliteExtendController implements Initializable {
 
     }
 
+    // Check by
     private void estimateCollisionBetweenAllSatellites() {
         List<String> satelliteNames = getStatesAllSatelliteName();
         int size = satelliteNames.size();
@@ -225,62 +229,128 @@ public class SatelliteExtendController implements Initializable {
         Date javaDate = date.toDate(TimeScalesFactory.getUTC());
         return dateFormat.format(javaDate);
     }
-
     private void estimateCollision(List<SpacecraftState> stateOneList, List<SpacecraftState> stateTwoList, String entryOne, String entryTwo) {
-        Ephemeris ephemerisSatelliteOne = new Ephemeris(stateOneList, 4);
-        Ephemeris ephemerisSatelliteTwo = new Ephemeris(stateTwoList, 4);
-        final PositionDifference closestApproach = new PositionDifference();
-        AbsoluteDate startDate = extractStartDate(stateOneList, stateTwoList);
-        if (startDate == null) {
-            System.out.println("There is no common start date between:" + entryOne +
-                    " and " + entryTwo);
-            return;
-        }
-        AbsoluteDate endDate = extractEndDate(stateOneList, stateTwoList);
-        if (endDate == null) {
-            System.out.println("There is no common end date between:" + entryOne +
-                    " and " + entryTwo);
-            return;
-        }
+        try {
+            // Extrage datele de început și de sfârșit
+            AbsoluteDate startDate = extractStartDate(stateOneList, stateTwoList);
+            AbsoluteDate endDate = extractEndDate(stateOneList, stateTwoList);
 
-
-        // Propagate both ephemeris to find the closest approach
-        ephemerisSatelliteOne.setStepHandler(60, currentState -> {
-            SpacecraftState stateTwo = ephemerisSatelliteTwo.propagate(currentState.getDate());
-            Vector3D positionDifference = currentState.getPosition().subtract(stateTwo.getPosition());
-            double distance = positionDifference.getNorm();
-            if (closestApproach.getDifference() > distance) {
-                closestApproach.setDifference(distance);
-                closestApproach.setDate(currentState.getDate());
+            if (startDate == null || endDate == null) {
+                System.out.println("Nu exista data comuna intre satelitii: " + entryOne + " si " + entryTwo);
+                return;
             }
-        });
 
+            Ephemeris ephemerisSatelliteOne = new Ephemeris(stateOneList, 4);
+            Ephemeris ephemerisSatelliteTwo = new Ephemeris(stateTwoList, 4);
 
-        // Propagate both ephemeris
-        ephemerisSatelliteOne.propagate(startDate, endDate);
-        // Clear step handlers after propagation
-        ephemerisSatelliteOne.clearStepHandlers();
+            final PositionDifference closestApproach = new PositionDifference();
 
-        if (!satName.contains(entryOne) ) {
-            stringDisplaySatelliteModelMap.add(new DisplaySatelliteModel(startDate, endDate, entryOne, ephemerisSatelliteOne, stateOneList, closestApproach.getDate()));
-            satName.add(entryOne);
+            // Setează handler pentru propagarea ephemeris
+            ephemerisSatelliteOne.setStepHandler(60, currentState -> {
+                SpacecraftState stateTwo = ephemerisSatelliteTwo.propagate(currentState.getDate());
+                Vector3D positionDifference = currentState.getPosition().subtract(stateTwo.getPosition());
+                double distance = positionDifference.getNorm();
+
+                // Verifică dacă poziția este validă (de exemplu, altitudinea este mai mare de 0)
+                if (currentState.getPVCoordinates().getPosition().getNorm() > 6371 &&  // Radius of Earth in km
+                        stateTwo.getPVCoordinates().getPosition().getNorm() > 6371) {
+
+                    if (closestApproach.getDifference() > distance) {
+                        closestApproach.setDifference(distance);
+                        closestApproach.setDate(currentState.getDate());
+                    }
+                }
+            });
+
+            ephemerisSatelliteOne.propagate(startDate, endDate);
+            ephemerisSatelliteOne.clearStepHandlers();
+
+            if (!satName.contains(entryOne)) {
+                stringDisplaySatelliteModelMap.add(new DisplaySatelliteModel(startDate, endDate, entryOne, ephemerisSatelliteOne, stateOneList, closestApproach.getDate()));
+                satName.add(entryOne);
+            }
+            if (!satName.contains(entryTwo)) {
+                stringDisplaySatelliteModelMap.add(new DisplaySatelliteModel(startDate, endDate, entryTwo, ephemerisSatelliteTwo, stateTwoList, closestApproach.getDate()));
+                satName.add(entryTwo);
+            }
+
+            final double threshold = 1000; // Set your threshold value here
+            double collisionProbability = estimateCollisionProbability(closestApproach.getDifference(), threshold);
+
+            System.out.println("Closest approach between Satellites: " + entryOne + " and " + entryTwo + " is: " + closestApproach.getDifference() + " meters at date: " + closestApproach.getDate().toDate(TimeScalesFactory.getUTC()));
+            System.out.println("Collision probability is: " + String.format("%.10f%%", collisionProbability));
+            String collisionFormat = String.format("%.10f%%", collisionProbability);
+
+            // Verifică dacă poziția apropiată este validă înainte de a adăuga în tabel
+            if (closestApproach.getDifference() > 0) {
+                SpatialObjectTableModel spatialObjectTableModel = new SpatialObjectTableModel(
+                        formatAbsoluteDate(startDate), formatAbsoluteDate(endDate),
+                        Double.toString(closestApproach.getDifference()), formatAbsoluteDate(closestApproach.getDate()),
+                        entryOne, entryTwo, collisionFormat);
+
+                spatialObjectTableModels.add(spatialObjectTableModel);
+            }
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
-        if (!satName.contains(entryTwo) ) {
-            stringDisplaySatelliteModelMap.add(new DisplaySatelliteModel(startDate, endDate, entryTwo, ephemerisSatelliteTwo, stateTwoList, closestApproach.getDate()));
-            satName.add(entryTwo);
-        }
-
-        final double threshold = 1000; // Set your threshold value here
-        double collisionProbability = estimateCollisionProbability(closestApproach.getDifference(), threshold);
-
-        System.out.println("Closest approach between Satellites: " + entryOne + " and " + entryTwo + " is: " + closestApproach.getDifference() + " meters at date: " + closestApproach.getDate().toDate(TimeScalesFactory.getUTC()));
-        System.out.println("Collision probability is: " + String.format("%.10f%%", collisionProbability));
-        String collisionFormat = String.format("%.10f%%", collisionProbability);
-        SpatialObjectTableModel spatialObjectTableModel = new SpatialObjectTableModel(formatAbsoluteDate(startDate), formatAbsoluteDate(endDate),
-                Double.toString(closestApproach.getDifference()), formatAbsoluteDate(closestApproach.getDate()),
-                entryOne, entryTwo, collisionFormat);
-        spatialObjectTableModels.add(spatialObjectTableModel);
     }
+
+/*    private void estimateCollision(List<SpacecraftState> stateOneList, List<SpacecraftState> stateTwoList, String entryOne, String entryTwo) {
+        try {
+
+            // Extrage datele de început și de sfârșit
+            AbsoluteDate startDate = extractStartDate(stateOneList, stateTwoList);
+            AbsoluteDate endDate = extractEndDate(stateOneList, stateTwoList);
+
+            if(startDate == null || endDate == null){
+                System.out.println("Nu exista data comuna intre satelitii: " + entryOne +  " si " + entryTwo);
+                return;
+            }
+
+            Ephemeris ephemerisSatelliteOne = new Ephemeris(stateOneList, 4);
+            Ephemeris ephemerisSatelliteTwo = new Ephemeris(stateTwoList, 4);
+
+            final PositionDifference closestApproach = new PositionDifference();
+
+            // Setează handler pentru propagarea ephemeris
+            ephemerisSatelliteOne.setStepHandler(60, currentState -> {
+                    SpacecraftState stateTwo = ephemerisSatelliteTwo.propagate(currentState.getDate());
+                    Vector3D positionDifference = currentState.getPosition().subtract(stateTwo.getPosition());
+                    double distance = positionDifference.getNorm();
+                    if (closestApproach.getDifference() > distance) {
+                        closestApproach.setDifference(distance);
+                        closestApproach.setDate(currentState.getDate());
+                    }
+
+            });
+
+                ephemerisSatelliteOne.propagate(startDate, endDate);
+                ephemerisSatelliteOne.clearStepHandlers();
+
+            if (!satName.contains(entryOne)) {
+                stringDisplaySatelliteModelMap.add(new DisplaySatelliteModel(startDate, endDate, entryOne, ephemerisSatelliteOne, stateOneList, closestApproach.getDate()));
+                satName.add(entryOne);
+            }
+            if (!satName.contains(entryTwo)) {
+                stringDisplaySatelliteModelMap.add(new DisplaySatelliteModel(startDate, endDate, entryTwo, ephemerisSatelliteTwo, stateTwoList, closestApproach.getDate()));
+                satName.add(entryTwo);
+            }
+
+            final double threshold = 1000; // Set your threshold value here
+            double collisionProbability = estimateCollisionProbability(closestApproach.getDifference(), threshold);
+
+            System.out.println("Closest approach between Satellites: " + entryOne + " and " + entryTwo + " is: " + closestApproach.getDifference() + " meters at date: " + closestApproach.getDate().toDate(TimeScalesFactory.getUTC()));
+            System.out.println("Collision probability is: " + String.format("%.10f%%", collisionProbability));
+            String collisionFormat = String.format("%.10f%%", collisionProbability);
+            SpatialObjectTableModel spatialObjectTableModel = new SpatialObjectTableModel(formatAbsoluteDate(startDate), formatAbsoluteDate(endDate),
+                    Double.toString(closestApproach.getDifference()), formatAbsoluteDate(closestApproach.getDate()),
+                    entryOne, entryTwo, collisionFormat);
+
+            spatialObjectTableModels.add(spatialObjectTableModel);
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+    }*/
 
     private double estimateCollisionProbability(double closestApproachDistance, double threshold) {
         double scale = 0.2;  // Factorul de scalare pentru a ajusta sensibilitatea

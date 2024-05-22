@@ -11,17 +11,17 @@ import org.orekit.data.DirectoryCrawler;
 import java.io.File;
 
 
-
 public class Main extends Application {
     @Override
-    public void start(Stage stage)   {
+    public void start(Stage stage) {
 
         MainController mainController = new MainController();
         mainController.loadFXML(stage);
+        stage.setOnCloseRequest(windowEvent -> System.exit(0));
 
     }
 
-    public static void main(String[] args)  {
+    public static void main(String[] args) {
 
         File orekitData = new File("data/orekit-data");
         DataProvidersManager manager = DataContext.getDefault().getDataProvidersManager();

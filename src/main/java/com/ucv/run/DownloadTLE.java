@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DownloadTLE {
-private  Map<String, Item> listOfUniqueSatellite = new HashMap<>();
+private final Map<String, Item> listOfUniqueSatellite = new HashMap<>();
     public Map<String, Item> loadSatellite(String query) {
         try {
 
@@ -48,7 +48,8 @@ private  Map<String, Item> listOfUniqueSatellite = new HashMap<>();
             os.write(input.getBytes());
             os.flush();
 
-            BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
+            new InputStreamReader((conn.getInputStream()));
+            BufferedReader br;
             String output;
 
             System.out.println("Output from Server .... \n");
@@ -92,7 +93,6 @@ private  Map<String, Item> listOfUniqueSatellite = new HashMap<>();
 
     public String loadTleSatellite(String query) {
         try {
-            ArrayList<String> listOfTle = new ArrayList<>();
             String baseURL = "https://www.space-track.org";
             String authPath = "/ajaxauth/login";
             String userName = "murguandreilicenta@gmail.com";

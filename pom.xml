@@ -104,6 +104,7 @@
             <artifactId>worldwindx</artifactId>
             <version>2.0.0-986</version>
         </dependency>
+
         <dependency>
             <groupId>org.jogamp.jogl</groupId>
             <artifactId>jogl-all</artifactId>
@@ -206,6 +207,9 @@
                 <version>0.0.8</version>
                 <configuration>
                     <mainClass>com.ucv.run.Main</mainClass>
+<!--
+                    <mainClass>worldwind.ColladaTester</mainClass>
+-->
                 </configuration>
             </plugin>
         </plugins>

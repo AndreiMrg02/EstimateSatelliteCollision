@@ -78,9 +78,9 @@ public class TlePropagator extends Thread {
     public void run() {
 
         final List<SpacecraftState> states = new LinkedList<>();
-        propagator.setStepHandler(600, states::add); // 60 SECONDS
-        AbsoluteDate startDate = new AbsoluteDate(spatialObject.getTca(), TimeScalesFactory.getUTC()).shiftedBy(Constants.JULIAN_DAY * (-1));
-        AbsoluteDate endDate = new AbsoluteDate(spatialObject.getTca(), TimeScalesFactory.getUTC()).shiftedBy(Constants.JULIAN_DAY);
+        propagator.setStepHandler(60, states::add); // 60 SECONDS
+        AbsoluteDate startDate = new AbsoluteDate(spatialObject.getTca(), TimeScalesFactory.getUTC()).shiftedBy(Constants.JULIAN_DAY * (-2));
+        AbsoluteDate endDate = new AbsoluteDate(spatialObject.getTca(), TimeScalesFactory.getUTC()).shiftedBy(Constants.JULIAN_DAY * 2);
         propagator.propagate(startDate, endDate);
         for (SpacecraftState state : states) {
             DBManager.addStateDB(state, spatialObject.getName());

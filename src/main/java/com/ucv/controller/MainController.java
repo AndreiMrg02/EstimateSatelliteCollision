@@ -18,12 +18,21 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
+import org.orekit.data.DataContext;
+import org.orekit.data.DataProvidersManager;
+import org.orekit.data.DirectoryCrawler;
 import org.orekit.propagation.analytical.Ephemeris;
 import org.orekit.time.AbsoluteDate;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.URL;
 import java.util.*;
 
@@ -32,6 +41,10 @@ import static com.ucv.Util.HibernateUtil.closeSession;
 public class MainController implements Initializable {
 
     public Button stopSimulationButton;
+    @FXML
+    private TextArea logBox;
+    @FXML
+    Button resumeButton;
     @FXML
     private Button closeApproachButton;
     @FXML
@@ -71,13 +84,13 @@ public class MainController implements Initializable {
     private DownloadTLE tleList;
     private EarthController earthController;
     private SatelliteExtendController satelliteController;
-    private AbsoluteDate closeApproachDate = new AbsoluteDate();
+    private final AbsoluteDate closeApproachDate = new AbsoluteDate();
     Stage earthStage = new Stage();
     int first = 0;
 
     public void loadFXML(Stage mainStage) {
         try {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/ucv/run/NewIdeea/MainView.fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/ucv/run/NewIdeea/MainViewThirdForm.fxml"));
             BorderPane mainBorderPanel = fxmlLoader.load();
             Scene scene = new Scene(mainBorderPanel, 1400, 900);
             mainStage.setTitle("Satellite");
@@ -94,6 +107,15 @@ public class MainController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        logBox.setEditable(false);
+/*        PrintStream ps = new PrintStream(new ConsoleOutputStream(logBox));
+        System.setOut(ps);
+        System.setErr(ps);*/
+
+        File orekitData = new File("data/orekit-data");
+        DataProvidersManager manager = DataContext.getDefault().getDataProvidersManager();
+        manager.addProvider(new DirectoryCrawler(orekitData));
+
         tleList = new DownloadTLE();
         ObservableList<String> predicateList = FXCollections.observableArrayList();
         ObservableList<String> operatorList = FXCollections.observableArrayList();
@@ -118,7 +140,7 @@ public class MainController implements Initializable {
         loadEarth();
         loadTableSatellite();
         closeSession();
-
+        resumeButton.setDisable(true);
         showSatelliteButton.setOnAction(event -> {
             displaySatellites();
             pauseButton.setDisable(false);
@@ -137,11 +159,17 @@ public class MainController implements Initializable {
 
         pauseButton.setOnAction(event -> {
             earthController.pauseSimulation();
+            resumeButton.setDisable(false);
             pauseButton.setDisable(true);
         });
 
         closeApproachButton.setOnAction(event -> {
             showSatellitesAtCloseApproach();
+        });
+        resumeButton.setOnAction(event -> {
+            earthController.resumeSimulation();
+            pauseButton.setDisable(false);
+            showSatelliteButton.setDisable(true);
         });
     }
 
@@ -154,7 +182,7 @@ public class MainController implements Initializable {
             return;
         }
 
-        earthController.resetState(); // Asigură-te că resetezi starea înainte de a inițializa o nouă simulare
+        earthController.resetState();
 
         Map<String, Ephemeris> ephemerisMap = new HashMap<>();
         Map<String, List<AbsoluteDate[]>> intervalMap = new HashMap<>();
@@ -178,12 +206,12 @@ public class MainController implements Initializable {
     }
 
     public void showSatellitesAtCloseApproach() {
-        earthController.pauseSimulation(); // Pauză temporară pentru a actualiza poziția sferei la data apropierii maxime
-        AbsoluteDate closeApproachDate = earthController.getCloseApproachDate();
-        earthController.updateSatellites(closeApproachDate); // Actualizează sfera la data apropierii maxime
-        EarthController.wwd.redraw(); // Redesenare pentru a reflecta schimbările
-        earthController.setStartDate(closeApproachDate); // Setează data de început la data apropierii maxime
-        earthController.resumeSimulation(); // Reia simularea de la data apropierii maxime
+        // earthController.pauseSimulation(); // Pauză temporară pentru a actualiza poziția sferei la data apropierii maxime
+        AbsoluteDate closeApproach = earthController.getCloseApproachDate();
+        earthController.setStartDate(closeApproach); // Setează data de început la data apropierii maxime
+        earthController.updateSatellites(closeApproach); // Actualizează sfera la data apropierii maxime
+        //  EarthController.wwd.redraw(); // Redesenare pentru a reflecta schimbările
+        // earthController.resumeSimulation(); // Reia simularea de la data apropierii maxime
         pauseButton.setDisable(false);
     }
 

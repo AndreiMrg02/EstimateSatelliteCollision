@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.effect.Glow?>
+<?import javafx.scene.effect.Lighting?>
+<?import javafx.scene.effect.Reflection?>
+<?import javafx.scene.effect.Shadow?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<BorderPane id="mainPanel" fx:id="mainPanel" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="900.0" prefWidth="1400.0" stylesheets="@../../../../css/panel.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ucv.controller.MainController">
+   <left>
+      <AnchorPane id="dataPanel" fx:id="dataPanel" cache="true" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="832.0" prefWidth="464.0" styleClass="dataPanel" stylesheets="@../../../css/panel.css" BorderPane.alignment="CENTER">
+         <TextArea fx:id="valueField" layoutX="269.0" layoutY="106.0" prefHeight="38.0" prefWidth="99.0" styleClass="text-area" wrapText="true" />
+         <Text id="titleLabel" fill="WHITE" layoutX="169.0" layoutY="51.0" strokeLineCap="BUTT" strokeType="OUTSIDE" strokeWidth="0.0" text="Build Query" textAlignment="CENTER" wrappingWidth="149.33740234375">
+            <font>
+               <Font size="27.0" />
+            </font>
+         </Text>
+         <ChoiceBox id="choiceBox" fx:id="predicateBox" blendMode="SCREEN" layoutX="14.0" layoutY="108.0" prefHeight="34.0" prefWidth="118.0">
+            <effect>
+               <Glow level="0.0">
+                  <input>
+                     <Reflection />
+                  </input>
+               </Glow>
+            </effect>
+         </ChoiceBox>
+         <Text fill="#dd0c0c" layoutX="14.0" layoutY="90.0" strokeLineCap="BUTT" strokeType="OUTSIDE" strokeWidth="0.0" text="Predicate" textAlignment="CENTER" wrappingWidth="149.33740234375">
+            <font>
+               <Font size="20.0" />
+            </font>
+         </Text>
+         <ChoiceBox id="choiceBox" fx:id="operatorBox" blendMode="SCREEN" layoutX="142.0" layoutY="107.0" prefHeight="36.0" prefWidth="116.0">
+            <effect>
+               <Lighting diffuseConstant="2.0">
+                  <bumpInput>
+                     <Shadow />
+                  </bumpInput>
+               </Lighting>
+            </effect>
+         </ChoiceBox>
+         <Text fill="#e11414" layoutX="132.0" layoutY="89.0" strokeLineCap="BUTT" strokeType="OUTSIDE" strokeWidth="0.0" text="Operator" textAlignment="CENTER" wrappingWidth="149.33740234375">
+            <font>
+               <Font size="20.0" />
+            </font>
+         </Text>
+         <Text fill="#f83e0f" layoutX="250.0" layoutY="89.0" strokeLineCap="BUTT" strokeType="OUTSIDE" strokeWidth="0.0" text="Value" textAlignment="CENTER" wrappingWidth="149.33740234375">
+            <font>
+               <Font size="20.0" />
+            </font>
+         </Text>
+         <Button id="submitButton" fx:id="extractDataButton" layoutX="376.0" layoutY="111.0" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#extractData" prefHeight="28.0" prefWidth="70.0" text="Extract" />
+         <ProgressIndicator fx:id="progressBar" layoutX="14.0" layoutY="9.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="53.0" prefWidth="49.0" progress="0.0" styleClass="progress-bar" />
+         <BorderPane fx:id="tableViewPane" layoutX="6.0" layoutY="244.0" prefHeight="587.0" prefWidth="453.0" AnchorPane.leftAnchor="10.0">
+            <opaqueInsets>
+               <Insets />
+            </opaqueInsets></BorderPane>
+      </AnchorPane>
+   </left>
+   <center>
+      <StackPane fx:id="earthPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" stylesheets="@../../../css/panel.css" BorderPane.alignment="CENTER">
+         <BorderPane.margin>
+            <Insets left="2.0" right="2.0" />
+         </BorderPane.margin>
+         <opaqueInsets>
+            <Insets top="20.0" />
+         </opaqueInsets>
+      </StackPane>
+   </center>
+   <right>
+      <Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="869.0" prefWidth="304.0" stylesheets="@../../../../css/panel.css" BorderPane.alignment="CENTER">
+         <children>
+            <Button fx:id="showSatelliteButton" disable="true" layoutX="39.0" layoutY="406.0" maxHeight="-Infinity" maxWidth="-Infinity" mnemonicParsing="false" prefHeight="25.0" prefWidth="240.0" stylesheets="@../../../css/button.css" text="Show the satellites" />
+            <Button fx:id="pauseButton" disable="true" layoutX="39.0" layoutY="466.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="240.0" stylesheets="@../../../css/button.css" text="Pause" />
+            <Button fx:id="closeApproachButton" disable="true" layoutX="39.0" layoutY="581.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="240.0" stylesheets="@../../../css/button.css" text="Go to the close approach" />
+            <Label layoutX="12.0" layoutY="22.0" prefHeight="33.0" prefWidth="275.0" text="Information about satellites" textAlignment="CENTER" textFill="#e4e4e4" textOverrun="CLIP">
+               <font>
+                  <Font name="System Bold" size="21.0" />
+               </font>
+            </Label>
+            <Label layoutX="115.0" layoutY="355.0" prefHeight="33.0" prefWidth="75.0" text="Actions">
+               <font>
+                  <Font size="21.0" />
+               </font>
+            </Label>
+            <Button fx:id="stopSimulationButton" disable="true" layoutX="39.0" layoutY="638.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="240.0" stylesheets="@../../../css/button.css" text="Stop Simulation" />
+            <Button fx:id="resumeButton" disable="true" layoutX="39.0" layoutY="526.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="240.0" stylesheets="@../../../css/button.css" text="Resume" />
+            <VBox layoutX="-1.0" layoutY="66.0" prefHeight="281.0" prefWidth="302.0" styleClass="v-box" stylesheets="@../../../css/panel.css">
+               <children>
+                  <HBox prefHeight="42.0" prefWidth="299.0" spacing="40.0">
+                     <children>
+                        <Label prefHeight="26.0" prefWidth="65.0" text="Start Date " textFill="WHITE">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                           <HBox.margin>
+                              <Insets left="5.0" />
+                           </HBox.margin>
+                        </Label>
+                        <TextArea fx:id="startDateTextArea" disable="true" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" opacity="0.7" prefHeight="31.0" prefWidth="174.0">
+                           <HBox.margin>
+                              <Insets top="2.0" />
+                           </HBox.margin>
+                           <font>
+                              <Font name="System Bold" size="15.0" />
+                           </font>
+                        </TextArea>
+                     </children>
+                     <VBox.margin>
+                        <Insets top="15.0" />
+                     </VBox.margin>
+                  </HBox>
+                  <HBox layoutX="10.0" layoutY="10.0" prefHeight="42.0" prefWidth="299.0" spacing="40.0">
+                     <children>
+                        <Label prefHeight="25.0" prefWidth="65.0" text="End Date" textFill="WHITE">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                           <HBox.margin>
+                              <Insets left="5.0" />
+                           </HBox.margin>
+                        </Label>
+                        <TextArea fx:id="endDateTextArea" disable="true" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" opacity="0.7" prefHeight="31.0" prefWidth="174.0">
+                           <font>
+                              <Font name="System Bold" size="15.0" />
+                           </font>
+                        </TextArea>
+                     </children>
+                  </HBox>
+                  <HBox layoutX="10.0" layoutY="52.0" prefHeight="42.0" prefWidth="299.0" spacing="9.0">
+                     <children>
+                        <Label prefHeight="28.0" prefWidth="96.0" text="Threshold" textFill="WHITE">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                           <HBox.margin>
+                              <Insets left="5.0" />
+                           </HBox.margin>
+                        </Label>
+                        <TextArea fx:id="thresholdTextArea" disable="true" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" opacity="0.7" prefHeight="31.0" prefWidth="175.0">
+                           <font>
+                              <Font name="System Bold" size="15.0" />
+                           </font>
+                        </TextArea>
+                     </children>
+                  </HBox>
+                  <HBox layoutX="10.0" layoutY="94.0" prefHeight="42.0" prefWidth="299.0" spacing="6.0">
+                     <children>
+                        <Label prefHeight="31.0" prefWidth="99.0" text="Close Approach&#10;         Date" textFill="WHITE">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                           <HBox.margin>
+                              <Insets left="5.0" />
+                           </HBox.margin>
+                        </Label>
+                        <TextArea fx:id="closeApproachDateTextArea" disable="true" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" opacity="0.7" prefHeight="31.0" prefWidth="174.0">
+                           <font>
+                              <Font name="System Bold" size="15.0" />
+                           </font>
+                        </TextArea>
+                     </children>
+                  </HBox>
+                  <HBox layoutX="10.0" layoutY="136.0" prefHeight="42.0" prefWidth="299.0" spacing="6.0">
+                     <children>
+                        <Label prefHeight="31.0" prefWidth="99.0" text="Close Approach&#10;      Distance" textFill="WHITE">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                           <HBox.margin>
+                              <Insets left="5.0" />
+                           </HBox.margin>
+                        </Label>
+                        <TextArea fx:id="closeApproachDistanceTextArea" disable="true" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" opacity="0.7" prefHeight="31.0" prefWidth="174.0">
+                           <font>
+                              <Font name="System Bold" size="15.0" />
+                           </font>
+                        </TextArea>
+                     </children>
+                  </HBox>
+                  <HBox layoutX="10.0" layoutY="178.0" prefHeight="42.0" prefWidth="299.0" spacing="6.0">
+                     <children>
+                        <Label prefHeight="36.0" prefWidth="99.0" text="Collision&#10;Probability    " textFill="WHITE">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                           <HBox.margin>
+                              <Insets left="5.0" />
+                           </HBox.margin>
+                        </Label>
+                        <TextArea fx:id="pcTextArea" disable="true" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" opacity="0.7" prefHeight="31.0" prefWidth="174.0">
+                           <font>
+                              <Font name="System Bold" size="15.0" />
+                           </font>
+                        </TextArea>
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+            <TextArea fx:id="logBox" layoutX="5.0" layoutY="697.0" prefHeight="170.0" prefWidth="293.0" />
+         </children>
+      </Pane>
+   </right>
+</BorderPane>

@@ -26,8 +26,9 @@ public class DBManager {
             Session session = getCurrentSession();
             State newState = new State();
             newState.setSatName(satName);
-            // Convert AbsoluteDate to Date
-            newState.setDate(spacecraftState.getDate().toDate(TimeScalesFactory.getUTC()));
+            //        newState.setDate(spacecraftState.getDate().toDate(TimeScalesFactory.getUTC()));
+            newState.setDate(new java.sql.Timestamp(spacecraftState.getDate().toDate(TimeScalesFactory.getUTC()).getTime()));
+
             newState.setPosX(spacecraftState.getPVCoordinates().getPosition().getX());
             newState.setPosY(spacecraftState.getPVCoordinates().getPosition().getY());
             newState.setPosZ(spacecraftState.getPVCoordinates().getPosition().getZ());
@@ -47,7 +48,7 @@ public class DBManager {
     public static synchronized List<SpacecraftState> getStatesBySatelliteName(String satelliteName) {
         try (Session session = getCurrentSession()) {
 
-            String sqlStatement = "FROM com.ucv.datamodel.database.State s WHERE s.satName = :satelliteName";
+            String sqlStatement = "FROM com.ucv.datamodel.database.State s WHERE s.satName = :satelliteName ORDER BY s.date ASC";
             Query<State> query = session.createQuery(sqlStatement, State.class);
             query.setParameter("satelliteName", satelliteName);
 

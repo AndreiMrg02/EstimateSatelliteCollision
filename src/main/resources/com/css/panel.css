@@ -5,3 +5,38 @@
     -fx-border-color: black;     /* Sau orice culoare dorești pentru bordură */
     -fx-border-width: 2;         /* Lățimea bordurii */
 }
+
+.v-box {
+    -fx-background-radius: 15;
+    -fx-border-radius: 15;
+    -fx-background-color: transparent; /* pentru a păstra fundalul transparent */
+    -fx-background-insets: 5;
+
+    /* Pentru fundal */
+    -fx-background-image: url('/img/wallpaper.jpg');
+    -fx-background-size: cover;
+    -fx-background-position: center center;
+    -fx-background-repeat: no-repeat;
+
+    /* Shadow */
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.25), 10, 0.5, 0, 5);
+}
+
+/*
+.v-box {
+    !* Elimină transparent background pentru a testa *!
+    !* -fx-background-color: transparent; *!
+    -fx-background-radius: 15; !* Ajustează valoarea pentru a modifica gradul de rotunjire *!
+    -fx-border-radius: 15; !* Rotunjirea marginii *!
+
+    -fx-background-image: url('/img/wallpaper.jpg'); !* Înlocuiește cu calea imaginii tale *!
+    -fx-background-size: cover; !* Ajustează dimensiunea imaginii *!
+    -fx-background-position: center center; !* Poziționează imaginea *!
+    -fx-background-repeat: no-repeat;
+
+    !* Shadow *!
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.25), 10, 0.5, 0, 5);
+}
+*/
+
+/*
