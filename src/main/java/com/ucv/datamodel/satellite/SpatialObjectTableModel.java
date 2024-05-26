@@ -1,13 +1,13 @@
 package com.ucv.datamodel.satellite;
 
 public class SpatialObjectTableModel {
-    String startDate;
-    String endDate;
-    String closeApproach;
-    String closeApproachDate;
-    String sat1Name;
-    String sat2Name;
-    String collisionProbability;
+    private String startDate;
+    private String endDate;
+    private String closeApproach;
+    private String closeApproachDate;
+    private String sat1Name;
+    private String sat2Name;
+    private String collisionProbability;
 
     public SpatialObjectTableModel(String startDate, String endDate, String closeApproach, String closeApproachDate, String sat1Name, String sat2Name, String collisionProbability) {
         this.startDate = startDate;

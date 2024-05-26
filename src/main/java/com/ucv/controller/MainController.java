@@ -2,7 +2,7 @@ package com.ucv.controller;
 
 import com.ucv.datamodel.satellite.DisplaySatelliteModel;
 import com.ucv.datamodel.xml.Item;
-import com.ucv.run.DownloadTLE;
+import com.ucv.run.CollectSatelliteData;
 import com.ucv.run.Main;
 import javafx.animation.ScaleTransition;
 import javafx.animation.TranslateTransition;
@@ -18,12 +18,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.web.WebEngine;
-import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
 import org.orekit.data.DataContext;
 import org.orekit.data.DataProvidersManager;
 import org.orekit.data.DirectoryCrawler;
@@ -32,17 +28,20 @@ import org.orekit.time.AbsoluteDate;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.net.URL;
 import java.util.*;
 
-import static com.ucv.Util.HibernateUtil.closeSession;
+import static com.ucv.database.HibernateUtil.closeSession;
+import static com.ucv.database.DBManager.clearAllStates;
 
 public class MainController implements Initializable {
 
-    public Button stopSimulationButton;
     @FXML
-    private TextArea logBox;
+    private Button stopSimulationButton;
+    @FXML
+    private Button simulateCollision;
+    /*    @FXML
+        private TextArea logBox;*/
     @FXML
     Button resumeButton;
     @FXML
@@ -63,14 +62,12 @@ public class MainController implements Initializable {
     private TextArea startDateTextArea;
     @FXML
     private TextArea endDateTextArea;
-    @FXML
-    private BorderPane mainPanel;
+
     @FXML
     private StackPane earthPane;
     @FXML
     private BorderPane tableViewPane;
-    @FXML
-    private ToggleButton displayEarthButton;
+
     @FXML
     private ProgressIndicator progressBar;
     @FXML
@@ -81,18 +78,14 @@ public class MainController implements Initializable {
     private ChoiceBox<String> operatorBox;
     @FXML
     private TextArea valueField;
-    private DownloadTLE tleList;
     private EarthController earthController;
     private SatelliteExtendController satelliteController;
-    private final AbsoluteDate closeApproachDate = new AbsoluteDate();
-    Stage earthStage = new Stage();
-    int first = 0;
 
     public void loadFXML(Stage mainStage) {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/ucv/run/NewIdeea/MainViewThirdForm.fxml"));
             BorderPane mainBorderPanel = fxmlLoader.load();
-            Scene scene = new Scene(mainBorderPanel, 1400, 900);
+            Scene scene = new Scene(mainBorderPanel, 1484, 917);
             mainStage.setTitle("Satellite");
 
             tableViewPane = (BorderPane) mainBorderPanel.lookup("#tableViewPane");
@@ -107,16 +100,11 @@ public class MainController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        logBox.setEditable(false);
-/*        PrintStream ps = new PrintStream(new ConsoleOutputStream(logBox));
-        System.setOut(ps);
-        System.setErr(ps);*/
 
         File orekitData = new File("data/orekit-data");
         DataProvidersManager manager = DataContext.getDefault().getDataProvidersManager();
         manager.addProvider(new DirectoryCrawler(orekitData));
 
-        tleList = new DownloadTLE();
         ObservableList<String> predicateList = FXCollections.observableArrayList();
         ObservableList<String> operatorList = FXCollections.observableArrayList();
         predicateList.add("MIN_RNG");
@@ -140,6 +128,10 @@ public class MainController implements Initializable {
         loadEarth();
         loadTableSatellite();
         closeSession();
+        buttonFunction();
+    }
+
+    private void buttonFunction() {
         resumeButton.setDisable(true);
         showSatelliteButton.setOnAction(event -> {
             displaySatellites();
@@ -155,6 +147,8 @@ public class MainController implements Initializable {
             pauseButton.setDisable(true);
             closeApproachButton.setDisable(true);
             stopSimulationButton.setDisable(true);
+            earthController.triggerCollision(false);
+
         });
 
         pauseButton.setOnAction(event -> {
@@ -170,6 +164,12 @@ public class MainController implements Initializable {
             earthController.resumeSimulation();
             pauseButton.setDisable(false);
             showSatelliteButton.setDisable(true);
+        });
+        simulateCollision.setOnAction(event -> {
+            showSatellitesAtCloseApproach();
+            earthController.triggerCollision(true);
+            earthController.pauseSimulation();
+            earthController.resumeSimulation();
         });
     }
 
@@ -216,16 +216,12 @@ public class MainController implements Initializable {
     }
 
 
-
     public void loadEarth() {
         try {
             FXMLLoader fxmlLoaderEarth = new FXMLLoader(getClass().getResource("/com/ucv/run/EarthView.fxml"));
             StackPane paneWithEarth = fxmlLoaderEarth.load();
             earthController = fxmlLoaderEarth.getController();
-            //  earthPane = (StackPane) paneWithEarth.lookup("#earthPane");
             earthPane.getChildren().add(paneWithEarth);
-
-            //    earthStage.setOnHiding(event -> earthController.clearSpheres());
         } catch (Exception ex) {
             System.out.println("An exception occurred due to can not instantiate the earth pane.");
             ex.printStackTrace();
@@ -241,23 +237,28 @@ public class MainController implements Initializable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        extractDataButton.setOnMouseClicked(event -> {
-            String descendingTCA = "TCA%20desc";
-            String operator = setOperator(operatorBox.getValue());
+        extractDataTask();
+    }
 
+    private void extractDataTask() {
+        extractDataButton.setOnMouseClicked(event -> {
+            clearAllStates();
+            String operator = setOperator(operatorBox.getValue());
+            satelliteController.getSatelliteTable().getItems().clear();
+            satelliteController.setTwoSatellitesSelected(new ArrayList<>());
+            satelliteController.setStringDisplaySatelliteModelMap(new HashSet<>());
             Task<Void> task = new Task<>() {
                 @Override
                 protected Void call() {
                     progressBar.setVisible(true);
-                    String query = String.format("/basicspacedata/query/class/cdm_public/%s/%s%s/orderby/%s/format/xml/emptyresult/show", predicateBox.getValue(), operator, valueField.getText(), descendingTCA);
-                    Map<String, Item> listOfUniqueSatelliteTemp = tleList.loadSatellite(query);
+                    CollectSatelliteData collectSatelliteData = new CollectSatelliteData();
+                    Map<String, Item> listOfUniqueSatelliteTemp = collectSatelliteData.extractData(predicateBox.getValue(), operator, valueField.getText());
                     satelliteController.setListOfUniqueSatellite(listOfUniqueSatelliteTemp);
                     Platform.runLater(() -> {
                         progressBar.setVisible(false);
-                        if (tleList.getListOfUniqueSatellite().isEmpty()) {
+                        if (listOfUniqueSatelliteTemp.isEmpty()) {
                             Alert alert = new Alert(Alert.AlertType.ERROR, "No results were found for the current settings", ButtonType.OK);
                             satelliteController.getSatelliteTable().refresh();
-                            tableViewPane.setVisible(false);
                             alert.showAndWait();
                             event.consume();
                         } else {
@@ -279,6 +280,7 @@ public class MainController implements Initializable {
             new Thread(task).start();
         });
     }
+
 
     private void successExtractList(BorderPane tableViewLayout) {
         progressBar.setVisible(false);

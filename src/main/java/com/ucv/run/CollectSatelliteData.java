@@ -15,21 +15,72 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DownloadTLE {
-    private Map<String, Item> listOfUniqueSatellite = new HashMap<>();
+public class CollectSatelliteData {
     private final InternetConnectionData connectionData;
 
-    public DownloadTLE() {
-        connectionData = getInternetConnectionData();
+    public CollectSatelliteData() {
+        this.connectionData = getInternetConnectionData();
     }
 
-    public Map<String, Item> extractSatelliteDataFromXml(String query) {
+    public InternetConnectionData getInternetConnectionData() {
+        String baseURL = "https://www.space-track.org";
+        String authPath = "/ajaxauth/login";
+        String userName = "murguandreilicenta@gmail.com";
+        String password = "SpaceTrackLicenta12341!";
+        return new InternetConnectionData(baseURL, authPath, userName, password);
+    }
+
+    public Map<String, Item> extractData(String predicate, String operator, String value) {
+        try {
+            String descendingTCA = "TCA%20desc";
+            String query = String.format("/basicspacedata/query/class/cdm_public/%s/%s%s/orderby/%s/format/xml/emptyresult/show", predicate, operator, value, descendingTCA);
+
+
+            CookieManager manager = new CookieManager();
+            manager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
+            CookieHandler.setDefault(manager);
+
+            URL url = new URL(connectionData.getBaseURL() + connectionData.getAuthPath());
+
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+            conn.setDoOutput(true);
+            conn.setRequestMethod("POST");
+
+            String input = "identity=" + connectionData.getUserName() + "&password=" + connectionData.getPassword();
+
+            OutputStream os = conn.getOutputStream();
+            os.write(input.getBytes());
+            os.flush();
+
+            String output;
+            new InputStreamReader((conn.getInputStream()));
+            BufferedReader br;
+            url = new URL(connectionData.getBaseURL() + query);
+            br = new BufferedReader(new InputStreamReader((url.openStream())));
+            StringBuilder xmlData = new StringBuilder();
+            while ((output = br.readLine()) != null) {
+                System.out.println(output);
+                xmlData.append(output);
+            }
+            url = new URL(connectionData.getBaseURL() + "/ajaxauth/logout");
+            br = new BufferedReader(new InputStreamReader((url.openStream())));
+            conn.disconnect();
+            XmlParser parser = new XmlParser();
+            return parser.parseItems(xmlData.toString());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new HashMap<>();
+    }
+
+    public String loadTLEs(String query) {
         try {
 
-            StringBuilder xmlStringData = new StringBuilder();
-
-            setCookieManager();
-
+            StringBuilder stringBuilder = new StringBuilder();
+            CookieManager manager = new CookieManager();
+            manager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
+            CookieHandler.setDefault(manager);
             URL url = new URL(connectionData.getBaseURL() + connectionData.getAuthPath());
 
             HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
@@ -44,68 +95,6 @@ public class DownloadTLE {
 
             new InputStreamReader((conn.getInputStream()));
             BufferedReader br;
-            String output;
-
-            System.out.println("Output from Server .... \n");
-            url = new URL(connectionData.getBaseURL() + query);
-
-            br = new BufferedReader(new InputStreamReader((url.openStream())));
-
-            while ((output = br.readLine()) != null) {
-                if (output.contains("&lt;")) {
-                    String newOutput = output.replace("&lt;", "<");
-                    xmlStringData.append(newOutput);
-                } else {
-                    xmlStringData.append(output);
-                }
-
-            }
-            url = new URL(connectionData.getBaseURL() + "/ajaxauth/logout");
-            br = new BufferedReader(new InputStreamReader((url.openStream())));
-            XmlParser parser = new XmlParser();
-            listOfUniqueSatellite = parser.parseItems(xmlStringData.toString());
-            conn.disconnect();
-            return listOfUniqueSatellite;
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
-    static void setCookieManager() {
-        CookieManager manager = new CookieManager();
-        manager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
-        CookieHandler.setDefault(manager);
-    }
-
-    public InternetConnectionData getInternetConnectionData() {
-        String baseURL = "https://www.space-track.org";
-        String authPath = "/ajaxauth/login";
-        String userName = "murguandreilicenta@gmail.com";
-        String password = "SpaceTrackLicenta12341!";
-        return new InternetConnectionData(baseURL, authPath, userName, password);
-    }
-
-    public String loadTLEs(String query) {
-        try {
-
-            StringBuilder stringBuilder = new StringBuilder();
-            setCookieManager();
-            URL url = new URL(connectionData.getBaseURL() + connectionData.getAuthPath());
-
-            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
-            conn.setDoOutput(true);
-            conn.setRequestMethod("POST");
-
-            String input = "identity=" + connectionData.getUserName() + "&password=" + connectionData.getPassword();
-
-            OutputStream os = conn.getOutputStream();
-            os.write(input.getBytes());
-            os.flush();
-
-            BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
 
             String output;
             System.out.println("Output from Server .... \n");
@@ -118,12 +107,13 @@ public class DownloadTLE {
                 System.out.println(output);
 
                 if (!output.equals("NO RESULTS RETURNED")) {
-                    if (output.contains("&lt;")) {
+                   /* if (output.contains("&lt;")) {
                         String newOutput = output.replace("&lt;", "<");
                         stringBuilder.append(newOutput);
                     } else {
                         stringBuilder.append(output);
-                    }
+                    }*/
+                    stringBuilder.append(output);
                     stringBuilder.append("\n");
                 }
             }
@@ -141,8 +131,5 @@ public class DownloadTLE {
         return null;
     }
 
-    public Map<String, Item> getListOfUniqueSatellite() {
-        return listOfUniqueSatellite;
-    }
 
 }

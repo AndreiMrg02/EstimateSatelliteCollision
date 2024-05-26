@@ -1,58 +1,24 @@
-#choiceBox {
-    -fx-background-color: linear-gradient(to right, rgb(255, 255, 255), rgba(180, 176, 176, 0.7));
-    -fx-border-color: transparent;
-    -fx-text-fill: #000000;
-    -fx-border-radius: 5;
-    -fx-padding: 0 10 0 10;
-    -fx-background-repeat: no-repeat;
-    -fx-background-position: right 10% center;
-    -fx-background-size: 20px;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 10, 0, 0, 1);
-    -fx-font-weight: bold;
+.choice-box {
+    -fx-background-color: transparent; /* Fundal alb */
+    -fx-border-color: #cccccc; /* Bordură gri */
+    -fx-border-width: 1; /* Lățimea bordurii */
+    -fx-border-radius: 8; /* Colturi rotunjite */
+    -fx-padding: 4 8; /* Padding pentru text */
+    -fx-text-fill: #333333; /* Culoarea textului */
 }
 
-#choiceBox:hover {
-    -fx-background-color: linear-gradient(to left, rgba(126, 126, 129, 0.48), #11213b);
-    -fx-background-insets: 0, 0, 1;
+.choice-box .cell {
+    -fx-padding: 4 8; /* Padding similar pentru opțiuni */
 }
 
-#choiceBox:showing {
-    -fx-background-color: linear-gradient(to left, rgba(180, 176, 176, 0.7), #11213b);
-    -fx-background-insets: 0, 0, 1;
-}
-
-#choiceBox .label {
+.choice-box .list-cell {
     -fx-background-color: transparent;
 }
 
-#choiceBox .menu-item {
-    -fx-text-fill: rgba(126, 126, 129, 0.27);
-    -fx-background-color: rgba(74, 74, 74, 0);
-    -fx-padding: 5 10;
-    -fx-font-weight: bold;
-    -fx-opacity: 0;
-    -fx-translate-y: -10; /* Inițial ascuns deasupra */
-    -fx-transition: all 0.3s ease;
+.choice-box:hover {
+    -fx-border-color: #007bff; /* Schimbă culoarea bordurii la hover */
 }
 
-#choiceBox:showing .menu-item {
-    -fx-opacity: 100;
-    -fx-translate-y: 0;
-}
-
-#choiceBox .menu-item:focused {
-    -fx-background-color: rgba(98, 98, 98, 0.33);
-}
-
-.custom-toggle-button {
-    -fx-background-color: #DDDDDD; /* Default button color */
-    -fx-font-size: 14px;
-    -fx-padding: 8px 12px;
-}
-
-.custom-toggle-button:selected {
-    -fx-background-color: #1E90FF; /* Selected button color */
-    -fx-text-fill: white; /* Text color when selected */
-    -fx-border-color: #1E90FF; /* Border color when selected */
-    -fx-border-radius: 5px; /* Rounded corners */
+.choice-box:focused {
+    -fx-border-color: #007bff; /* Schimbă culoarea bordurii când este focusat */
 }

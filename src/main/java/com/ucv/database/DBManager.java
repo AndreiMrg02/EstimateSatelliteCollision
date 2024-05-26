@@ -2,6 +2,8 @@ package com.ucv.database;
 
 import com.ucv.datamodel.database.State;
 import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.hibernate.query.MutationQuery;
 import org.hibernate.query.Query;
 import org.hipparchus.geometry.euclidean.threed.Vector3D;
 import org.orekit.frames.FramesFactory;
@@ -13,7 +15,7 @@ import org.orekit.utils.TimeStampedPVCoordinates;
 
 import java.util.*;
 
-import static com.ucv.Util.HibernateUtil.getCurrentSession;
+import static com.ucv.database.HibernateUtil.getCurrentSession;
 import static com.ucv.Util.UtilConstant.MU;
 
 
@@ -26,7 +28,6 @@ public class DBManager {
             Session session = getCurrentSession();
             State newState = new State();
             newState.setSatName(satName);
-            //        newState.setDate(spacecraftState.getDate().toDate(TimeScalesFactory.getUTC()));
             newState.setDate(new java.sql.Timestamp(spacecraftState.getDate().toDate(TimeScalesFactory.getUTC()).getTime()));
 
             newState.setPosX(spacecraftState.getPVCoordinates().getPosition().getX());
@@ -63,6 +64,32 @@ public class DBManager {
             return new ArrayList<>();
         }
     }
+
+    public static synchronized void clearAllStates() {
+        Session session = null;
+        Transaction tx = null;
+        try {
+            session = getCurrentSession();
+            tx = session.beginTransaction();  // Start a transaction
+            String hqlStatement = "DELETE FROM States";  // Ensure 'States' is the entity name, not the table name
+            // Use createMutationQuery for HQL mutation operations
+            MutationQuery query = session.createMutationQuery(hqlStatement);
+            query.executeUpdate();
+            tx.commit();  // Commit the transaction
+        } catch (Exception ex) {
+            if (tx != null) {
+                tx.rollback();  // Rollback the transaction in case of an error
+            }
+            ex.printStackTrace();
+        } finally {
+            if (session != null) {
+                session.close();  // Close the session to free up resources
+            }
+        }
+    }
+
+
+
     public static synchronized List<String> getStatesAllSatelliteName() {
         try (Session session = getCurrentSession()) {
 

@@ -1,23 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="INFO">
-<!-- Define custom levels before using them for filtering below. -->
-<CustomLevels>
-    <CustomLevel name="DIAG" intLevel="350" />
-    <CustomLevel name="NOTICE" intLevel="450" />
-    <CustomLevel name="VERBOSE" intLevel="550" />
-</CustomLevels>
-
-<Appenders>
-    <appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
-        <param name="Target" value="System.out" />
-        <layout class="com.jcabi.log.MulticolorLayout">
-            <param name="ConversionPattern" value="[%color{%p}] %m%n" />
-        </layout>
-    </appender>
-</Appenders>
-<Loggers>
-    <Root level="trace">
-        <!-- Only events at DIAG level or more specific are sent to the console. -->
-        <AppenderRef ref="Console" level="info" />
-    </Root>
-</Loggers>
+    <Appenders>
+        <Console name="ConsoleAppender" target="SYSTEM_OUT">
+            <PatternLayout disableAnsi="false"
+                           pattern="%highlight{%d{HH:mm:ss} %-5level %logger{36} --> %msg%n}{FATAL=red blink, ERROR=red bold, WARN=yellow bold, INFO=blue bold, DEBUG=green bold, TRACE=blue}"/>
+        </Console>
+        <File name="FileAppender" fileName="./logs/StudentManagement_${date:yyyy-MM-dd}.log" immediateFlush="false"
+              append="true">
+            <PatternLayout pattern="%d{yyy-MM-dd HH:mm:ss}  -  %-5level  -  %logger{36} -->  %msg%n"/>
+        </File>
+    </Appenders>
+    <Loggers>
+        <Root level="debug">
+            <AppenderRef ref="ConsoleAppender"/>
+            <AppenderRef ref="FileAppender"/>
+        </Root>
+    </Loggers>
 </Configuration>

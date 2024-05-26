@@ -3,8 +3,8 @@ package com.ucv.datamodel.satellite;
 import org.orekit.time.AbsoluteDate;
 
 public class PositionDifference {
-   private double difference = Double.MAX_VALUE;
-   private AbsoluteDate date;
+    private double difference = Double.MAX_VALUE;
+    private AbsoluteDate date;
 
     public double getDifference() {
         return difference;

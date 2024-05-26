@@ -10,37 +10,37 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Item {
     @XmlElement(name = "CDM_ID")
-    String cdmId;
+    private String cdmId;
     @XmlElement(name = "CREATED")
-    String created;
+    private String created;
     @XmlElement(name = "EMERGENCY_REPORTABLE")
-    String emergencyReportable;
+    private String emergencyReportable;
     @XmlElement(name = "TCA")
-    String tca;
+    private String tca;
     @XmlElement(name = "MIN_RNG")
-    String minRng;
+    private String minRng;
     @XmlElement(name = "PC")
-    String pc;
+    private String pc;
     @XmlElement(name = "SAT_1_ID")
-    String sat1Id;
+    private String sat1Id;
     @XmlElement(name = "SAT_1_NAME")
-    String sat1Name;
+    private String sat1Name;
     @XmlElement(name = "SAT1_OBJECT_TYPE")
-    String sat1ObjectType;
+    private String sat1ObjectType;
     @XmlElement(name = "SAT1_RCS")
-    String sat1Rcs;
+    private String sat1Rcs;
     @XmlElement(name = "SAT_1_EXCL_VOL")
-    String  sat1ExclVol;
+    private String sat1ExclVol;
     @XmlElement(name = "SAT_2_ID")
-    String sat2Id;
+    private String sat2Id;
     @XmlElement(name = "SAT_2_NAME")
-    String sat2Name;
+    private String sat2Name;
     @XmlElement(name = "SAT2_OBJECT_TYPE")
-    String sat2ObjectType;
+    private String sat2ObjectType;
     @XmlElement(name = "SAT2_RCS")
-    String sat2Rcs;
+    private String sat2Rcs;
     @XmlElement(name = "SAT_2_EXCL_VOL")
-    String sat2ExclVol;
+    private String sat2ExclVol;
 
     public String getCdmId() {
         return cdmId;

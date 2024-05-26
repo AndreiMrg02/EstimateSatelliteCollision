@@ -1,29 +1,30 @@
 package com.ucv.datamodel.database;
 
 import jakarta.persistence.*;
+
 import java.util.Date;
 
 @Entity(name = "States")
 public class State {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
     @Column(name = "Satellite_Name")
-    String satName;
+    private String satName;
     @Column(name = "Date")
-    Date date;
+    private Date date;
     @Column(name = "Position_X")
-    Double posX;
+    private Double posX;
     @Column(name = "Position_Y")
-    Double posY;
+    private Double posY;
     @Column(name = "Position_Z")
-    Double posZ;
+    private Double posZ;
     @Column(name = "Velocity_X")
-    Double vX;
+    private Double vX;
     @Column(name = "Velocity_Y")
-    Double vY;
+    private Double vY;
     @Column(name = "Velocity_Z")
-    Double vZ;
+    private Double vZ;
 
 
     public String getSatName() {

@@ -38,6 +38,7 @@ public class TlePropagator extends Thread {
     private final SpatialObject spatialObject;
     private final Propagator propagator;
     Logger logger = Logger.getLogger(TlePropagator.class);
+
     public TlePropagator(SpatialObject spatialObject) {
         this.spatialObject = spatialObject;
 
@@ -53,9 +54,8 @@ public class TlePropagator extends Thread {
         ForceModel moon = new ThirdBodyAttraction(CelestialBodyFactory.getMoon());
         // create the sun influence
         ForceModel sun = new ThirdBodyAttraction(CelestialBodyFactory.getSun());
-        OneAxisEllipsoid oneAxisEllipsoid = earth;
         final IsotropicRadiationSingleCoefficient spacecraft = new IsotropicRadiationSingleCoefficient(CROSS_SECTION, SRP_COEF);
-        ForceModel solarRadiationPressure = new SolarRadiationPressure(CelestialBodyFactory.getSun(), oneAxisEllipsoid, spacecraft);
+        ForceModel solarRadiationPressure = new SolarRadiationPressure(CelestialBodyFactory.getSun(), earth, spacecraft);
         NumericalPropagatorBuilder propagatorBuilder = new NumericalPropagatorBuilder(tlePropagator.getInitialState().getOrbit(), new DormandPrince54IntegratorBuilder(0.001, 100, 1.0), PositionAngleType.MEAN, 1.0);
         propagatorBuilder.addForceModel(gravity);
         propagatorBuilder.addForceModel(moon);
@@ -76,11 +76,10 @@ public class TlePropagator extends Thread {
 
     @Override
     public void run() {
-
         final List<SpacecraftState> states = new LinkedList<>();
         propagator.setStepHandler(60, states::add); // 60 SECONDS
-        AbsoluteDate startDate = new AbsoluteDate(spatialObject.getTca(), TimeScalesFactory.getUTC()).shiftedBy(Constants.JULIAN_DAY * (-2));
-        AbsoluteDate endDate = new AbsoluteDate(spatialObject.getTca(), TimeScalesFactory.getUTC()).shiftedBy(Constants.JULIAN_DAY * 2);
+        AbsoluteDate startDate = new AbsoluteDate(spatialObject.getTca(), TimeScalesFactory.getUTC()).shiftedBy(Constants.JULIAN_DAY * (-1));
+        AbsoluteDate endDate = new AbsoluteDate(spatialObject.getTca(), TimeScalesFactory.getUTC()).shiftedBy(Constants.JULIAN_DAY * 1);
         propagator.propagate(startDate, endDate);
         for (SpacecraftState state : states) {
             DBManager.addStateDB(state, spatialObject.getName());
