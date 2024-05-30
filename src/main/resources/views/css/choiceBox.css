@@ -4,7 +4,7 @@
     -fx-border-width: 1; /* Lățimea bordurii */
     -fx-border-radius: 8; /* Colturi rotunjite */
     -fx-padding: 4 8; /* Padding pentru text */
-    -fx-text-fill: #333333; /* Culoarea textului */
+    -fx-text-fill: rgba(225, 225, 227, 0.83); /* Culoarea textului */
 }
 
 .choice-box .cell {

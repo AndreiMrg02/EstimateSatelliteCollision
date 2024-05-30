@@ -36,6 +36,7 @@ import org.orekit.propagation.analytical.Ephemeris;
 import org.orekit.time.AbsoluteDate;
 import org.orekit.utils.Constants;
 import org.orekit.utils.IERSConventions;
+import org.orekit.utils.PVCoordinates;
 
 import java.awt.*;
 import java.io.File;
@@ -64,7 +65,11 @@ public class EarthController extends ApplicationTemplate implements Initializabl
     private Thread simulationThread;
     private AbsoluteDate targetDate;
     private Map<String, List<Airspace>> sphereFragmentsMap = new HashMap<>(); // Păstrează o mapă a fragmentelor pentru fiecare sferă
+    private SatelliteUpdateCallback callback;
 
+    public void setCallback(SatelliteUpdateCallback callback) {
+        this.callback = callback;
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -220,7 +225,7 @@ public class EarthController extends ApplicationTemplate implements Initializabl
             });
 
             try {
-                Thread.sleep(2000);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 break;
@@ -270,7 +275,61 @@ public class EarthController extends ApplicationTemplate implements Initializabl
         targetDate = startDate;
         return false;
     }
+    public void updateSatellites(AbsoluteDate targetDate) {
+        Map<String, Vector3D> positions = new HashMap<>();
+        AbsoluteDate oneHourEarlier = closeApproachDate.shiftedBy(-3600);
+        AbsoluteDate oneHourLater = closeApproachDate.shiftedBy(3600);
 
+        ephemerisMap.forEach((name, ephemeris) -> {
+            try {
+                if (targetDate.compareTo(ephemeris.getMinDate()) >= 0 && targetDate.compareTo(ephemeris.getMaxDate()) <= 0) {
+                    SpacecraftState state = ephemeris.propagate(targetDate);
+                    Orbit orbit = state.getOrbit();
+                    PVCoordinates pvCoordinates = orbit.getPVCoordinates();
+                    GeodeticPoint gp = earth.transform(pvCoordinates.getPosition(), orbit.getFrame(), orbit.getDate());
+                    Map.Entry<SphereAirspace, GlobeAnnotation> entry = sphereMap.get(name);
+                    createSphere(name, entry);
+
+                    SphereAirspace sphere = entry.getKey();
+                    GlobeAnnotation label = entry.getValue();
+
+                    AirspaceAttributes attrs = new BasicAirspaceAttributes();
+                    attrs.setDrawOutline(true);
+                    attrs.setMaterial(new Material(Color.GREEN));
+
+                    if (targetDate.compareTo(oneHourEarlier) >= 0 && targetDate.compareTo(oneHourLater) <= 0) {
+                        changeSphereOnCloseApproach(name, attrs, sphere, positions, orbit);
+                    }
+
+                    // Calculate the speed (magnitude of the velocity vector)
+                    double speed = pvCoordinates.getVelocity().getNorm(); //m/s
+
+                    System.out.println("Pos:" + pvCoordinates.getPosition() + " sat: " + name + " Speed: " + speed);
+                    sphere.setAttributes(attrs);
+                    sphere.setLocation(LatLon.fromRadians(gp.getLatitude(), gp.getLongitude()));
+                    sphere.setAltitude(gp.getAltitude());
+
+                    // Update label position
+                    Position labelPos = new Position(LatLon.fromRadians(gp.getLatitude(), gp.getLongitude()), gp.getAltitude() + sphere.getRadius() * 1.2);
+                    label.setPosition(labelPos);
+                    if (isCollision) {
+                        labelLayer.removeAllAnnotations();
+                        shatterSphere(sphere, name);
+                    }
+
+                    if (callback != null) {
+                        callback.updateSatelliteData(name, FastMath.toDegrees(gp.getLatitude()), FastMath.toDegrees(gp.getLongitude()), FastMath.toDegrees(gp.getAltitude()),speed);
+                    }
+
+                    System.out.println("Updated sphere and label for satellite: " + name + " at lat: " + FastMath.toDegrees(gp.getLatitude()) + ", lon: " + FastMath.toDegrees(gp.getLongitude()) + ", alt: " + FastMath.toDegrees(gp.getAltitude()) + ", speed: " + speed);
+                }
+            } catch (OrekitException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+/*
     public void updateSatellites(AbsoluteDate targetDate) {
         Map<String, Vector3D> positions = new HashMap<>();
         AbsoluteDate oneHourEarlier = closeApproachDate.shiftedBy(-3600);
@@ -315,6 +374,7 @@ public class EarthController extends ApplicationTemplate implements Initializabl
             }
         });
     }
+*/
 
     private void changeSphereOnCloseApproach(String name, AirspaceAttributes attrs, SphereAirspace sphere, Map<String, Vector3D> positions, Orbit orbit) {
         attrs.setMaterial(new Material(Color.RED));
@@ -405,6 +465,7 @@ public class EarthController extends ApplicationTemplate implements Initializabl
         if (simulationThread != null && simulationThread.isAlive()) {
             simulationThread.interrupt();
         }
+
     }
 
     public synchronized void pauseSimulation() {
@@ -444,4 +505,11 @@ public class EarthController extends ApplicationTemplate implements Initializabl
         return earth;
     }
 
+    public boolean isStop() {
+        return stop;
+    }
+
+    public void setStop(boolean stop) {
+        this.stop = stop;
+    }
 }

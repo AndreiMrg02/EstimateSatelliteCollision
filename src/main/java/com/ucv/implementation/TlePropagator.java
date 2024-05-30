@@ -1,4 +1,4 @@
-package com.ucv.satellite;
+package com.ucv.implementation;
 
 
 import com.ucv.database.DBManager;
@@ -37,21 +37,26 @@ public class TlePropagator extends Thread {
     static final double DAYS = 0.1;
     private final SpatialObject spatialObject;
     private final Propagator propagator;
-    Logger logger = Logger.getLogger(TlePropagator.class);
+    private final Logger logger = Logger.getLogger(TlePropagator.class);
 
     public TlePropagator(SpatialObject spatialObject) {
         this.spatialObject = spatialObject;
 
         // create a TLE propagator
         Propagator tlePropagator = TLEPropagator.selectExtrapolator(spatialObject.getTle());
+
         // get the ITRF frame
         Frame itrf = FramesFactory.getITRF(IERSConventions.IERS_2010, false);
+
         // create the Earth
         OneAxisEllipsoid earth = new OneAxisEllipsoid(Constants.WGS84_EARTH_EQUATORIAL_RADIUS, Constants.WGS84_EARTH_FLATTENING, itrf);
-        // create the geopotential force
+
+        // create the geo-potential force
         ForceModel gravity = new HolmesFeatherstoneAttractionModel(itrf, GravityFieldFactory.getNormalizedProvider(12, 12));
+
         // create the moon influence
         ForceModel moon = new ThirdBodyAttraction(CelestialBodyFactory.getMoon());
+
         // create the sun influence
         ForceModel sun = new ThirdBodyAttraction(CelestialBodyFactory.getSun());
         final IsotropicRadiationSingleCoefficient spacecraft = new IsotropicRadiationSingleCoefficient(CROSS_SECTION, SRP_COEF);
@@ -68,9 +73,7 @@ public class TlePropagator extends Thread {
             }
         }
         JacobianPropagatorConverter fitter = new JacobianPropagatorConverter(propagatorBuilder, 1.0, 500);
-        logger.info("Converting...");
         propagator = fitter.convert(tlePropagator, DAYS * Constants.JULIAN_DAY, 20, RadiationSensitive.REFLECTION_COEFFICIENT);
-        logger.info("Done!");
 
     }
 

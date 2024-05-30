@@ -4,7 +4,7 @@
     -fx-background-size: cover;
     -fx-background-repeat: no-repeat;
     -fx-background-position: center;
-    -fx-text-fill: #000000;
+    -fx-text-fill: rgba(225, 225, 227, 0.83);
     -fx-effect: dropshadow(three-pass-box, #33415c, 15, 0, 0, 0);
 }
 
@@ -20,28 +20,29 @@
 
 /* Style the selected row with a stronger glow */
 .table-row-cell:selected {
-    -fx-background-color: rgba(51, 65, 92, 0.8); /* Medium transparent background color */
+    -fx-background-color: rgba(0, 105, 217, 0.8); /* Medium transparent Bootstrap primary color */
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 10, 0, 0, 2);
 }
 
 /* Add a smooth transition for the hover effect */
 .table-row-cell:hover {
-    -fx-background-color: rgba(71, 92, 130, 0.8); /* Medium transparent background color */
+    -fx-background-color: rgba(0, 86, 179, 0.8); /* Medium transparent Bootstrap hover color */
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 10, 0, 0, 2);
     -fx-transition: background-color 0.3s, -fx-background-insets 0.3s;
 }
 
 .table-column {
-    -fx-text-fill: #ffffff;
+    -fx-text-fill: #f8f3f3;
 }
 
 .table-column-header {
-    -fx-border-radius: 10px;
+    -fx-border-radius: 0; /* Make header square */
     -fx-background-color: rgba(64, 64, 64, 0.8); /* Gray background color */
     -fx-border-color: #1a1a1a;
     -fx-font-weight: bold;
     -fx-font-size: 15px;
     -fx-text-fill: #ffffff; /* White text */
+    -fx-padding: 5px; /* Adjust padding for a square look */
 }
 
 /* Focus effect for the table view */
@@ -54,11 +55,11 @@
 }
 
 .table-view .column-header-background .label {
-    -fx-text-fill: #ffffff;
+    -fx-text-fill: #000000; /* White text */
 }
 
 .table-view .column-header .arrow {
-    -fx-background-color: #ffffff;
+    -fx-background-color: #ffffff; /* White arrow */
 }
 
 /* Adding BootstrapFX classes for a modern look */
@@ -70,6 +71,7 @@
 .table-column-header {
     -fx-background-color: rgba(64, 64, 64, 0.8); /* Gray background color */
     -fx-border-color: transparent transparent #1a1a1a transparent;
+    -fx-border-radius: 0; /* Ensure no rounding */
 }
 
 .table-row-cell {

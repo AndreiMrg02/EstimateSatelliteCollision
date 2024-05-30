@@ -8,7 +8,6 @@ public class HibernateUtil {
     private static final SessionFactory sessionFactory = buildSessionFactory();
 
     private HibernateUtil() {
-        // TODO document why this constructor is empty
     }
 
     private static SessionFactory buildSessionFactory() {
@@ -21,12 +20,15 @@ public class HibernateUtil {
             throw new ExceptionInInitializerError(ex);
         }
     }
-    public static Session getCurrentSession(){
+
+    public static Session getCurrentSession() {
         return sessionFactory.openSession();
     }
-    public static void closeSession(){
-     getCurrentSession().close();
+
+    public static void closeSession() {
+        getCurrentSession().close();
     }
+
     public static SessionFactory getSessionFactory() {
         return sessionFactory;
     }

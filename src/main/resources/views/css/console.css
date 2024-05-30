@@ -1,0 +1,16 @@
+
+#console {
+    -fx-background-color: #1e1e1e;
+    -fx-text-fill: #d4d4d4;
+    -fx-font-family: "Consolas", monospace;
+    -fx-font-size: 14px;
+    -fx-padding: 10px;
+    -fx-border-color: #3c3c3c;
+    -fx-border-width: 2px;
+    -fx-control-inner-background: #1e1e1e;
+    -fx-highlight-fill: #264f78;
+    -fx-highlight-text-fill: #d4d4d4;
+    -fx-background-radius: 3px;
+    -fx-border-radius: 2px;
+}
+

@@ -1,4 +1,4 @@
-package com.ucv.run;
+package com.ucv.implementation;
 
 import com.ucv.datamodel.satellite.DisplaySatelliteModel;
 import com.ucv.datamodel.satellite.PositionDifference;
@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class CollisionTask implements Runnable {
     private final List<SpacecraftState> statesOne;
@@ -22,11 +21,10 @@ public class CollisionTask implements Runnable {
     private final String entryOne;
     private final String entryTwo;
     private final List<String> satName = new ArrayList<>();
-    private Set<DisplaySatelliteModel> stringDisplaySatelliteModelMap;
-    private List<SpatialObjectTableModel> spatialObjectTableModels;
+    private final Set<DisplaySatelliteModel> stringDisplaySatelliteModelMap;
+    private final List<SpatialObjectTableModel> spatialObjectTableModels;
 
-    public CollisionTask(List<SpacecraftState> statesOne, List<SpacecraftState> statesTwo, String entryOne, String entryTwo,
-                         Set<DisplaySatelliteModel> stringDisplaySatelliteModelMap, List<SpatialObjectTableModel> spatialObjectTableModels) {
+    public CollisionTask(List<SpacecraftState> statesOne, List<SpacecraftState> statesTwo, String entryOne, String entryTwo, Set<DisplaySatelliteModel> stringDisplaySatelliteModelMap, List<SpatialObjectTableModel> spatialObjectTableModels) {
         this.statesOne = new ArrayList<>(statesOne);
         this.statesTwo = new ArrayList<>(statesTwo);
         this.entryOne = entryOne;
@@ -61,26 +59,9 @@ public class CollisionTask implements Runnable {
             Ephemeris ephemerisSatelliteTwo = new Ephemeris(stateTwoList, 4);
 
             final PositionDifference closestApproach = new PositionDifference();
-
-            ephemerisSatelliteOne.setStepHandler(60, currentState -> {
-                SpacecraftState stateTwo = ephemerisSatelliteTwo.propagate(currentState.getDate());
-                Vector3D positionDifference = currentState.getPosition().subtract(stateTwo.getPosition());
-                double distance = positionDifference.getNorm();
-
-                // Verifică dacă poziția este validă (de exemplu, altitudinea este mai mare de 0)
-                if (currentState.getPVCoordinates().getPosition().getNorm() > 6371 &&  // Radius of Earth in km
-                        stateTwo.getPVCoordinates().getPosition().getNorm() > 6371) {
-
-                    if (closestApproach.getDifference() > distance) {
-                        closestApproach.setDifference(distance);
-                        closestApproach.setDate(currentState.getDate());
-                    }
-                }
-            });
-
+            propagateSatellites(ephemerisSatelliteOne, ephemerisSatelliteTwo, closestApproach);
             ephemerisSatelliteOne.propagate(startDate, endDate);
             ephemerisSatelliteOne.clearStepHandlers();
-
             if (!satName.contains(entryOne)) {
                 stringDisplaySatelliteModelMap.add(new DisplaySatelliteModel(startDate, endDate, entryOne, ephemerisSatelliteOne, stateOneList, closestApproach.getDate()));
                 satName.add(entryOne);
@@ -90,25 +71,20 @@ public class CollisionTask implements Runnable {
                 satName.add(entryTwo);
             }
 
-            final double threshold = 1000; // Set your threshold value here
+            final double threshold = 10; // Set your threshold value here
             double collisionProbability = estimateCollisionProbability(closestApproach.getDifference(), threshold);
 
             System.out.println("Closest approach between Satellites: " + entryOne + " and " + entryTwo + " is: " + closestApproach.getDifference() + " meters at date: " + closestApproach.getDate().toDate(TimeScalesFactory.getUTC()));
             System.out.println("Collision probability is: " + String.format("%.10f%%", collisionProbability));
             String collisionFormat = String.format("%.10f%%", collisionProbability);
-            List<SpacecraftState> stateOneListBetweenDate = stateOneList.stream()
+/*            List<SpacecraftState> stateOneListBetweenDate = stateOneList.stream()
                     .filter(state -> !state.getDate().isBefore(startDate) && !state.getDate().isAfter(endDate))
                     .collect(Collectors.toList());
             List<SpacecraftState> stateTwoListBetweenDate = stateTwoList.stream()
                     .filter(state -> !state.getDate().isBefore(startDate) && !state.getDate().isAfter(endDate))
-                    .collect(Collectors.toList());
-
-
+                    .collect(Collectors.toList());*/
             if (closestApproach.getDifference() > 0) {
-                SpatialObjectTableModel spatialObjectTableModel = new SpatialObjectTableModel(
-                        formatAbsoluteDate(startDate), formatAbsoluteDate(endDate),
-                        Double.toString(closestApproach.getDifference()), formatAbsoluteDate(closestApproach.getDate()),
-                        entryOne, entryTwo, collisionFormat);
+                SpatialObjectTableModel spatialObjectTableModel = new SpatialObjectTableModel(formatAbsoluteDate(startDate), formatAbsoluteDate(endDate), Double.toString(closestApproach.getDifference()), formatAbsoluteDate(closestApproach.getDate()), entryOne, entryTwo, collisionFormat);
 
                 spatialObjectTableModels.add(spatialObjectTableModel);
             }
@@ -117,13 +93,43 @@ public class CollisionTask implements Runnable {
         }
     }
 
-
-    private double estimateCollisionProbability(double closestApproachDistance, double threshold) {
-        double scale = 0.2;  // Factorul de scalare pentru a ajusta sensibilitatea
-        double ratio = (closestApproachDistance / threshold);
-        double collisionProbability = Math.exp(-scale * ratio);  // Aplică factorul de scalare în exponent
-        return collisionProbability * 100;  // Converteste în procente
+    private static void propagateSatellites(Ephemeris ephemerisSatelliteOne, Ephemeris ephemerisSatelliteTwo, PositionDifference closestApproach) {
+        ephemerisSatelliteOne.setStepHandler(60, currentState -> {
+            SpacecraftState stateTwo = ephemerisSatelliteTwo.propagate(currentState.getDate());
+            Vector3D positionDifference = currentState.getPosition().subtract(stateTwo.getPosition());
+            double distance = positionDifference.getNorm();
+            if (closestApproach.getDifference() > distance) {
+                closestApproach.setDifference(distance);
+                closestApproach.setDate(currentState.getDate());
+            }
+        });
     }
+
+
+    /*
+        private double estimateCollisionProbability(double closestApproachDistance, double threshold) {
+            double scale = 0.16;  // Factorul de scalare pentru a ajusta sensibilitatea
+            double ratio = (closestApproachDistance / threshold);
+            double collisionProbability = Math.exp(-scale * ratio);  // Aplică factorul de scalare în exponent
+            return collisionProbability * 100;  // Converteste în procente
+        }
+    */
+/*
+public static double estimateCollisionProbability(double closestApproachDistance, double targetDistance) {
+    return Math.pow(targetDistance / closestApproachDistance, 2);
+}
+*/
+    public static double estimateCollisionProbability(double closestApproachDistance, double targetDistance) {
+
+        // Calculăm probabilitatea folosind formula simplificată și asigurându-ne că este bine scalată
+        double probability = Math.pow(targetDistance / closestApproachDistance, 2);
+
+        // Returnăm probabilitatea în procente, dar asigurându-ne că valoarea este scalată corect
+        double scaledProbability = probability / Math.pow(targetDistance / 10, 2);
+
+        return scaledProbability * 100;
+    }
+
 
 
     private AbsoluteDate extractStartDate(List<SpacecraftState> stateOneList, List<SpacecraftState> stateTwoList) {
@@ -152,7 +158,6 @@ public class CollisionTask implements Runnable {
                 }
             }
         }
-
         return null;
     }
 

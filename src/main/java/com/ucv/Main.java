@@ -1,9 +1,10 @@
-package com.ucv.run;
+package com.ucv;
 
 
 import com.ucv.controller.MainController;
 import javafx.application.Application;
 import javafx.stage.Stage;
+import org.apache.log4j.PropertyConfigurator;
 import org.orekit.data.DataContext;
 import org.orekit.data.DataProvidersManager;
 import org.orekit.data.DirectoryCrawler;
@@ -14,7 +15,6 @@ import java.io.File;
 public class Main extends Application {
     @Override
     public void start(Stage stage) {
-
         MainController mainController = new MainController();
         mainController.loadFXML(stage);
         stage.setOnCloseRequest(windowEvent -> System.exit(0));
