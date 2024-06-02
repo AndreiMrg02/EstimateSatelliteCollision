@@ -156,19 +156,14 @@ public class EarthController extends ApplicationTemplate implements Initializabl
             SphereAirspace sphere = new SphereAirspace();
             sphere.setRadius(100000);
             sphere.setAttributes(new BasicAirspaceAttributes(new Material(Color.GREEN), 1.0));
-
             // Calculate the initial position slightly above the sphere for the label
             double labelHeight = sphere.getRadius() * 1.2;
             Position labelPos = new Position(sphere.getLocation(), labelHeight);
-
             // Create the text label using GlobeAnnotation for better control
             GlobeAnnotation label = new GlobeAnnotation(entry.getKey(), labelPos);
             attributeSatelliteNameLabel(label);
-
-
             // Store label in sphereMap
             sphereMap.put(entry.getKey(), new AbstractMap.SimpleEntry<>(sphere, label));
-
             // Add sphere to airspace layer and label to annotation layer
             satAirspaces.addAirspace(sphere);
             labelLayer.addAnnotation(label);
@@ -179,7 +174,6 @@ public class EarthController extends ApplicationTemplate implements Initializabl
         wwd.getModel().getLayers().add(satAirspaces);
         wwd.getModel().getLayers().add(labelLayer);
         wwd.redraw();
-
         System.out.println("Dynamic spheres and labels added to airspace layer.");
     }
 
@@ -205,7 +199,6 @@ public class EarthController extends ApplicationTemplate implements Initializabl
     @Override
     public void run() {
         if (setAbsoluteDateOnThread()) return;
-
         while (!stop) {
             synchronized (this) {
                 while (pause) {
@@ -230,7 +223,6 @@ public class EarthController extends ApplicationTemplate implements Initializabl
                 Thread.currentThread().interrupt();
                 break;
             }
-
             targetDate = targetDate.shiftedBy(60); // Propaga la fiecare minut
 
             if (restart) {
@@ -328,53 +320,6 @@ public class EarthController extends ApplicationTemplate implements Initializabl
             }
         });
     }
-
-/*
-    public void updateSatellites(AbsoluteDate targetDate) {
-        Map<String, Vector3D> positions = new HashMap<>();
-        AbsoluteDate oneHourEarlier = closeApproachDate.shiftedBy(-3600);
-        AbsoluteDate oneHourLater = closeApproachDate.shiftedBy(3600);
-
-        ephemerisMap.forEach((name, ephemeris) -> {
-            try {
-                if (targetDate.compareTo(ephemeris.getMinDate()) >= 0 && targetDate.compareTo(ephemeris.getMaxDate()) <= 0) {
-                    SpacecraftState state = ephemeris.propagate(targetDate);
-                    Orbit orbit = state.getOrbit();
-                    GeodeticPoint gp = earth.transform(orbit.getPVCoordinates().getPosition(), orbit.getFrame(), orbit.getDate());
-                    Map.Entry<SphereAirspace, GlobeAnnotation> entry = sphereMap.get(name);
-                    createSphere(name, entry);
-
-                    SphereAirspace sphere = entry.getKey();
-                    GlobeAnnotation label = entry.getValue();
-
-                    AirspaceAttributes attrs = new BasicAirspaceAttributes();
-                    attrs.setDrawOutline(true);
-                    attrs.setMaterial(new Material(Color.GREEN));
-
-                    if (targetDate.compareTo(oneHourEarlier) >= 0 && targetDate.compareTo(oneHourLater) <= 0) {
-                        changeSphereOnCloseApproach(name, attrs, sphere, positions, orbit);
-                    }
-                    System.out.println(" Pos:" + orbit.getPVCoordinates().getPosition() + " sat: " + name);
-                    sphere.setAttributes(attrs);
-                    sphere.setLocation(LatLon.fromRadians(gp.getLatitude(), gp.getLongitude()));
-                    sphere.setAltitude(gp.getAltitude());
-
-                    // Update label position
-                    Position labelPos = new Position(LatLon.fromRadians(gp.getLatitude(), gp.getLongitude()), gp.getAltitude() + sphere.getRadius() * 1.2);
-                    label.setPosition(labelPos);
-                    if (isCollision) {
-                        labelLayer.removeAllAnnotations();
-                        shatterSphere(sphere, name);
-                    }
-
-                    System.out.println("Updated sphere and label for satellite: " + name + " at lat: " + FastMath.toDegrees(gp.getLatitude()) + ", lon: " + FastMath.toDegrees(gp.getLongitude()) + ", alt: " + FastMath.toDegrees(gp.getAltitude()));
-                }
-            } catch (OrekitException e) {
-                e.printStackTrace();
-            }
-        });
-    }
-*/
 
     private void changeSphereOnCloseApproach(String name, AirspaceAttributes attrs, SphereAirspace sphere, Map<String, Vector3D> positions, Orbit orbit) {
         attrs.setMaterial(new Material(Color.RED));
@@ -474,7 +419,7 @@ public class EarthController extends ApplicationTemplate implements Initializabl
 
     public synchronized void resumeSimulation() {
         pause = false;
-        notifyAll(); // Trezește thread-ul de simulare dacă este în pauză
+        notifyAll();
     }
 
     public synchronized void resetState() {

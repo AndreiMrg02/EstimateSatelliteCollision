@@ -11,7 +11,6 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -23,7 +22,9 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.util.Duration;
 import org.orekit.data.DataContext;
 import org.orekit.data.DataProvidersManager;
@@ -42,7 +43,11 @@ import static com.ucv.database.HibernateUtil.closeSession;
 public class MainController implements Initializable, SatelliteUpdateCallback {
 
     @FXML
-    private  TextArea loggerBox;
+    private ScrollPane scrollPaneLog;
+    @FXML
+    private TextArea thresholdBox;
+    @FXML
+    private TextFlow loggerBox;
     @FXML
     private Label satelliteOneLabel;
     @FXML
@@ -65,8 +70,6 @@ public class MainController implements Initializable, SatelliteUpdateCallback {
     private StackPane satelliteOnePane;
     @FXML
     private StackPane satelliteTwoPane;
-    @FXML
-    private ImageView closeGUIButton;
     @FXML
     private TextArea speedSatelliteTwo;
     @FXML
@@ -114,7 +117,7 @@ public class MainController implements Initializable, SatelliteUpdateCallback {
     @FXML
     private TextArea valueField;
     private EarthController earthController;
-    private SatelliteExtendController satelliteController;
+    private SatelliteController satelliteController;
 
     public void loadFXML(Stage mainStage) {
         try {
@@ -122,11 +125,10 @@ public class MainController implements Initializable, SatelliteUpdateCallback {
             BorderPane mainBorderPanel = fxmlLoader.load();
             Scene scene = new Scene(mainBorderPanel, 1484, 917);
             mainStage.setTitle("Satellite");
-
             tableViewPane = (BorderPane) mainBorderPanel.lookup("#tableViewPane");
-
             mainStage.setScene(scene);
             mainStage.show();
+
         } catch (Exception ex) {
             System.out.println("An exception occurred due to load the main stage");
             ex.printStackTrace();
@@ -139,7 +141,7 @@ public class MainController implements Initializable, SatelliteUpdateCallback {
         File orekitData = new File("data/orekit-data");
         DataProvidersManager manager = DataContext.getDefault().getDataProvidersManager();
         manager.addProvider(new DirectoryCrawler(orekitData));
-        LoggerCustom.getInstance().setConsole(loggerBox);
+
 
         ObservableList<String> predicateList = FXCollections.observableArrayList();
         ObservableList<String> operatorList = FXCollections.observableArrayList();
@@ -157,13 +159,17 @@ public class MainController implements Initializable, SatelliteUpdateCallback {
         setButtonStyle(showSatelliteButton);
         setButtonStyle(pauseButton);
         setButtonStyle(closeApproachButton);
-
         loadEarth();
         loadTableSatellite();
         closeSession();
         buttonFunction();
         roundedPane();
-        closeGUIButton.setOnMouseClicked(mouseEvent -> System.exit(0));
+        scrollPaneLog.setFitToWidth(true);
+        scrollPaneLog.setContent(loggerBox);
+        LoggerCustom.getInstance().setConsole(loggerBox,scrollPaneLog);
+     //
+        //
+        //   closeGUIButton.setOnMouseClicked(mouseEvent -> System.exit(0));
         earthController.setCallback(this);
 
     }
@@ -173,6 +179,9 @@ public class MainController implements Initializable, SatelliteUpdateCallback {
         addClip(configurationPane, 30, 30);
         addClip(satelliteOnePane, 30, 30);
         addClip(satelliteTwoPane, 30, 30);
+        addClip(earthPane,30,30);
+        addClip(loggerBox,15,15);
+        addClip(scrollPaneLog,16,16);
     }
 
     private void addClip(Region region, double arcWidth, double arcHeight) {
@@ -318,6 +327,7 @@ public class MainController implements Initializable, SatelliteUpdateCallback {
         extractDataButton.setOnMouseClicked(event -> {
             clearAllStates();
             String operator = setOperator(operatorBox.getValue());
+            satelliteController.setThreshold(Integer.parseInt(thresholdBox.getText()));
             satelliteController.getSatelliteTable().getItems().clear();
             satelliteController.setTwoSatellitesSelected(new ArrayList<>());
             satelliteController.setStringDisplaySatelliteModelMap(new HashSet<>());
@@ -338,6 +348,7 @@ public class MainController implements Initializable, SatelliteUpdateCallback {
                             satelliteController.getSatelliteTable().refresh();
                             alert.showAndWait();
                             LoggerCustom.getInstance().logMessage("INFO: Change configuration to find data");
+                            mainPanel.setDisable(false);
                             event.consume();
                         } else {
                             mainPanel.setDisable(false);
@@ -368,12 +379,11 @@ public class MainController implements Initializable, SatelliteUpdateCallback {
             Platform.runLater(() -> {
                 mainPanel.setDisable(false);
                 progressBar.setVisible(false);
-                Alert alert = new Alert(Alert.AlertType.ERROR, "Error occurred: " + exception.getMessage(), ButtonType.OK);
+                Alert alert = new Alert(Alert.AlertType.ERROR, "Unexpected error occurred: " + exception.getMessage(), ButtonType.OK);
                 alert.showAndWait();
             });
         });
     }
-
 
     private void successExtractList(BorderPane tableViewLayout) {
         progressBar.setVisible(false);
@@ -443,7 +453,7 @@ public class MainController implements Initializable, SatelliteUpdateCallback {
                 closeApproachDistanceTextArea.setText(newValue.getCloseApproach());
                 satelliteOneLabel.setText(newValue.getSat1Name());
                 satelliteTwoLabel.setText(newValue.getSat2Name());
-                thresholdTextArea.setText("1000");
+                thresholdTextArea.setText(thresholdBox.getText());
             }
         });
     }
@@ -467,9 +477,6 @@ public class MainController implements Initializable, SatelliteUpdateCallback {
     }
 
 
-    public void extractData(ActionEvent actionEvent) {
-        // TODO document why this method is empty
-    }
 
     @Override
     public void updateSatelliteData(String satelliteName, double latitude, double longitude, double altitude, double speed) {

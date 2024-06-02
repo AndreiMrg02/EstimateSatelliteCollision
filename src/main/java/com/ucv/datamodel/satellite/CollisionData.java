@@ -1,6 +1,6 @@
 package com.ucv.datamodel.satellite;
 
-public class SpatialObjectTableModel {
+public class CollisionData {
     private String startDate;
     private String endDate;
     private String closeApproach;
@@ -9,7 +9,7 @@ public class SpatialObjectTableModel {
     private String sat2Name;
     private String collisionProbability;
 
-    public SpatialObjectTableModel(String startDate, String endDate, String closeApproach, String closeApproachDate, String sat1Name, String sat2Name, String collisionProbability) {
+    public CollisionData(String startDate, String endDate, String closeApproach, String closeApproachDate, String sat1Name, String sat2Name, String collisionProbability) {
         this.startDate = startDate;
         this.endDate = endDate;
         this.closeApproach = closeApproach;

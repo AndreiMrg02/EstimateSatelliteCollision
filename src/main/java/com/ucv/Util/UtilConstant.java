@@ -7,6 +7,11 @@ import org.orekit.frames.Frame;
 public class UtilConstant {
     public static String QUERY_GET_SATELLITE_BY_DATE = "FROM State WHERE satName = :satelliteName AND date BETWEEN :startDate AND :endDate";
     public static double MU = GravityFieldFactory.getNormalizedProvider(12, 12).getMu();
+    public static final double CROSS_SECTION = 10.0;
+    public static final double SRP_COEF = 0.7;
+    public static final double DAYS = 0.1;
+
+
     public static Double ALTITUDIE_VALUE = 100d;
     public static Double LONGITUDE_VALUE = 100d;
     public static Double LATITUDE_VALUE = 100d;
