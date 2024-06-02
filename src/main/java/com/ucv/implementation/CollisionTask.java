@@ -1,6 +1,6 @@
 package com.ucv.implementation;
 
-import com.ucv.Util.LoggerCustom;
+import com.ucv.util.LoggerCustom;
 import com.ucv.datamodel.satellite.CollisionData;
 import com.ucv.datamodel.satellite.DisplaySatelliteModel;
 import com.ucv.datamodel.satellite.PositionDifference;

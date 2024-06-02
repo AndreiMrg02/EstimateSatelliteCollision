@@ -1,4 +1,4 @@
-package com.ucv.Util;
+package com.ucv.util;
 
 import com.ucv.datamodel.xml.Item;
 import com.ucv.datamodel.xml.Items;

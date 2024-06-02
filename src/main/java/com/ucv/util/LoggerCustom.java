@@ -1,4 +1,4 @@
-package com.ucv.Util;
+package com.ucv.util;
 
 import javafx.application.Platform;
 import javafx.scene.control.ScrollPane;

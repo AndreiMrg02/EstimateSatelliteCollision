@@ -18,7 +18,7 @@ import org.orekit.utils.TimeStampedPVCoordinates;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.ucv.Util.UtilConstant.MU;
+import static com.ucv.util.UtilConstant.MU;
 import static com.ucv.database.HibernateUtil.getCurrentSession;
 
 

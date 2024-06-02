@@ -1,12 +1,13 @@
 package com.ucv.controller;
 
 import com.ucv.Main;
-import com.ucv.Util.LoggerCustom;
+import com.ucv.util.ButtonCustomStyle;
+import com.ucv.util.LoggerCustom;
+import com.ucv.util.PaneCustomStyle;
 import com.ucv.datamodel.satellite.DisplaySatelliteModel;
 import com.ucv.datamodel.xml.Item;
 import com.ucv.implementation.CollectSatelliteData;
-import javafx.animation.ScaleTransition;
-import javafx.animation.TranslateTransition;
+import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -16,21 +17,15 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
-import javafx.util.Duration;
-import org.orekit.data.DataContext;
-import org.orekit.data.DataProvidersManager;
-import org.orekit.data.DirectoryCrawler;
 import org.orekit.propagation.analytical.Ephemeris;
 import org.orekit.time.AbsoluteDate;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
@@ -38,8 +33,10 @@ import java.util.*;
 import static com.ucv.database.DBOperation.clearAllStates;
 import static com.ucv.database.HibernateUtil.closeSession;
 
-public class MainController implements Initializable, SatelliteUpdateCallback {
+public class MainController implements Initializable {
 
+    @FXML
+    private StackPane informationPane;
     @FXML
     private ScrollPane scrollPaneLog;
     @FXML
@@ -47,33 +44,7 @@ public class MainController implements Initializable, SatelliteUpdateCallback {
     @FXML
     private TextFlow loggerBox;
     @FXML
-    private Label satelliteOneLabel;
-    @FXML
-    private TextArea satelliteOneAltitude;
-    @FXML
-    private TextArea longitudeSatelliteOne;
-    @FXML
-    private TextArea latitudeSatelliteOne;
-    @FXML
-    private Label satelliteTwoLabel;
-    @FXML
-    private TextArea satelliteTwoAltitude;
-    @FXML
-    private TextArea longitudeSatelliteTwo;
-    @FXML
-    private TextArea latitudeSatelliteTwo;
-    @FXML
     private VBox configurationPane;
-    @FXML
-    private StackPane satelliteOnePane;
-    @FXML
-    private StackPane satelliteTwoPane;
-    @FXML
-    private TextArea speedSatelliteTwo;
-    @FXML
-    private TextArea speedSatelliteOne;
-    @FXML
-    private StackPane paneInformationCollision;
     @FXML
     private BorderPane mainPanel;
     @FXML
@@ -89,18 +60,6 @@ public class MainController implements Initializable, SatelliteUpdateCallback {
     @FXML
     private Button showSatelliteButton;
     @FXML
-    private TextArea pcTextArea;
-    @FXML
-    private TextArea closeApproachDistanceTextArea;
-    @FXML
-    private TextArea closeApproachDateTextArea;
-    @FXML
-    private TextArea thresholdTextArea;
-    @FXML
-    private TextArea startDateTextArea;
-    @FXML
-    private TextArea endDateTextArea;
-    @FXML
     private StackPane earthPane;
     @FXML
     private BorderPane tableViewPane;
@@ -114,8 +73,9 @@ public class MainController implements Initializable, SatelliteUpdateCallback {
     private ChoiceBox<String> operatorBox;
     @FXML
     private TextArea valueField;
-    private EarthController earthController;
+    private EarthViewController earthViewController;
     private SatelliteController satelliteController;
+    private SatelliteInformationController satelliteInformationController;
 
     public void loadFXML(Stage mainStage) {
         try {
@@ -136,11 +96,6 @@ public class MainController implements Initializable, SatelliteUpdateCallback {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
-        File orekitData = new File("data/orekit-data");
-        DataProvidersManager manager = DataContext.getDefault().getDataProvidersManager();
-        manager.addProvider(new DirectoryCrawler(orekitData));
-
-
         ObservableList<String> predicateList = FXCollections.observableArrayList();
         ObservableList<String> operatorList = FXCollections.observableArrayList();
         addPredicateToList(predicateList);
@@ -151,50 +106,49 @@ public class MainController implements Initializable, SatelliteUpdateCallback {
         progressBar.setProgress(-1.0);
         progressBar.setVisible(false);
 
-        predicateBox.setValue("MIN_RNG");
-        operatorBox.setValue("<");
-        valueField.setText("10");
-        setButtonStyle(showSatelliteButton);
-        setButtonStyle(pauseButton);
-        setButtonStyle(closeApproachButton);
-        loadEarth();
+        setButtonStyle();
         loadTableSatellite();
         closeSession();
         buttonFunction();
         roundedPane();
+        loadEarth();
+        drawEarthAfterInit();
         scrollPaneLog.setFitToWidth(true);
         scrollPaneLog.setContent(loggerBox);
-        LoggerCustom.getInstance().setConsole(loggerBox,scrollPaneLog);
-
-        earthController.setCallback(this);
+        LoggerCustom.getInstance().setConsole(loggerBox, scrollPaneLog);
+        loadSatelliteInformation();
+        earthViewController.setCallback(satelliteInformationController.getSatelliteUpdateCallback());
 
     }
 
-    private void roundedPane() {
-        addClip(paneInformationCollision, 540, 256, 30, 30);
-        addClip(configurationPane, 30, 30);
-        addClip(satelliteOnePane, 30, 30);
-        addClip(satelliteTwoPane, 30, 30);
-        addClip(earthPane,30,30);
-        addClip(loggerBox,15,15);
-        addClip(scrollPaneLog,16,16);
+    private void drawEarthAfterInit() {
+        AnimationTimer timer = new AnimationTimer() {
+            @Override
+            public void handle(long now) {
+                EarthViewController.wwd.redraw();
+            }
+        };
+        timer.start();
     }
 
-    private void addClip(Region region, double arcWidth, double arcHeight) {
-        region.layoutBoundsProperty().addListener((observable, oldValue, newValue) -> {
-            Rectangle clip = new Rectangle(newValue.getWidth(), newValue.getHeight());
-            clip.setArcWidth(arcWidth);
-            clip.setArcHeight(arcHeight);
-            region.setClip(clip);
-        });
+    private void setButtonStyle() {
+        ButtonCustomStyle customStyle = new ButtonCustomStyle();
+        customStyle.setButtonStyle(showSatelliteButton);
+        customStyle.setButtonStyle(pauseButton);
+        customStyle.setButtonStyle(closeApproachButton);
+        customStyle.setButtonStyle(resumeButton);
+        customStyle.setButtonStyle(stopSimulationButton);
+        customStyle.setButtonStyle(simulateCollision);
     }
 
-    private void addClip(Region region, double width, double height, double arcWidth, double arcHeight) {
-        Rectangle clip = new Rectangle(width, height);
-        clip.setArcWidth(arcWidth);
-        clip.setArcHeight(arcHeight);
-        region.setClip(clip);
+    public void roundedPane() {
+        PaneCustomStyle paneCustomStyle = new PaneCustomStyle();
+        paneCustomStyle.addClip(earthPane, 30, 30);
+        paneCustomStyle.addClip(configurationPane, 30, 30);
+        paneCustomStyle.addClip(loggerBox, 15, 15);
+        paneCustomStyle.addClip(scrollPaneLog, 16, 16);
     }
+
 
     private void addPredicateToList(ObservableList<String> predicateList) {
         predicateList.add("MIN_RNG");
@@ -221,34 +175,35 @@ public class MainController implements Initializable, SatelliteUpdateCallback {
 
         stopSimulationButton.setOnAction(event -> {
             LoggerCustom.getInstance().logMessage("INFO: The simulation was stopped");
-            earthController.delete();
-            clearSatellitesDataFromFields();
+            earthViewController.delete();
+            satelliteInformationController.clearSatellitesDataFromFields();
             showSatelliteButton.setDisable(false);
             pauseButton.setDisable(true);
             closeApproachButton.setDisable(true);
             stopSimulationButton.setDisable(true);
-            earthController.triggerCollision(false);
+            earthViewController.triggerCollision(false);
             satelliteController.getSatelliteTable().setDisable(false);
-
         });
+
         pauseButton.setOnAction(event -> {
             LoggerCustom.getInstance().logMessage("INFO: Simulation paused");
-            earthController.pauseSimulation();
+            earthViewController.pauseSimulation();
             resumeButton.setDisable(false);
             pauseButton.setDisable(true);
         });
 
         closeApproachButton.setOnAction(event -> showSatellitesAtCloseApproach());
         resumeButton.setOnAction(event -> {
-            earthController.resumeSimulation();
+            earthViewController.resumeSimulation();
             pauseButton.setDisable(false);
             showSatelliteButton.setDisable(true);
         });
+
         simulateCollision.setOnAction(event -> {
             showSatellitesAtCloseApproach();
-            earthController.triggerCollision(true);
-            earthController.pauseSimulation();
-            earthController.resumeSimulation();
+            earthViewController.triggerCollision(true);
+            earthViewController.pauseSimulation();
+            earthViewController.resumeSimulation();
         });
     }
 
@@ -260,9 +215,7 @@ public class MainController implements Initializable, SatelliteUpdateCallback {
             alert.showAndWait();
             return;
         }
-
-        earthController.resetState();
-
+        earthViewController.resetState();
         Map<String, Ephemeris> ephemerisMap = new HashMap<>();
         Map<String, List<AbsoluteDate[]>> intervalMap = new HashMap<>();
         AbsoluteDate startDate = null;
@@ -280,17 +233,17 @@ public class MainController implements Initializable, SatelliteUpdateCallback {
             closeApproach = model.getCloseApproachDate();
         }
 
-        earthController.init(ephemerisMap, EarthController.wwd, earthController.getEarth(), startDate, endDate, intervalMap, closeApproach);
-        earthController.startSimulation();
+        earthViewController.init(ephemerisMap, EarthViewController.wwd, earthViewController.getEarth(), startDate, endDate, intervalMap, closeApproach);
+        earthViewController.startSimulation();
     }
 
     public void showSatellitesAtCloseApproach() {
         LoggerCustom.getInstance().logMessage("INFO: The satellites are on the close approach point");
-        earthController.pauseSimulation();
-        AbsoluteDate closeApproach = earthController.getCloseApproachDate();
-        earthController.setStartDate(closeApproach);
-        earthController.updateSatellites(closeApproach);
-        EarthController.wwd.redraw();
+        earthViewController.pauseSimulation();
+        AbsoluteDate closeApproach = earthViewController.getCloseApproachDate();
+        earthViewController.setStartDate(closeApproach);
+        earthViewController.updateSatellites(closeApproach);
+        EarthViewController.wwd.redraw();
         pauseButton.setDisable(false);
     }
 
@@ -299,11 +252,23 @@ public class MainController implements Initializable, SatelliteUpdateCallback {
         try {
             FXMLLoader fxmlLoaderEarth = new FXMLLoader(getClass().getResource("/views/EarthViewNou.fxml"));
             StackPane paneWithEarth = fxmlLoaderEarth.load();
-            earthController = fxmlLoaderEarth.getController();
+            earthViewController = fxmlLoaderEarth.getController();
             earthPane.getChildren().add(paneWithEarth);
         } catch (Exception ex) {
             System.out.println("An exception occurred due to can not instantiate the earth pane.");
             ex.printStackTrace();
+        }
+    }
+
+    public void loadSatelliteInformation() {
+        try {
+            FXMLLoader fxmlLoaderInformation = new FXMLLoader(getClass().getResource("/views/SatelliteInformation.fxml"));
+            StackPane paneWithEarth = fxmlLoaderInformation.load();
+            satelliteInformationController = fxmlLoaderInformation.getController();
+            informationPane.getChildren().add(paneWithEarth);
+            informationPane.setVisible(false);
+        } catch (Exception ex) {
+            System.out.println("An exception occurred due to can not instantiate the satellite information pane.");
         }
     }
 
@@ -327,39 +292,62 @@ public class MainController implements Initializable, SatelliteUpdateCallback {
             satelliteController.getSatelliteTable().getItems().clear();
             satelliteController.setTwoSatellitesSelected(new ArrayList<>());
             satelliteController.setDisplaySatelliteModels(new HashSet<>());
-            Task<Void> task = new Task<>() {
-                @Override
-                protected Void call() {
-                    LoggerCustom.getInstance().logMessage("INFO: The process for extract the data is running...");
-                    mainPanel.setDisable(true);
-                    displayProgressBar();
-                    CollectSatelliteData collectSatelliteData = new CollectSatelliteData();
-                    Map<String, Item> listOfUniqueSatelliteTemp = collectSatelliteData.extractSatelliteData(predicateBox.getValue(), operator, valueField.getText());
-                    satelliteController.setListOfUniqueSatellite(listOfUniqueSatelliteTemp);
-                    loadAllTle(collectSatelliteData, listOfUniqueSatelliteTemp);
-                    Platform.runLater(() -> {
-                        progressBar.setVisible(false);
-                        if (listOfUniqueSatelliteTemp.isEmpty()) {
-                            Alert alert = new Alert(Alert.AlertType.ERROR, "No results were found for the current settings", ButtonType.OK);
-                            satelliteController.getSatelliteTable().refresh();
-                            alert.showAndWait();
-                            LoggerCustom.getInstance().logMessage("INFO: Change configuration to find data");
-                            mainPanel.setDisable(false);
-                            event.consume();
-                        } else {
-                            mainPanel.setDisable(false);
-                            satelliteController.getSatelliteTable().refresh();
-                            setTextArea();
-                            LoggerCustom.getInstance().logMessage("INFO: Satellite's data were downloaded.");
-                        }
-                    });
-                    return null;
-                }
-            };
+
+            Task<Void> task = createExtractDataTask(event, operator);
             setTaskOnFailed(task);
             new Thread(task).start();
         });
     }
+
+    private Task<Void> createExtractDataTask(MouseEvent event, String operator) {
+        return new Task<>() {
+            @Override
+            protected Void call() {
+                startDataExtractionProcess();
+                CollectSatelliteData collectSatelliteData = new CollectSatelliteData();
+                Map<String, Item> listOfUniqueSatelliteTemp = collectSatelliteData.extractSatelliteData(predicateBox.getValue(), operator, valueField.getText());
+                satelliteController.setListOfUniqueSatellite(listOfUniqueSatelliteTemp);
+                loadAllTle(collectSatelliteData, listOfUniqueSatelliteTemp);
+                handleDataExtractionCompletion(listOfUniqueSatelliteTemp, event);
+                return null;
+            }
+        };
+    }
+
+    private void startDataExtractionProcess() {
+        LoggerCustom.getInstance().logMessage("INFO: The process for extract the data is running...");
+        mainPanel.setDisable(true);
+        displayProgressBar();
+    }
+
+    private void handleDataExtractionCompletion(Map<String, Item> listOfUniqueSatelliteTemp, MouseEvent event) {
+        Platform.runLater(() -> {
+            progressBar.setVisible(false);
+            if (listOfUniqueSatelliteTemp.isEmpty()) {
+                showAlertAndLog(event);
+            } else {
+                completeDataExtractionSuccessfully();
+            }
+        });
+    }
+
+    private void showAlertAndLog(MouseEvent event) {
+        Alert alert = new Alert(Alert.AlertType.ERROR, "No results were found for the current settings", ButtonType.OK);
+        satelliteController.getSatelliteTable().refresh();
+        alert.showAndWait();
+        LoggerCustom.getInstance().logMessage("INFO: Change configuration to find data");
+        mainPanel.setDisable(false);
+        event.consume();
+    }
+
+    private void completeDataExtractionSuccessfully() {
+        mainPanel.setDisable(false);
+        satelliteController.getSatelliteTable().refresh();
+        informationPane.setVisible(true);
+        updateCollisionInformation();
+        LoggerCustom.getInstance().logMessage("INFO: Satellite's data were downloaded.");
+    }
+
 
     private void displayProgressBar() {
         progressBar.setVisible(true);
@@ -396,7 +384,7 @@ public class MainController implements Initializable, SatelliteUpdateCallback {
         String newTca = "";
         for (Item item : listOfUniqueSatellite.values()) {
             if (item.getTca().contains(":")) {
-                newTca = item.getTca().replaceAll(":", colonForSpaceTrack);
+                newTca = item.getTca().replace(":", colonForSpaceTrack);
             }
 
             queryFirstSatellite = String.format("/basicspacedata/query/class/tle/NORAD_CAT_ID/%s/EPOCH/%s%s/orderby/EPOCH%sdesc/limit/1/format/tle/emptyresult/show", item.getSat1Id(), specificTagBuilder, newTca, epochDesc);
@@ -414,45 +402,15 @@ public class MainController implements Initializable, SatelliteUpdateCallback {
 
     }
 
-    private void setButtonStyle(Button button) {
-        button.setOnMouseEntered(e -> {
-            button.getStyleClass().add("buttonBackgroundHovered");
-            ScaleTransition st = new ScaleTransition(Duration.millis(500), button);
-            st.setToX(1.0);
-            st.setToY(1.0);
-            st.play();
-            TranslateTransition tt = new TranslateTransition(Duration.millis(500), button);
-            tt.setToY(-10);
-            tt.play();
-        });
-
-        button.setOnMouseExited(e -> {
-            button.getStyleClass().remove("buttonBackgroundHovered");
-            ScaleTransition st = new ScaleTransition(Duration.millis(500), button);
-            st.setToX(1);
-            st.setToY(1);
-            st.play();
-            TranslateTransition tt = new TranslateTransition(Duration.millis(500), button);
-            tt.setToY(0);
-            tt.play();
-        });
-    }
-
-    private void setTextArea() {
+    private void updateCollisionInformation() {
         satelliteController.getSatelliteTable().getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 showSatelliteButton.setDisable(false);
-                pcTextArea.setText(newValue.getCollisionProbability());
-                startDateTextArea.setText(newValue.getStartDate());
-                endDateTextArea.setText(newValue.getEndDate());
-                closeApproachDateTextArea.setText(newValue.getCloseApproachDate());
-                closeApproachDistanceTextArea.setText(newValue.getCloseApproach());
-                satelliteOneLabel.setText(newValue.getSat1Name());
-                satelliteTwoLabel.setText(newValue.getSat2Name());
-                thresholdTextArea.setText(thresholdBox.getText());
+                satelliteInformationController.setTextArea(newValue, thresholdBox.getText());
             }
         });
     }
+
 
     private String setOperator(String operator) {
         switch (operator) {
@@ -470,37 +428,5 @@ public class MainController implements Initializable, SatelliteUpdateCallback {
                 break;
         }
         return operator;
-    }
-
-
-
-    @Override
-    public void updateSatelliteData(String satelliteName, double latitude, double longitude, double altitude, double speed) {
-        Platform.runLater(() -> {
-            if (satelliteName.equals(satelliteOneLabel.getText())) {
-                latitudeSatelliteOne.setText(String.valueOf(Math.toDegrees(latitude)));
-                longitudeSatelliteOne.setText(String.valueOf(Math.toDegrees(longitude)));
-                satelliteOneAltitude.setText(String.valueOf(altitude));
-                speedSatelliteOne.setText(String.valueOf(speed));
-            } else if (satelliteName.equals(satelliteTwoLabel.getText())) {
-                latitudeSatelliteTwo.setText(String.valueOf(Math.toDegrees(latitude)));
-                longitudeSatelliteTwo.setText(String.valueOf(Math.toDegrees(longitude)));
-                satelliteTwoAltitude.setText(String.valueOf(altitude));
-                speedSatelliteTwo.setText(String.valueOf(speed));
-            }
-        });
-    }
-
-    public void clearSatellitesDataFromFields() {
-        latitudeSatelliteOne.setText("");
-        longitudeSatelliteOne.setText("");
-        satelliteOneAltitude.setText("");
-        speedSatelliteOne.setText("");
-
-        latitudeSatelliteTwo.setText("");
-        longitudeSatelliteTwo.setText("");
-        satelliteTwoAltitude.setText("");
-        speedSatelliteTwo.setText("");
-
     }
 }

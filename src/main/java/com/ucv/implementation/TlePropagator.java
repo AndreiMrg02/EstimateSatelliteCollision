@@ -31,7 +31,7 @@ import org.orekit.utils.ParameterDriver;
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.ucv.Util.UtilConstant.*;
+import static com.ucv.util.UtilConstant.*;
 
 public class TlePropagator extends Thread {
 

@@ -1,6 +1,6 @@
 package com.ucv.implementation;
 
-import com.ucv.Util.XmlParser;
+import com.ucv.util.XmlParser;
 import com.ucv.datamodel.internet.InternetConnectionData;
 import com.ucv.datamodel.xml.Item;
 import org.apache.log4j.LogManager;
