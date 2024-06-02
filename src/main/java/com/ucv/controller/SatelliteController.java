@@ -29,8 +29,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.ucv.database.DBManager.getStatesAllSatelliteName;
-import static com.ucv.database.DBManager.getStatesBySatelliteName;
+import static com.ucv.database.DBOperation.getSatellitesName;
+import static com.ucv.database.DBOperation.getStatesBySatelliteName;
 
 
 public class SatelliteController implements Initializable {
@@ -43,14 +43,14 @@ public class SatelliteController implements Initializable {
     private final ObservableList<Item> items = FXCollections.observableArrayList();
     private ArrayList<String> listOfTle;
     private Map<String, SpatialObject> spatialObjectList;
-    private Set<DisplaySatelliteModel> stringDisplaySatelliteModelMap;
+    private Set<DisplaySatelliteModel> displaySatelliteModels;
     private List<DisplaySatelliteModel> selectedSatellites;
-    private List<CollisionData> collisionData;
+    private List<CollisionData> collisionDataList;
     private List<TlePropagator> tleThreads;
     private int threshold;
 
-    public void setStringDisplaySatelliteModelMap(Set<DisplaySatelliteModel> stringDisplaySatelliteModelMap) {
-        this.stringDisplaySatelliteModelMap = stringDisplaySatelliteModelMap;
+    public void setDisplaySatelliteModels(Set<DisplaySatelliteModel> displaySatelliteModels) {
+        this.displaySatelliteModels = displaySatelliteModels;
     }
 
     /*
@@ -72,8 +72,8 @@ public class SatelliteController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         spatialObjectList = new HashMap<>();
         listOfTle = new ArrayList<>();
-        stringDisplaySatelliteModelMap = new LinkedHashSet<>();
-        collisionData = new ArrayList<>();
+        displaySatelliteModels = new LinkedHashSet<>();
+        collisionDataList = new ArrayList<>();
         satOneNameColumn.setCellValueFactory(new PropertyValueFactory<>("sat1Name"));
         satTwoNameColumn.setCellValueFactory(new PropertyValueFactory<>("sat2Name"));
         selectedSatellites = new ArrayList<>();
@@ -88,7 +88,7 @@ public class SatelliteController implements Initializable {
                 String satellite2Name = newValue.getSat2Name();
 
                 selectedSatellites = new ArrayList<>();
-                for (DisplaySatelliteModel model : stringDisplaySatelliteModelMap) {
+                for (DisplaySatelliteModel model : displaySatelliteModels) {
                     if (model.getName().equals(satellite1Name) || model.getName().equals(satellite2Name)) {
                         selectedSatellites.add(model);
                     }
@@ -101,7 +101,7 @@ public class SatelliteController implements Initializable {
      *  For each satellite will be executed a query.
      */
 
-    public void addAllSpatialObjectInDB() {
+    public void manageSatellites() {
         addTLEsToTextFile();
         for (SpatialObject spatialObject : spatialObjectList.values()) {
             TlePropagator object = new TlePropagator(spatialObject);
@@ -109,14 +109,14 @@ public class SatelliteController implements Initializable {
             tleThreads.add(object);
             System.out.println("Au fost adaugate starile pentru satelitul: " + spatialObject.getName() + "cu TLE-ul: " + spatialObject.getTle());
         }
-        for (TlePropagator p : tleThreads) {
+        for (TlePropagator threadTLE : tleThreads) {
             try {
-                p.join();
+                threadTLE.join();
             } catch (InterruptedException e) {
                 System.out.println("Eroare: " + e.getMessage());
             }
         }
-        estimateCollisionBetweenAllSatellites();
+        estimateCollisionBetweenSatellites();
     }
 
     private void addTLEsToTextFile() {
@@ -130,13 +130,11 @@ public class SatelliteController implements Initializable {
         }).collect(Collectors.toList()));
     }
 
-    private void estimateCollisionBetweenAllSatellites() {
-        List<String> satelliteNames = getStatesAllSatelliteName();
-        int size = satelliteNames.size();
-
+    private void estimateCollisionBetweenSatellites() {
+        List<String> satelliteNames = getSatellitesName();
         ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         try {
-            processCollision(size, satelliteNames, executor);
+            processCollision(satelliteNames, executor);
         } finally {
             executor.shutdown();
             try {
@@ -149,19 +147,20 @@ public class SatelliteController implements Initializable {
             }
         }
         Platform.runLater(() -> {
-            satelliteTable.setItems(FXCollections.observableList(collisionData));
+            satelliteTable.setItems(FXCollections.observableList(collisionDataList));
             satelliteTable.refresh();
         });
     }
 
-    private void processCollision(int size, List<String> satelliteNames, ExecutorService executor) {
+    private void processCollision(List<String> satelliteNames, ExecutorService executor) {
+        int size = satelliteNames.size();
         for (int i = 0; i < size; i++) {
-            final String entryOne = satelliteNames.get(i);
-            final List<SpacecraftState> statesOne = getStatesBySatelliteName(entryOne);
+            final String satelliteOneName = satelliteNames.get(i);
+            final List<SpacecraftState> statesOne = getStatesBySatelliteName(satelliteOneName);
             for (int j = i + 1; j < size; j++) {
-                final String entryTwo = satelliteNames.get(j);
-                final List<SpacecraftState> statesTwo = getStatesBySatelliteName(entryTwo);
-                CollisionTask task = new CollisionTask(statesOne, statesTwo, entryOne, entryTwo, stringDisplaySatelliteModelMap, collisionData, threshold);
+                final String satelliteTwoName = satelliteNames.get(j);
+                final List<SpacecraftState> statesTwo = getStatesBySatelliteName(satelliteTwoName);
+                CollisionTask task = new CollisionTask(statesOne, statesTwo, satelliteOneName, satelliteTwoName, displaySatelliteModels, collisionDataList, threshold);
                 executor.submit(task);
             }
         }
@@ -172,7 +171,7 @@ public class SatelliteController implements Initializable {
      */
     public void setListOfUniqueSatellite(Map<String, Item> listOfUniqueSatellite) {
         items.addAll(new ArrayList<>(listOfUniqueSatellite.values()));
-        satelliteTable.getItems().addAll(collisionData);
+        satelliteTable.getItems().addAll(collisionDataList);
     }
 
     /*

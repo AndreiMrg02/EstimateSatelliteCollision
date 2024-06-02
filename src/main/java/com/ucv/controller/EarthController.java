@@ -1,6 +1,7 @@
 package com.ucv.controller;
 
 import gov.nasa.worldwind.BasicModel;
+import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.WorldWindow;
 import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.awt.WorldWindowGLJPanel;
@@ -64,7 +65,7 @@ public class EarthController extends ApplicationTemplate implements Initializabl
     private AbsoluteDate closeApproachDate;
     private Thread simulationThread;
     private AbsoluteDate targetDate;
-    private Map<String, List<Airspace>> sphereFragmentsMap = new HashMap<>(); // Păstrează o mapă a fragmentelor pentru fiecare sferă
+    private Map<String, List<Airspace>> sphereFragmentsMap; // Păstrează o mapă a fragmentelor pentru fiecare sferă
     private SatelliteUpdateCallback callback;
 
     public void setCallback(SatelliteUpdateCallback callback) {
@@ -73,12 +74,14 @@ public class EarthController extends ApplicationTemplate implements Initializabl
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        WorldWind.setOfflineMode(true);
         wwd = new WorldWindowGLJPanel();
         wwd.setModel(new BasicModel());
         SwingNode swingNode = new SwingNode();
         swingNode.setContent((WorldWindowGLJPanel) wwd);
         swingNode.setVisible(true);
         addContinentAnnotations(wwd);
+        sphereFragmentsMap = new HashMap<>();
 
         StackPane borderPane = (StackPane) earthPanel.lookup("#earthPanel");
         borderPane.getChildren().add(swingNode);

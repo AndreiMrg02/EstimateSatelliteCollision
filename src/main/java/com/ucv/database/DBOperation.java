@@ -1,6 +1,8 @@
 package com.ucv.database;
 
 import com.ucv.datamodel.database.State;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.MutationQuery;
@@ -13,17 +15,21 @@ import org.orekit.time.AbsoluteDate;
 import org.orekit.time.TimeScalesFactory;
 import org.orekit.utils.TimeStampedPVCoordinates;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
-import static com.ucv.database.HibernateUtil.getCurrentSession;
 import static com.ucv.Util.UtilConstant.MU;
+import static com.ucv.database.HibernateUtil.getCurrentSession;
 
 
-public class DBManager {
+public class DBOperation {
+    private static final Logger logger = LogManager.getLogger(DBOperation.class);
+
+    private DBOperation() {
+
+    }
 
     public static synchronized void addStateDB(SpacecraftState spacecraftState, String satName) {
-
-
         try {
             Session session = getCurrentSession();
             State newState = new State();
@@ -41,7 +47,7 @@ public class DBManager {
             session.persist(newState);
             session.getTransaction().commit();
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.error(String.format("Unexpected error occurred due to add state in database for the satellite %s", satName));
         }
 
     }
@@ -56,11 +62,10 @@ public class DBManager {
 
             List<State> stateEntities = query.list();
             List<State> states = new ArrayList<>(stateEntities);
-            // Convertiți entitățile în stări SpacecraftState
+
             return convertEntitiesToSpacecraftStates(states, MU);
         } catch (Exception ex) {
-            System.out.println("Eroarea vine din functia de getByName: " + ex.getMessage());
-            ex.printStackTrace();
+            logger.error(String.format("Unexpected error occurred due to extract states for the satellite %s", satelliteName));
             return new ArrayList<>();
         }
     }
@@ -70,9 +75,9 @@ public class DBManager {
         Transaction tx = null;
         try {
             session = getCurrentSession();
-            tx = session.beginTransaction();  // Start a transaction
-            String hqlStatement = "DELETE FROM States";  // Ensure 'States' is the entity name, not the table name
-            // Use createMutationQuery for HQL mutation operations
+            tx = session.beginTransaction();
+            String hqlStatement = "DELETE FROM States";
+
             MutationQuery query = session.createMutationQuery(hqlStatement);
             query.executeUpdate();
             tx.commit();  // Commit the transaction
@@ -80,7 +85,7 @@ public class DBManager {
             if (tx != null) {
                 tx.rollback();  // Rollback the transaction in case of an error
             }
-            ex.printStackTrace();
+            logger.error(String.format("Unexpected error occurred due to extract clear states for satellites: %s", ex.getMessage()));
         } finally {
             if (session != null) {
                 session.close();  // Close the session to free up resources
@@ -89,8 +94,7 @@ public class DBManager {
     }
 
 
-
-    public static synchronized List<String> getStatesAllSatelliteName() {
+    public static synchronized List<String> getSatellitesName() {
         try (Session session = getCurrentSession()) {
 
             String sqlStatement = "SELECT DISTINCT s.satName FROM com.ucv.datamodel.database.State s";
@@ -99,39 +103,47 @@ public class DBManager {
             List<String> satelliteNameList = query.list();
             return new ArrayList<>(satelliteNameList);
         } catch (Exception ex) {
-            System.out.println("Eroarea vine din functia de getByName: " + ex.getMessage());
-            ex.printStackTrace();
+            logger.error(String.format("Unexpected error occurred due to extract the satellite name: %s", ex.getMessage()));
             return new ArrayList<>();
         }
     }
 
     private static List<SpacecraftState> convertEntitiesToSpacecraftStates(List<State> stateEntities, double mu) {
-        List<SpacecraftState> spacecraftStates = new ArrayList<>();
+        try {
+            List<SpacecraftState> spacecraftStates = new ArrayList<>();
 
-        for (State stateEntity : stateEntities) {
-            SpacecraftState spacecraftState = convertEntityToSpacecraftState(stateEntity, mu);
-            spacecraftStates.add(spacecraftState);
+            for (State stateEntity : stateEntities) {
+                SpacecraftState spacecraftState = convertEntityToSpacecraftState(stateEntity, mu);
+                spacecraftStates.add(spacecraftState);
+            }
+
+            return spacecraftStates;
+        } catch (Exception ex) {
+            logger.error(String.format("Unexpected error occurred due to convert entities: %s", ex.getMessage()));
         }
-
-        return spacecraftStates;
+        return new ArrayList<>();
     }
 
     private static SpacecraftState convertEntityToSpacecraftState(State stateEntity, double mu) {
-        AbsoluteDate absoluteDate = new AbsoluteDate(stateEntity.getDate(), TimeScalesFactory.getUTC());
-        final Vector3D position = new Vector3D(
-                stateEntity.getPosX(),
-                stateEntity.getPosY(),
-                stateEntity.getPosZ()
-        );
-        final Vector3D velocity = new Vector3D(
-                stateEntity.getvX(),
-                stateEntity.getvY(),
-                stateEntity.getvZ()
-        );
+        try {
+            AbsoluteDate absoluteDate = new AbsoluteDate(stateEntity.getDate(), TimeScalesFactory.getUTC());
+            final Vector3D position = new Vector3D(
+                    stateEntity.getPosX(),
+                    stateEntity.getPosY(),
+                    stateEntity.getPosZ()
+            );
+            final Vector3D velocity = new Vector3D(
+                    stateEntity.getvX(),
+                    stateEntity.getvY(),
+                    stateEntity.getvZ()
+            );
 
-        // create a state and add it to the map, in the states list for the satellite.
-        final TimeStampedPVCoordinates coords = new TimeStampedPVCoordinates(absoluteDate, position, velocity);
-        CartesianOrbit co = new CartesianOrbit(coords, FramesFactory.getEME2000(), mu);
-        return new SpacecraftState(co);
+            final TimeStampedPVCoordinates coords = new TimeStampedPVCoordinates(absoluteDate, position, velocity);
+            CartesianOrbit co = new CartesianOrbit(coords, FramesFactory.getEME2000(), mu);
+            return new SpacecraftState(co);
+        } catch (Exception ex) {
+            logger.error(String.format("Unexpected error occurred due to convert an entity to spacecraftState: %s", ex.getMessage()));
+        }
+        return null;
     }
 }

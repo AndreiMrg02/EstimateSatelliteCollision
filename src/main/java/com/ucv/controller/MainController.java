@@ -16,7 +16,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
@@ -24,7 +23,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import javafx.util.Duration;
 import org.orekit.data.DataContext;
 import org.orekit.data.DataProvidersManager;
@@ -37,7 +35,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 
-import static com.ucv.database.DBManager.clearAllStates;
+import static com.ucv.database.DBOperation.clearAllStates;
 import static com.ucv.database.HibernateUtil.closeSession;
 
 public class MainController implements Initializable, SatelliteUpdateCallback {
@@ -167,9 +165,7 @@ public class MainController implements Initializable, SatelliteUpdateCallback {
         scrollPaneLog.setFitToWidth(true);
         scrollPaneLog.setContent(loggerBox);
         LoggerCustom.getInstance().setConsole(loggerBox,scrollPaneLog);
-     //
-        //
-        //   closeGUIButton.setOnMouseClicked(mouseEvent -> System.exit(0));
+
         earthController.setCallback(this);
 
     }
@@ -330,7 +326,7 @@ public class MainController implements Initializable, SatelliteUpdateCallback {
             satelliteController.setThreshold(Integer.parseInt(thresholdBox.getText()));
             satelliteController.getSatelliteTable().getItems().clear();
             satelliteController.setTwoSatellitesSelected(new ArrayList<>());
-            satelliteController.setStringDisplaySatelliteModelMap(new HashSet<>());
+            satelliteController.setDisplaySatelliteModels(new HashSet<>());
             Task<Void> task = new Task<>() {
                 @Override
                 protected Void call() {
@@ -414,7 +410,7 @@ public class MainController implements Initializable, SatelliteUpdateCallback {
                 satelliteController.addSpatialObject(item.getTca(), item.getSat2Name(), tleSatellite);
             }
         }
-        satelliteController.addAllSpatialObjectInDB();
+        satelliteController.manageSatellites();
 
     }
 

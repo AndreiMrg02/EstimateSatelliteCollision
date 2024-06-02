@@ -1,7 +1,7 @@
 package com.ucv.implementation;
 
 
-import com.ucv.database.DBManager;
+import com.ucv.database.DBOperation;
 import com.ucv.datamodel.satellite.SpatialObject;
 import org.apache.log4j.Logger;
 import org.orekit.bodies.CelestialBodyFactory;
@@ -88,7 +88,7 @@ public class TlePropagator extends Thread {
         AbsoluteDate endDate = new AbsoluteDate(spatialObject.getTca(), TimeScalesFactory.getUTC()).shiftedBy(Constants.JULIAN_DAY * 1);
         propagator.propagate(startDate, endDate);
         for (SpacecraftState state : states) {
-            DBManager.addStateDB(state, spatialObject.getName());
+            DBOperation.addStateDB(state, spatialObject.getName());
         }
         logger.info(String.format("Data extraction for satelite finished: %s", spatialObject.getName()));
     }
