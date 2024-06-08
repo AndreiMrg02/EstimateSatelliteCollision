@@ -1,16 +1,16 @@
 #earthPanel {
-    -fx-background-color: transparent; /* Sau orice culoare dorești */
-    -fx-background-radius: 15;   /* Ajustează raza colțurilor după preferințe */
-    -fx-border-radius: 15;       /* Ajustează raza colțurilor bordurii după preferințe */
-    -fx-border-color: black;     /* Sau orice culoare dorești pentru bordură */
-    -fx-border-width: 2;         /* Lățimea bordurii */
+    -fx-background-color: transparent;
+    -fx-background-radius: 15;
+    -fx-border-radius: 15;
+    -fx-border-color: black;
+    -fx-border-width: 2;
 }
 .main-panel {
     -fx-background-color: transparent;
     -fx-background-radius: 15;
     -fx-border-radius: 15;
     -fx-border-color: rgba(98, 98, 98, 0.33);
-    /* Fundal */
+
     -fx-background-image: url('/img/wallpaper8.jpg');
     -fx-background-size: cover;
     -fx-background-position: center center;
@@ -36,6 +36,5 @@
 }
 
 .transparent-background {
-    /* Pentru fundal */
     -fx-background-color: transparent;
 }

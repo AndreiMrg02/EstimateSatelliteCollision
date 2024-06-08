@@ -1,12 +1,12 @@
 package com.ucv.controller;
 
 import com.ucv.Main;
-import com.ucv.util.ButtonCustomStyle;
-import com.ucv.util.LoggerCustom;
-import com.ucv.util.PaneCustomStyle;
 import com.ucv.datamodel.satellite.DisplaySatelliteModel;
 import com.ucv.datamodel.xml.Item;
 import com.ucv.implementation.CollectSatelliteData;
+import com.ucv.util.ButtonCustomStyle;
+import com.ucv.util.LoggerCustom;
+import com.ucv.util.PaneCustomStyle;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -17,7 +17,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -29,6 +28,8 @@ import org.orekit.time.AbsoluteDate;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.ucv.database.DBOperation.clearAllStates;
 import static com.ucv.database.HibernateUtil.closeSession;
@@ -58,7 +59,7 @@ public class MainController implements Initializable {
     @FXML
     private Button pauseButton;
     @FXML
-    private Button showSatelliteButton;
+    private Button showSatellitesButton;
     @FXML
     private StackPane earthPane;
     @FXML
@@ -68,14 +69,14 @@ public class MainController implements Initializable {
     @FXML
     private Button extractDataButton;
     @FXML
-    private ChoiceBox<String> predicateBox;
-    @FXML
     private ChoiceBox<String> operatorBox;
     @FXML
     private TextArea valueField;
+    private ObservableList<String> operatorList;
     private EarthViewController earthViewController;
     private SatelliteController satelliteController;
     private SatelliteInformationController satelliteInformationController;
+    private static final String regex = "^[0-9]+$";
 
     public void loadFXML(Stage mainStage) {
         try {
@@ -96,12 +97,8 @@ public class MainController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
-        ObservableList<String> predicateList = FXCollections.observableArrayList();
-        ObservableList<String> operatorList = FXCollections.observableArrayList();
-        addPredicateToList(predicateList);
-        predicateBox.setItems(predicateList);
-
-        addOperatorToList(operatorList);
+        operatorList = FXCollections.observableArrayList();
+        addOperatorToList();
         operatorBox.setItems(operatorList);
         progressBar.setProgress(-1.0);
         progressBar.setVisible(false);
@@ -109,7 +106,7 @@ public class MainController implements Initializable {
         setButtonStyle();
         loadTableSatellite();
         closeSession();
-        buttonFunction();
+        buttonSettings();
         roundedPane();
         loadEarth();
         drawEarthAfterInit();
@@ -117,8 +114,71 @@ public class MainController implements Initializable {
         scrollPaneLog.setContent(loggerBox);
         LoggerCustom.getInstance().setConsole(loggerBox, scrollPaneLog);
         loadSatelliteInformation();
-        earthViewController.setCallback(satelliteInformationController.getSatelliteUpdateCallback());
+        earthViewController.setUpdateSatellitesInformation(satelliteInformationController.getSatelliteUpdateCallback());
 
+    }
+
+
+    public void loadSatelliteInformation() {
+        try {
+            FXMLLoader fxmlLoaderInformation = new FXMLLoader(getClass().getResource("/views/SatelliteInformation.fxml"));
+            StackPane paneWithTable = fxmlLoaderInformation.load();
+            satelliteInformationController = fxmlLoaderInformation.getController();
+            informationPane.getChildren().add(paneWithTable);
+            informationPane.setVisible(false);
+        } catch (Exception ex) {
+            System.out.println("An exception occurred due to can not instantiate the satellite information pane.");
+        }
+    }
+
+    public void loadEarth() {
+        try {
+            FXMLLoader fxmlLoaderEarth = new FXMLLoader(getClass().getResource("/views/EarthViewNou.fxml"));
+            StackPane paneWithEarth = fxmlLoaderEarth.load();
+            earthViewController = fxmlLoaderEarth.getController();
+            earthPane.getChildren().add(paneWithEarth);
+        } catch (Exception ex) {
+            System.out.println("An exception occurred due to can not instantiate the earth pane.");
+            ex.printStackTrace();
+        }
+    }
+
+    public void loadTableSatellite() {
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/views/TableSatelliteExtended.fxml"));
+            BorderPane tableViewLayout = fxmlLoader.load();
+            satelliteController = fxmlLoader.getController();
+            successExtractList(tableViewLayout);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        processSatelliteData();
+    }
+
+    public boolean validateThresholdField() {
+
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(thresholdBox.getText());
+        if (matcher.matches()) {
+            return true;
+        } else {
+            Alert alert = new Alert(Alert.AlertType.ERROR, "The threshold field must be a digit or a number!", ButtonType.OK);
+            alert.showAndWait();
+            return false;
+        }
+    }
+
+    public boolean validateValueField() {
+
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(valueField.getText());
+        if (matcher.matches()) {
+            return true;
+        } else {
+            Alert alert = new Alert(Alert.AlertType.ERROR, "The value field must be a digit or a number!", ButtonType.OK);
+            alert.showAndWait();
+            return false;
+        }
     }
 
     private void drawEarthAfterInit() {
@@ -133,7 +193,7 @@ public class MainController implements Initializable {
 
     private void setButtonStyle() {
         ButtonCustomStyle customStyle = new ButtonCustomStyle();
-        customStyle.setButtonStyle(showSatelliteButton);
+        customStyle.setButtonStyle(showSatellitesButton);
         customStyle.setButtonStyle(pauseButton);
         customStyle.setButtonStyle(closeApproachButton);
         customStyle.setButtonStyle(resumeButton);
@@ -150,34 +210,28 @@ public class MainController implements Initializable {
     }
 
 
-    private void addPredicateToList(ObservableList<String> predicateList) {
-        predicateList.add("MIN_RNG");
-        predicateList.add("SAT_1_NAME");
-    }
-
-    private void addOperatorToList(ObservableList<String> operatorList) {
+    private void addOperatorToList() {
         operatorList.add("=");
         operatorList.add("<");
         operatorList.add(">");
     }
 
-    private void buttonFunction() {
+    private void buttonSettings() {
         resumeButton.setDisable(true);
-        showSatelliteButton.setOnAction(event -> {
+        showSatellitesButton.setOnAction(event -> {
             LoggerCustom.getInstance().logMessage("INFO: Check the map to see the satellites");
             displaySatellites();
             pauseButton.setDisable(false);
             stopSimulationButton.setDisable(false);
             closeApproachButton.setDisable(false);
-            showSatelliteButton.setDisable(true);
+            showSatellitesButton.setDisable(true);
             satelliteController.getSatelliteTable().setDisable(true);
         });
 
         stopSimulationButton.setOnAction(event -> {
             LoggerCustom.getInstance().logMessage("INFO: The simulation was stopped");
             earthViewController.delete();
-            satelliteInformationController.clearSatellitesDataFromFields();
-            showSatelliteButton.setDisable(false);
+            showSatellitesButton.setDisable(false);
             pauseButton.setDisable(true);
             closeApproachButton.setDisable(true);
             stopSimulationButton.setDisable(true);
@@ -196,7 +250,7 @@ public class MainController implements Initializable {
         resumeButton.setOnAction(event -> {
             earthViewController.resumeSimulation();
             pauseButton.setDisable(false);
-            showSatelliteButton.setDisable(true);
+            showSatellitesButton.setDisable(true);
         });
 
         simulateCollision.setOnAction(event -> {
@@ -209,7 +263,6 @@ public class MainController implements Initializable {
 
     public void displaySatellites() {
         List<DisplaySatelliteModel> satellites = satelliteController.getTwoSatellitesSelected();
-
         if (satellites == null || satellites.isEmpty()) {
             Alert alert = new Alert(Alert.AlertType.ERROR, "No satellite data available.", ButtonType.OK);
             alert.showAndWait();
@@ -217,13 +270,11 @@ public class MainController implements Initializable {
         }
         earthViewController.resetState();
         Map<String, Ephemeris> ephemerisMap = new HashMap<>();
-        Map<String, List<AbsoluteDate[]>> intervalMap = new HashMap<>();
         AbsoluteDate startDate = null;
         AbsoluteDate endDate = null;
         AbsoluteDate closeApproach = null;
         for (DisplaySatelliteModel model : satellites) {
             ephemerisMap.put(model.getName(), model.getEphemeris());
-            intervalMap.put(model.getName(), Collections.singletonList(new AbsoluteDate[]{model.getStartDate(), model.getEndDate()}));
             if (startDate == null || model.getStartDate().compareTo(startDate) < 0) {
                 startDate = model.getStartDate();
             }
@@ -233,7 +284,7 @@ public class MainController implements Initializable {
             closeApproach = model.getCloseApproachDate();
         }
 
-        earthViewController.init(ephemerisMap, EarthViewController.wwd, earthViewController.getEarth(), startDate, endDate, intervalMap, closeApproach);
+        earthViewController.init(ephemerisMap, startDate, endDate, closeApproach);
         earthViewController.startSimulation();
     }
 
@@ -247,114 +298,72 @@ public class MainController implements Initializable {
         pauseButton.setDisable(false);
     }
 
-
-    public void loadEarth() {
-        try {
-            FXMLLoader fxmlLoaderEarth = new FXMLLoader(getClass().getResource("/views/EarthViewNou.fxml"));
-            StackPane paneWithEarth = fxmlLoaderEarth.load();
-            earthViewController = fxmlLoaderEarth.getController();
-            earthPane.getChildren().add(paneWithEarth);
-        } catch (Exception ex) {
-            System.out.println("An exception occurred due to can not instantiate the earth pane.");
-            ex.printStackTrace();
-        }
-    }
-
-    public void loadSatelliteInformation() {
-        try {
-            FXMLLoader fxmlLoaderInformation = new FXMLLoader(getClass().getResource("/views/SatelliteInformation.fxml"));
-            StackPane paneWithEarth = fxmlLoaderInformation.load();
-            satelliteInformationController = fxmlLoaderInformation.getController();
-            informationPane.getChildren().add(paneWithEarth);
-            informationPane.setVisible(false);
-        } catch (Exception ex) {
-            System.out.println("An exception occurred due to can not instantiate the satellite information pane.");
-        }
-    }
-
-    public void loadTableSatellite() {
-        try {
-            FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/views/TableSatelliteExtended.fxml"));
-            BorderPane tableViewLayout = fxmlLoader.load();
-            satelliteController = fxmlLoader.getController();
-            successExtractList(tableViewLayout);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        extractDataTask();
-    }
-
-    private void extractDataTask() {
+    private void processSatelliteData() {
         extractDataButton.setOnMouseClicked(event -> {
-            clearAllStates();
+            if (!validateValueField() || !validateThresholdField()) {
+                return;
+            }
             String operator = setOperator(operatorBox.getValue());
-            satelliteController.setThreshold(Integer.parseInt(thresholdBox.getText()));
-            satelliteController.getSatelliteTable().getItems().clear();
-            satelliteController.setTwoSatellitesSelected(new ArrayList<>());
-            satelliteController.setDisplaySatelliteModels(new HashSet<>());
-
-            Task<Void> task = createExtractDataTask(event, operator);
+            resetDataForNewExtraction();
+            Task<Void> task = new Task<>() {
+                @Override
+                protected Void call() {
+                    LoggerCustom.getInstance().logMessage("INFO: The process for extract the data is running...");
+                    mainPanel.setDisable(true);
+                    displayProgressBar();
+                    CollectSatelliteData collectSatelliteData = new CollectSatelliteData();
+                    Map<String, Item> listOfUniqueSatelliteTemp = collectSatelliteData.extractSatelliteData("MIN_RNG", operator, valueField.getText());
+                    satelliteController.setListOfUniqueSatellite(listOfUniqueSatelliteTemp);
+                    downloadTLEs(collectSatelliteData, listOfUniqueSatelliteTemp);
+                    Platform.runLater(() -> {
+                        progressBar.setVisible(false);
+                        if (listOfUniqueSatelliteTemp.isEmpty()) {
+                            alertNoResults();
+                            event.consume();
+                        } else {
+                            setTaskOnSuccess();
+                        }
+                    });
+                    return null;
+                }
+            };
             setTaskOnFailed(task);
             new Thread(task).start();
         });
     }
 
-    private Task<Void> createExtractDataTask(MouseEvent event, String operator) {
-        return new Task<>() {
-            @Override
-            protected Void call() {
-                startDataExtractionProcess();
-                CollectSatelliteData collectSatelliteData = new CollectSatelliteData();
-                Map<String, Item> listOfUniqueSatelliteTemp = collectSatelliteData.extractSatelliteData(predicateBox.getValue(), operator, valueField.getText());
-                satelliteController.setListOfUniqueSatellite(listOfUniqueSatelliteTemp);
-                loadAllTle(collectSatelliteData, listOfUniqueSatelliteTemp);
-                handleDataExtractionCompletion(listOfUniqueSatelliteTemp, event);
-                return null;
-            }
-        };
-    }
-
-    private void startDataExtractionProcess() {
-        LoggerCustom.getInstance().logMessage("INFO: The process for extract the data is running...");
-        mainPanel.setDisable(true);
-        displayProgressBar();
-    }
-
-    private void handleDataExtractionCompletion(Map<String, Item> listOfUniqueSatelliteTemp, MouseEvent event) {
-        Platform.runLater(() -> {
-            progressBar.setVisible(false);
-            if (listOfUniqueSatelliteTemp.isEmpty()) {
-                showAlertAndLog(event);
-            } else {
-                completeDataExtractionSuccessfully();
-            }
-        });
-    }
-
-    private void showAlertAndLog(MouseEvent event) {
-        Alert alert = new Alert(Alert.AlertType.ERROR, "No results were found for the current settings", ButtonType.OK);
-        satelliteController.getSatelliteTable().refresh();
-        alert.showAndWait();
-        LoggerCustom.getInstance().logMessage("INFO: Change configuration to find data");
-        mainPanel.setDisable(false);
-        event.consume();
-    }
-
-    private void completeDataExtractionSuccessfully() {
-        mainPanel.setDisable(false);
-        satelliteController.getSatelliteTable().refresh();
-        informationPane.setVisible(true);
-        updateCollisionInformation();
-        LoggerCustom.getInstance().logMessage("INFO: Satellite's data were downloaded.");
-    }
-
-
     private void displayProgressBar() {
+        progressBar.toFront();
         progressBar.setVisible(true);
         progressBar.setStyle("-fx-accent: #ff0000;"); // Change the color to red for better visibility
         progressBar.setScaleX(1.5);
         progressBar.setOpacity(1.0);
         progressBar.setScaleY(1.5);
+    }
+
+    public void resetDataForNewExtraction() {
+        clearAllStates();
+        satelliteInformationController.clearSatellitesDataFromFields();
+        satelliteController.setThreshold(Integer.parseInt(thresholdBox.getText()));
+        satelliteController.getSatelliteTable().getItems().clear();
+        satelliteController.setTwoSatellitesSelected(new ArrayList<>());
+        satelliteController.setDisplaySatelliteModels(new HashSet<>());
+    }
+
+    public void alertNoResults() {
+        Alert alert = new Alert(Alert.AlertType.ERROR, "No results were found for the current settings", ButtonType.OK);
+        satelliteController.getSatelliteTable().refresh();
+        alert.showAndWait();
+        LoggerCustom.getInstance().logMessage("INFO: Change configuration to find data");
+        mainPanel.setDisable(false);
+    }
+
+    public void setTaskOnSuccess() {
+        mainPanel.setDisable(false);
+        satelliteController.getSatelliteTable().refresh();
+        informationPane.setVisible(true);
+        updateCollisionInformation();
+        LoggerCustom.getInstance().logMessage("INFO: Satellite's data were downloaded.");
     }
 
     private void setTaskOnFailed(Task<Void> task) {
@@ -375,7 +384,7 @@ public class MainController implements Initializable {
         tableViewPane.setCenter(tableViewLayout);
     }
 
-    private void loadAllTle(CollectSatelliteData downloadTLE, Map<String, Item> listOfUniqueSatellite) {
+    private void downloadTLEs(CollectSatelliteData downloadTLE, Map<String, Item> listOfUniqueSatellite) {
         String specificTagBuilder = "%3C";
         String epochDesc = "%20";
         String queryFirstSatellite = "";
@@ -405,12 +414,11 @@ public class MainController implements Initializable {
     private void updateCollisionInformation() {
         satelliteController.getSatelliteTable().getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
-                showSatelliteButton.setDisable(false);
-                satelliteInformationController.setTextArea(newValue, thresholdBox.getText());
+                showSatellitesButton.setDisable(false);
+                satelliteInformationController.setCollisionInformation(newValue, thresholdBox.getText());
             }
         });
     }
-
 
     private String setOperator(String operator) {
         switch (operator) {

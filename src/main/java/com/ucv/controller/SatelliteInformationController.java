@@ -6,13 +6,16 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.StackPane;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class SatelliteInformationController implements Initializable, SatelliteUpdateCallback  {
+public class SatelliteInformationController implements Initializable, SatelliteInformationUpdate {
+    @FXML
+    private ProgressIndicator progressBar;
     @FXML
     private  StackPane paneInformationCollision;
     @FXML
@@ -54,6 +57,8 @@ public class SatelliteInformationController implements Initializable, SatelliteU
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         roundedPane();
+        progressBar.setProgress(-1.0);
+        progressBar.setVisible(false);
     }
     public void roundedPane(){
         PaneCustomStyle paneCustomStyle = new PaneCustomStyle();
@@ -62,7 +67,7 @@ public class SatelliteInformationController implements Initializable, SatelliteU
         paneCustomStyle.addClip(satelliteTwoPane, 30, 30);
     }
 
-    public void setTextArea(CollisionData newValue, String thresholdValue) {
+    public void setCollisionInformation(CollisionData newValue, String thresholdValue) {
 
             if (newValue != null) {
                 pcTextArea.setText(newValue.getCollisionProbability());
@@ -77,7 +82,7 @@ public class SatelliteInformationController implements Initializable, SatelliteU
 
     }
     @Override
-    public void updateSatelliteData(String satelliteName, double latitude, double longitude, double altitude, double speed) {
+    public void updateSatelliteInformation(String satelliteName, double latitude, double longitude, double altitude, double speed) {
         Platform.runLater(() -> {
             if (satelliteName.equals(satelliteOneLabel.getText())) {
                 latitudeSatelliteOne.setText(String.valueOf(Math.toDegrees(latitude)));
@@ -104,10 +109,19 @@ public class SatelliteInformationController implements Initializable, SatelliteU
         satelliteTwoAltitude.setText("");
         speedSatelliteTwo.setText("");
 
+        pcTextArea.setText("");
+        closeApproachDateTextArea.setText("");
+        closeApproachDistanceTextArea.setText("");
+        startDateTextArea.setText("");
+        endDateTextArea.setText("");
+
+        satelliteOneAltitude.setText("");
+        satelliteTwoAltitude.setText("");
+
+
     }
-    public SatelliteUpdateCallback getSatelliteUpdateCallback(){
+    public SatelliteInformationUpdate getSatelliteUpdateCallback(){
         return this;
     }
-
 
 }

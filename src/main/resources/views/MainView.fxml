@@ -31,20 +31,6 @@
                   <Insets top="5.0" />
                </VBox.margin>
             </Label>
-            <HBox alignment="CENTER" prefHeight="48.0" prefWidth="354.0" spacing="40.0">
-               <VBox.margin>
-                  <Insets />
-               </VBox.margin>
-               <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="30.0" prefWidth="95.0" text="Peridcate" textFill="#6f5c69" textOverrun="LEADING_ELLIPSIS" HBox.hgrow="ALWAYS">
-                  <font>
-                     <Font name="Copperplate Gothic Bold" size="14.0" />
-                  </font>
-                  <HBox.margin>
-                     <Insets left="5.0" />
-                  </HBox.margin>
-               </Label>
-               <ChoiceBox fx:id="predicateBox" blendMode="SCREEN" minHeight="-Infinity" prefHeight="35.0" prefWidth="135.0" stylesheets="@css/choiceBox.css" HBox.hgrow="ALWAYS" />
-            </HBox>
             <HBox alignment="CENTER" layoutX="10.0" layoutY="10.0" prefHeight="48.0" prefWidth="354.0" spacing="40.0">
                <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="30.0" prefWidth="95.0" text="Operator" textFill="#6f5c69" textOverrun="LEADING_ELLIPSIS" HBox.hgrow="ALWAYS">
                   <font>
@@ -57,7 +43,7 @@
                <ChoiceBox fx:id="operatorBox" minHeight="-Infinity" prefHeight="35.0" prefWidth="135.0" stylesheets="@css/choiceBox.css" HBox.hgrow="ALWAYS" />
             </HBox>
             <HBox alignment="CENTER" layoutX="10.0" layoutY="52.0" prefHeight="48.0" prefWidth="299.0" spacing="40.0">
-               <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="30.0" prefWidth="95.0" text="Value" textFill="#6f5c69" textOverrun="LEADING_ELLIPSIS" HBox.hgrow="ALWAYS">
+               <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="30.0" prefWidth="95.0" text="range(km)" textFill="#6f5c69" textOverrun="LEADING_ELLIPSIS" HBox.hgrow="ALWAYS">
                   <font>
                      <Font name="Copperplate Gothic Bold" size="14.0" />
                   </font>
@@ -100,7 +86,7 @@
                <VBox.margin>
                   <Insets top="10.0" />
                </VBox.margin>
-               <Button fx:id="showSatelliteButton" disable="true" maxHeight="-Infinity" maxWidth="-Infinity" mnemonicParsing="false" prefHeight="42.0" prefWidth="155.0" stylesheets="@css/button.css" text="Show Satellites">
+               <Button fx:id="showSatellitesButton" disable="true" maxHeight="-Infinity" maxWidth="-Infinity" mnemonicParsing="false" prefHeight="42.0" prefWidth="155.0" stylesheets="@css/button.css" text="Show Satellites">
                   <HBox.margin>
                      <Insets />
                   </HBox.margin>
@@ -146,12 +132,13 @@
    </bottom>
    <center>
       <StackPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER">
-         <StackPane fx:id="informationPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
+         <StackPane fx:id="informationPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" />
+         <StackPane prefHeight="150.0" prefWidth="200.0">
             <children>
                <ProgressIndicator fx:id="progressBar" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="74.0" prefWidth="91.0" progress="0.0" styleClass="progress-bar">
-                  <StackPane.margin>
-                     <Insets left="100.0" />
-                  </StackPane.margin>
+                  <padding>
+                     <Insets left="20.0" />
+                  </padding>
                </ProgressIndicator>
             </children>
          </StackPane>

@@ -56,11 +56,11 @@ public class SatelliteController implements Initializable {
     /*
      * Write Tle in a file
      */
-    private void writeToFile(List<String> tleList, String directory, String fileName) {
-        File file = new File(directory, fileName);
+    private void writeToFile(String directoryPath, String fileName) {
+        File file = new File(directoryPath, fileName);
 
         try (FileWriter writer = new FileWriter(file)) {
-            for (String tle : tleList) {
+            for (String tle : listOfTle) {
                 writer.write(tle + System.lineSeparator());
             }
         } catch (IOException e) {
@@ -198,7 +198,7 @@ public class SatelliteController implements Initializable {
         File file = fileChooser.showSaveDialog(satelliteTable.getScene().getWindow());
 
         if (file != null) {
-            writeToFile(listOfTle, file.getParent(), file.getName());
+            writeToFile(file.getParent(), file.getName());
         }
     }
 

@@ -20,7 +20,7 @@ import java.util.Map;
 
 public class CollectSatelliteData {
     private final InternetConnectionData connectionData;
-    Logger logger = LogManager.getLogger(CollectSatelliteData.class);
+    private final Logger logger = LogManager.getLogger(CollectSatelliteData.class);
 
     public CollectSatelliteData() {
         this.connectionData = getInternetConnectionData();
@@ -92,7 +92,7 @@ public class CollectSatelliteData {
         return null;
     }
 
-    private void appendReadLine(BufferedReader br, StringBuilder stringBuilder) throws IOException {
+    private void appendReadLine(BufferedReader br, StringBuilder stringBuilder) {
         try {
             String output;
             while ((output = br.readLine()) != null) {
@@ -104,22 +104,27 @@ public class CollectSatelliteData {
                 }
             }
         } catch (Exception exception){
-
+            logger.error("Unexpected error occurred due to append read line");
         }
     }
-    private HttpsURLConnection getHttpsURLConnection() throws IOException {
-        URL url = new URL(connectionData.getBaseURL() + connectionData.getAuthPath());
+    private HttpsURLConnection getHttpsURLConnection() {
+        try {
+            URL url = new URL(connectionData.getBaseURL() + connectionData.getAuthPath());
 
-        HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
-        conn.setDoOutput(true);
-        conn.setRequestMethod("POST");
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+            conn.setDoOutput(true);
+            conn.setRequestMethod("POST");
 
-        String input = "identity=" + connectionData.getUserName() + "&password=" + connectionData.getPassword();
+            String input = "identity=" + connectionData.getUserName() + "&password=" + connectionData.getPassword();
 
-        OutputStream os = conn.getOutputStream();
-        os.write(input.getBytes());
-        os.flush();
-        return conn;
+            OutputStream os = conn.getOutputStream();
+            os.write(input.getBytes());
+            os.flush();
+            return conn;
+        } catch (Exception ex){
+            logger.error("Unexpected error occurred due to connect to Space-Track");
+        }
+        return null;
     }
 
     private  void cookieInit() {

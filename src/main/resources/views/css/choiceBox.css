@@ -4,17 +4,17 @@
     -fx-border-width: 1; /* Lățimea bordurii */
     -fx-border-radius: 8; /* Colturi rotunjite */
     -fx-padding: 4 8; /* Padding pentru text */
-    -fx-text-fill: rgba(225, 225, 227, 0.83); /* Culoarea textului */
+    -fx-text-fill: rgba(23, 23, 234, 0.83); /* Culoarea textului */
+    -fx-font-weight: bold;
 }
 
 .choice-box .cell {
     -fx-padding: 4 8; /* Padding similar pentru opțiuni */
 }
-
-.choice-box .list-cell {
-    -fx-background-color: transparent;
+/* combo-box list view text, not hovered or focused */
+.choice-box .label {
+    -fx-text-fill: #e5b2b2;
 }
-
 .choice-box:hover {
     -fx-border-color: #007bff; /* Schimbă culoarea bordurii la hover */
 }
