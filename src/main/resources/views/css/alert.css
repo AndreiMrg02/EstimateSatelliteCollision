@@ -1,0 +1,36 @@
+.alert {
+    -fx-background-color: #2E2E2E; /* Gri închis pentru fundal */
+    -fx-border-color: #555555; /* Gri mediu pentru bordură */
+    -fx-border-width: 1;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-padding: 15;
+}
+
+.alert .header-panel {
+    -fx-background-color: transparent;
+    -fx-padding: 10 0;
+    -fx-font-size: 16px; /* Dimensiune mai mare a fontului pentru titlu */
+    -fx-text-fill: #DDDDDD; /* Gri deschis pentru text */
+}
+
+.alert .content {
+    -fx-text-fill: #DDDDDD;
+    -fx-font-size: 14px;
+    -fx-padding: 10;
+}
+
+.alert .button-bar {
+    -fx-background-color: transparent;
+}
+
+.alert .button-bar .button {
+    -fx-background-color: #555555; /* Gri mediu pentru butoane */
+    -fx-text-fill: #FFFFFF; /* Text alb pe butoane */
+    -fx-background-radius: 5;
+    -fx-padding: 5 15;
+}
+
+.alert .button-bar .button:hover {
+    -fx-background-color: #777777; /* Gri mai deschis pentru hover */
+}

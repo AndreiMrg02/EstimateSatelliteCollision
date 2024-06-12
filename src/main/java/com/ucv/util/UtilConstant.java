@@ -10,5 +10,6 @@ public class UtilConstant {
     public static final double CROSS_SECTION = 10.0;
     public static final double SRP_COEF = 0.7;
     public static final double DAYS = 0.1;
+    public static String UNKNOWN = "UNKNOWN";
 
 }

@@ -13,6 +13,8 @@ import javafx.scene.layout.StackPane;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import static com.ucv.util.UtilConstant.UNKNOWN;
+
 public class SatelliteInformationController implements Initializable, SatelliteInformationUpdate {
     @FXML
     private ProgressIndicator progressBar;
@@ -74,28 +76,52 @@ public class SatelliteInformationController implements Initializable, SatelliteI
                 startDateTextArea.setText(newValue.getStartDate());
                 endDateTextArea.setText(newValue.getEndDate());
                 closeApproachDateTextArea.setText(newValue.getCloseApproachDate());
-                closeApproachDistanceTextArea.setText(newValue.getCloseApproach());
+                double value = Double.parseDouble(newValue.getCloseApproach());
+                closeApproachDistanceTextArea.setText(String.format("%.2f meters",value));
                 satelliteOneLabel.setText(newValue.getSat1Name());
                 satelliteTwoLabel.setText(newValue.getSat2Name());
-                thresholdTextArea.setText(thresholdValue);
+                if(Integer.parseInt(thresholdValue) == 1) {
+                    thresholdTextArea.setText(String.format("%s meter", thresholdValue));
+                }else {
+                    thresholdTextArea.setText(String.format("%s meters", thresholdValue));
+                }
             }
 
     }
     @Override
     public void updateSatelliteInformation(String satelliteName, double latitude, double longitude, double altitude, double speed) {
         Platform.runLater(() -> {
+            if(satelliteName.isEmpty() && latitude == 0 &&  longitude == 0 && altitude == 0 && speed == 0) {
+                setCollisionText(satelliteName);
+            }
             if (satelliteName.equals(satelliteOneLabel.getText())) {
-                latitudeSatelliteOne.setText(String.valueOf(Math.toDegrees(latitude)));
-                longitudeSatelliteOne.setText(String.valueOf(Math.toDegrees(longitude)));
-                satelliteOneAltitude.setText(String.valueOf(altitude));
-                speedSatelliteOne.setText(String.valueOf(speed));
+                latitudeSatelliteOne.setText(String.format("%.2f degrees", latitude));
+                longitudeSatelliteOne.setText(String.format("%.2f degrees", longitude));
+                satelliteOneAltitude.setText(String.format("%.2f Km", altitude/1000.));
+                speedSatelliteOne.setText(String.format("%.2f Km/s",  speed/1000.));
             } else if (satelliteName.equals(satelliteTwoLabel.getText())) {
-                latitudeSatelliteTwo.setText(String.valueOf(Math.toDegrees(latitude)));
-                longitudeSatelliteTwo.setText(String.valueOf(Math.toDegrees(longitude)));
-                satelliteTwoAltitude.setText(String.valueOf(altitude));
-                speedSatelliteTwo.setText(String.valueOf(speed));
+                latitudeSatelliteTwo.setText(String.format("%.2f degrees", latitude));
+                longitudeSatelliteTwo.setText(String.format("%.2f degrees", longitude));
+                satelliteTwoAltitude.setText(String.format("%.2f Km", altitude/1000.));
+                speedSatelliteTwo.setText(String.format("%.2f Km/s", speed/1000.));
             }
         });
+    }
+
+    public void setCollisionText(String satelliteName){
+            if (satelliteName.equals(satelliteOneLabel.getText())) {
+                satelliteOneLabel.setText(UNKNOWN);
+                latitudeSatelliteOne.setText(UNKNOWN);
+                longitudeSatelliteOne.setText(UNKNOWN);
+                satelliteOneAltitude.setText(UNKNOWN);
+                speedSatelliteOne.setText(UNKNOWN);
+            } else if (satelliteName.equals(satelliteTwoLabel.getText())) {
+                satelliteTwoLabel.setText(UNKNOWN);
+                latitudeSatelliteTwo.setText(UNKNOWN);
+                longitudeSatelliteTwo.setText(UNKNOWN);
+                satelliteTwoAltitude.setText(UNKNOWN);
+                speedSatelliteTwo.setText(UNKNOWN);
+            }
     }
 
     public void clearSatellitesDataFromFields() {

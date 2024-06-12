@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<VBox fx:id="vbox" alignment="TOP_CENTER" prefHeight="334.0" prefWidth="426.0" spacing="5.0" stylesheets="@css/login.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ucv.controller.LoginController">
+   <children>
+      <HBox alignment="TOP_RIGHT" prefHeight="45.0" prefWidth="277.0">
+         <children>
+            <Button id="closeButton" onAction="#handleClose" text="X">
+               <HBox.margin>
+                  <Insets />
+               </HBox.margin>
+            </Button>
+         </children>
+      </HBox>
+      <Text id="titleText" fx:id="sceneTitle" text="Estimate Collision Risk">
+         <font>
+            <Font name="Berlin Sans FB Demi Bold" size="12.0" />
+         </font></Text>
+      <GridPane alignment="CENTER" hgap="15.0" vgap="15.0">
+         <padding>
+            <Insets bottom="10" left="0" right="0" top="10" />
+         </padding>
+         <columnConstraints>
+            <ColumnConstraints />
+            <ColumnConstraints />
+         </columnConstraints>
+         <rowConstraints>
+            <RowConstraints />
+            <RowConstraints />
+            <RowConstraints />
+         </rowConstraints>
+         <children>
+            <Label id="label" text="Email" GridPane.columnIndex="0" GridPane.rowIndex="0">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+            </Label>
+            <TextField id="textField" fx:id="userTextField" prefHeight="42.0" prefWidth="262.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+            <Label id="label" text="Password:" GridPane.columnIndex="0" GridPane.rowIndex="1">
+               <font>
+                  <Font name="System Bold" size="31.0" />
+               </font>
+            </Label>
+            <PasswordField id="textField" fx:id="pwBox" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <HBox alignment="CENTER" spacing="10" GridPane.columnIndex="1" GridPane.rowIndex="2">
+               <GridPane.margin>
+                  <Insets right="80.0" />
+               </GridPane.margin>
+               <children>
+                  <Button id="signInButton" fx:id="signInButton" onAction="#handleSignIn" prefHeight="41.0" prefWidth="170.0" text="Sign in" />
+               </children>
+            </HBox>
+         </children>
+      </GridPane>
+      <HBox alignment="CENTER">
+         <children>
+            <Text id="registerText" text="Don't have an account?" />
+            <Hyperlink id="registerLink" fx:id="registerLink" onAction="#handleRegister" text="Register" />
+         </children>
+      </HBox>
+      <Text id="actionTarget" fx:id="actionTarget" />
+      <HBox alignment="CENTER" layoutX="12.0" layoutY="278.0">
+         <children>
+            <Text fill="#e82a2a" text="*Space-Track.org credentials are required">
+               <font>
+                  <Font name="System Bold Italic" size="12.0" />
+               </font>
+            </Text>
+         </children>
+      </HBox>
+   </children>
+</VBox>

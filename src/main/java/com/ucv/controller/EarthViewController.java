@@ -2,6 +2,7 @@ package com.ucv.controller;
 
 import com.ucv.util.LoggerCustom;
 import gov.nasa.worldwind.BasicModel;
+import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.WorldWindow;
 import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.awt.WorldWindowGLJPanel;
@@ -44,7 +45,6 @@ import java.io.File;
 import java.net.URL;
 import java.util.List;
 import java.util.*;
-import java.util.logging.Logger;
 
 public class EarthViewController extends ApplicationTemplate implements Initializable, Runnable {
     protected static WorldWindow wwd;
@@ -74,6 +74,7 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        WorldWind.setOfflineMode(true);
         wwd = new WorldWindowGLJPanel();
         wwd.setModel(new BasicModel());
         sphereFragmentsMap = new HashMap<>();
@@ -81,13 +82,16 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
         swingNode.setContent((WorldWindowGLJPanel) wwd);
         swingNode.setVisible(true);
         addContinentAnnotations();
-
+        /*Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            if (wwd != null) {
+                wwd.shutdown();
+            }
+        }));*/
         StackPane borderPane = (StackPane) earthPanel.lookup("#earthPanel");
         borderPane.getChildren().add(swingNode);
         isCollision = false;
 
     }
-
 
     public EarthViewController() {
         try {
@@ -152,6 +156,7 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
         this.closeApproachDate = closeApproach;
         this.labelLayer = new AnnotationLayer();
 
+        assert ephemerisMap != null;
         for (Map.Entry<String, Ephemeris> entry : ephemerisMap.entrySet()) {
             SphereAirspace sphere = new SphereAirspace();
             sphere.setRadius(100000);
@@ -172,8 +177,6 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
         wwd.getModel().getLayers().add(satAirspaces);
         wwd.getModel().getLayers().add(labelLayer);
         wwd.redraw();
-
-        System.out.println("Dynamic spheres and labels added to airspace layer.");
     }
 
     private void attributeSatelliteNameLabel(GlobeAnnotation label) {
@@ -214,7 +217,6 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
             Platform.runLater(() -> {
                 updateSatellites(finalTargetDate);
                 wwd.redraw();
-                System.out.println("Redrawing at target date: " + finalTargetDate);
             });
 
             try {
@@ -237,7 +239,6 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
         restart = false;
 
         if (this.earth == null) {
-            System.out.println("The Earth object is not initialized.");
             return true;
         }
 
@@ -254,7 +255,7 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
         }
 
         if (minDate == null || maxDate == null) {
-            System.out.println("No available data for propagation.");
+            LoggerCustom.getInstance().logMessage("No available data for propagation");
             return true;
         }
 
@@ -293,7 +294,7 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
 
                     if (targetDate.compareTo(threeMinutesAfter) >= 0 && targetDate.compareTo(threeMinutesBefore) <= 0) {
                         changeSphereOnCloseApproach(name, attrs, sphere, positions, orbit);
-                    }else{
+                    } else {
                         sphere.setRadius(100000);
                     }
                     double speed = pvCoordinates.getVelocity().getNorm(); //m/s
@@ -304,12 +305,16 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
                     // Update label position
                     Position labelPos = new Position(LatLon.fromRadians(gp.getLatitude(), gp.getLongitude()), gp.getAltitude() + sphere.getRadius() * 1.2);
                     label.setPosition(labelPos);
+                    if (updateSatellitesInformation != null) {
+                        if(isCollision){
+                            updateSatellitesInformation.updateSatelliteInformation("",0,0,0,0);
+                        }else{
+                        updateSatellitesInformation.updateSatelliteInformation(name, FastMath.toDegrees(gp.getLatitude()), FastMath.toDegrees(gp.getLongitude()), FastMath.toDegrees(gp.getAltitude()), speed);
+                        }
+                    }
                     if (isCollision) {
                         labelLayer.removeAllAnnotations();
                         shatterSphere(sphere, name);
-                    }
-                    if (updateSatellitesInformation != null) {
-                        updateSatellitesInformation.updateSatelliteInformation(name, FastMath.toDegrees(gp.getLatitude()), FastMath.toDegrees(gp.getLongitude()), FastMath.toDegrees(gp.getAltitude()), speed);
                     }
                 }
             } catch (OrekitException e) {
@@ -325,7 +330,7 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
         if (positions.size() == 2) {
             List<Vector3D> posList = new ArrayList<>(positions.values());
             double distance = posList.get(0).distance(posList.get(1));
-            LoggerCustom.getInstance().logMessage(String.format("Distance between satellites: %f meters",distance));
+            LoggerCustom.getInstance().logMessage(String.format("Distance between satellites: %f meters", distance));
         }
     }
 
@@ -346,9 +351,8 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
 
     private void shatterSphere(SphereAirspace sphere, String sphereId) {
         Random random = new Random();
-        // int fragments = random.nextInt(8) + 3;
-        int fragments = 5;
-        double fragmentRadius = 25000;
+        int fragments = random.nextInt(15) + 3;
+        double fragmentRadius = 15000;
 
         LatLon sphereLocation = sphere.getLocation();
         double[] altitudes = sphere.getAltitudes();
@@ -359,11 +363,11 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
             SphereAirspace fragment = new SphereAirspace();
             fragment.setRadius(fragmentRadius);
             BasicAirspaceAttributes attrs = new BasicAirspaceAttributes();
-            attrs.setMaterial(new Material(Color.GRAY));  // Setează culoarea fragmentelor
+            attrs.setMaterial(new Material(Color.GRAY));
             fragment.setAttributes(attrs);
 
             double angle = random.nextDouble() * 360;
-            double distance = random.nextDouble() * sphere.getRadius() * 500 + sphere.getRadius();
+            double distance = random.nextDouble() * sphere.getRadius() * 2 + sphere.getRadius();
             double latOffset = Math.sin(Math.toRadians(angle)) * distance / 6371000;
             double lonOffset = Math.cos(Math.toRadians(angle)) * distance / (6371000 * Math.cos(Math.toRadians(sphereLocation.getLatitude().degrees)));
 

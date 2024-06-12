@@ -92,9 +92,11 @@ public class CollisionTask implements Runnable {
     private void printCollisionProbability(double collisionProbability) {
         if (collisionProbability >= 100) {
             collisionProbability = 100;
-            LoggerCustom.getInstance().logMessage(String.format("INFO: It was detected a collision between satellite %s and satellite %s  with a collision probability %.3f%%", satelliteOneName, satelliteTwoName, collisionProbability));
         }
-        if (collisionProbability > 50 && collisionProbability < 80) {
+        if (collisionProbability == 100) {
+            LoggerCustom.getInstance().logMessage(String.format("INFO: It was detected a collision between satellite %s and satellite %s  with a collision probability %.3f%%", satelliteOneName, satelliteTwoName, collisionProbability));
+
+        } else if (collisionProbability > 50 && collisionProbability < 80) {
             LoggerCustom.getInstance().logMessage(String.format("INFO: It was detected a MEDIUM collision risk between satellite %s and satellite %s with a collision probability %.3f%%", satelliteOneName, satelliteTwoName, collisionProbability));
         } else if (collisionProbability >= 80) {
             LoggerCustom.getInstance().logMessage(String.format("INFO: It was detected a HIGH collision risk between satellite %s and satellite %s  with a collision probability %.3f%%", satelliteOneName, satelliteTwoName, collisionProbability));

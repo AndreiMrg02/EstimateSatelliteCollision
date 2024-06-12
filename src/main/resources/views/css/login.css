@@ -1,0 +1,79 @@
+.root {
+    -fx-font-family: 'Roboto', sans-serif;
+    -fx-background-color: #1F1F1F;
+    -fx-border-color: rgba(225, 225, 227, 0.83);
+    -fx-border-width: 1.7;
+    -fx-background-image: url('/img/wallpaper8.jpg');
+}
+
+#label {
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 15px;
+    -fx-font-weight: 500;
+}
+
+#textField, .password-field {
+    -fx-background-color: #2B2B2B;
+    -fx-background-insets: 0;
+    -fx-background-radius: 10;
+    -fx-padding: 10;
+    -fx-border-color: #3A3A3A;
+    -fx-border-radius: 10;
+    -fx-text-fill: #E0E0E0;
+    -fx-font-size: 14px;
+}
+
+#signInButton {
+    -fx-background-color: #4CAF50;
+    -fx-text-fill: #FFFFFF;
+    -fx-padding: 10 25 10 25;
+    -fx-background-radius: 10;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+#signInButton:hover {
+    -fx-background-color: #45A049;
+}
+
+#closeButton {
+    -fx-background-color: #F44336;
+    -fx-text-fill: white;
+    -fx-padding: 5 15 5 15;
+    -fx-background-radius: 10;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+#closeButton:hover {
+    -fx-background-color: #E53935;
+}
+
+#titleText {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-fill: #FFFFFF;
+}
+
+#registerText {
+    -fx-font-size: 13px;
+    -fx-fill: #B0BEC5;
+}
+
+#registerLink {
+    -fx-font-size: 13px;
+    -fx-text-fill: #4CAF50;
+    -fx-font-weight: bold;
+    -fx-underline: true;
+    -fx-cursor: hand;
+}
+
+#registerLink:hover {
+    -fx-text-fill: #45A049;
+}
+
+#actionTarget {
+    -fx-fill: #F44336;
+}

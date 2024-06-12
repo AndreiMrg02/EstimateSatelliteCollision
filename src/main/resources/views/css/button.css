@@ -11,8 +11,8 @@
 
 .button:hover {
     -fx-text-fill: #ffffff;
-    -fx-border-color: #39bda7;
-    -fx-effect: dropshadow(gaussian, #39bda7, 10, 0, 0, 0);
+    -fx-border-color: #44a8d0;
+    -fx-effect: dropshadow(gaussian, #44a8d0, 10, 0, 0, 0);
 }
 
 .buttonBackgroundHovered {

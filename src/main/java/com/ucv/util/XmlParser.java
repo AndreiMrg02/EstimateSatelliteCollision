@@ -14,11 +14,12 @@ import java.util.Map;
 
 public class XmlParser {
     Logger logger = LogManager.getLogger(XmlParser.class);
+    Items xml = new Items();
     public Map<String, Item> parseItems(String xmlData) {
         try {
             JAXBContext jaxbContext = JAXBContext.newInstance(Items.class);
             Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-            Items xml = (Items) unmarshaller.unmarshal(new StringReader(xmlData));
+            xml = (Items) unmarshaller.unmarshal(new StringReader(xmlData));
             Map<String, Item> items = new HashMap<>();
             if (xml != null && xml.getItems() != null) {
                 for (Item item : xml.getItems()) {

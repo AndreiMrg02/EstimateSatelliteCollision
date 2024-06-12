@@ -20,7 +20,7 @@
                         <Insets top="5.0" />
                      </StackPane.margin>
                      <children>
-                        <Label alignment="CENTER" prefHeight="33.0" prefWidth="297.0" text="Information about collision" textAlignment="CENTER" textFill="#798d71" textOverrun="CLIP">
+                        <Label alignment="CENTER" prefHeight="33.0" prefWidth="297.0" text="Information about collision" textAlignment="CENTER" textFill="#44a8d0" textOverrun="CLIP">
                            <font>
                               <Font name="System Bold" size="21.0" />
                            </font>
@@ -35,7 +35,7 @@
                                     <Insets left="2.0" top="5.0" />
                                  </HBox.margin>
                                  <children>
-                                    <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="32.0" prefWidth="96.0" text="Start Date " textFill="#6f5c69" textOverrun="LEADING_ELLIPSIS" VBox.vgrow="ALWAYS">
+                                    <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="32.0" prefWidth="96.0" text="Start Date " textFill="#866d7f" textOverrun="LEADING_ELLIPSIS" VBox.vgrow="ALWAYS">
                                        <font>
                                           <Font name="Copperplate Gothic Bold" size="14.0" />
                                        </font>
@@ -126,12 +126,12 @@
                      <children>
                         <HBox alignment="CENTER" prefHeight="34.0" prefWidth="460.0">
                            <children>
-                              <Label alignment="CENTER" prefHeight="28.0" prefWidth="99.0" text="Satellite: " textAlignment="CENTER" textFill="#798d71" textOverrun="CLIP" HBox.hgrow="ALWAYS">
+                              <Label alignment="CENTER" prefHeight="31.0" prefWidth="91.0" text="Satellite: " textAlignment="CENTER" textFill="#44a8d0" textOverrun="CLIP" HBox.hgrow="ALWAYS">
                                  <font>
                                     <Font name="System Bold" size="21.0" />
                                  </font>
                               </Label>
-                              <Label fx:id="satelliteOneLabel" prefHeight="33.0" prefWidth="200.0" textFill="#626480" HBox.hgrow="ALWAYS">
+                              <Label fx:id="satelliteOneLabel" prefHeight="31.0" prefWidth="295.0" textFill="#626480" HBox.hgrow="ALWAYS">
                                  <font>
                                     <Font name="System Bold" size="20.0" />
                                  </font>
@@ -207,12 +207,12 @@
                      <children>
                         <HBox alignment="CENTER" prefHeight="35.0" prefWidth="460.0">
                            <children>
-                              <Label alignment="CENTER" prefHeight="28.0" prefWidth="97.0" text="Satellite: " textAlignment="CENTER" textFill="#798d71" textOverrun="CLIP" HBox.hgrow="ALWAYS">
+                              <Label alignment="CENTER" prefHeight="31.0" prefWidth="92.0" text="Satellite: " textAlignment="CENTER" textFill="#44a8d0" textOverrun="CLIP" HBox.hgrow="ALWAYS">
                                  <font>
                                     <Font name="System Bold" size="21.0" />
                                  </font>
                               </Label>
-                              <Label fx:id="satelliteTwoLabel" prefHeight="33.0" prefWidth="200.0" textFill="#626480" HBox.hgrow="ALWAYS">
+                              <Label fx:id="satelliteTwoLabel" prefHeight="31.0" prefWidth="297.0" textFill="#626480" HBox.hgrow="ALWAYS">
                                  <font>
                                     <Font name="System Bold" size="20.0" />
                                  </font>

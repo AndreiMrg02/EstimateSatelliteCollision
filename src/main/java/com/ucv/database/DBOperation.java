@@ -63,7 +63,7 @@ public class DBOperation {
             List<State> stateEntities = query.list();
             List<State> states = new ArrayList<>(stateEntities);
 
-            return convertEntitiesToSpacecraftStates(states, MU);
+            return convertEntitiesToSpacecraftStates(states);
         } catch (Exception ex) {
             logger.error(String.format("Unexpected error occurred due to extract states for the satellite %s", satelliteName));
             return new ArrayList<>();
@@ -80,15 +80,15 @@ public class DBOperation {
 
             MutationQuery query = session.createMutationQuery(hqlStatement);
             query.executeUpdate();
-            tx.commit();  // Commit the transaction
+            tx.commit();
         } catch (Exception ex) {
             if (tx != null) {
-                tx.rollback();  // Rollback the transaction in case of an error
+                tx.rollback();
             }
             logger.error(String.format("Unexpected error occurred due to extract clear states for satellites: %s", ex.getMessage()));
         } finally {
             if (session != null) {
-                session.close();  // Close the session to free up resources
+                session.close();
             }
         }
     }
@@ -108,12 +108,12 @@ public class DBOperation {
         }
     }
 
-    private static List<SpacecraftState> convertEntitiesToSpacecraftStates(List<State> stateEntities, double mu) {
+    private static List<SpacecraftState> convertEntitiesToSpacecraftStates(List<State> stateEntities) {
         try {
             List<SpacecraftState> spacecraftStates = new ArrayList<>();
 
             for (State stateEntity : stateEntities) {
-                SpacecraftState spacecraftState = convertEntityToSpacecraftState(stateEntity, mu);
+                SpacecraftState spacecraftState = convertEntityToSpacecraftState(stateEntity);
                 spacecraftStates.add(spacecraftState);
             }
 
@@ -124,7 +124,7 @@ public class DBOperation {
         return new ArrayList<>();
     }
 
-    private static SpacecraftState convertEntityToSpacecraftState(State stateEntity, double mu) {
+    private static SpacecraftState convertEntityToSpacecraftState(State stateEntity) {
         try {
             AbsoluteDate absoluteDate = new AbsoluteDate(stateEntity.getDate(), TimeScalesFactory.getUTC());
             final Vector3D position = new Vector3D(
@@ -139,7 +139,7 @@ public class DBOperation {
             );
 
             final TimeStampedPVCoordinates coords = new TimeStampedPVCoordinates(absoluteDate, position, velocity);
-            CartesianOrbit co = new CartesianOrbit(coords, FramesFactory.getEME2000(), mu);
+            CartesianOrbit co = new CartesianOrbit(coords, FramesFactory.getEME2000(), MU);
             return new SpacecraftState(co);
         } catch (Exception ex) {
             logger.error(String.format("Unexpected error occurred due to convert an entity to spacecraftState: %s", ex.getMessage()));

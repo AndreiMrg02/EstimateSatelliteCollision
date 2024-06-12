@@ -1,6 +1,7 @@
 package com.ucv.controller;
 
 import com.ucv.Main;
+import com.ucv.datamodel.internet.InternetConnectionData;
 import com.ucv.datamodel.satellite.DisplaySatelliteModel;
 import com.ucv.datamodel.xml.Item;
 import com.ucv.implementation.CollectSatelliteData;
@@ -15,17 +16,16 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextFlow;
-import javafx.stage.Stage;
 import org.orekit.propagation.analytical.Ephemeris;
 import org.orekit.time.AbsoluteDate;
 
 import java.io.IOException;
+import java.net.CookieManager;
 import java.net.URL;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -76,33 +76,19 @@ public class MainController implements Initializable {
     private EarthViewController earthViewController;
     private SatelliteController satelliteController;
     private SatelliteInformationController satelliteInformationController;
+    private InternetConnectionData connectionData;
+
     private static final String regex = "^[0-9]+$";
-
-    public void loadFXML(Stage mainStage) {
-        try {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/MainView.fxml"));
-            BorderPane mainBorderPanel = fxmlLoader.load();
-            Scene scene = new Scene(mainBorderPanel, 1484, 917);
-            mainStage.setTitle("Satellite");
-            tableViewPane = (BorderPane) mainBorderPanel.lookup("#tableViewPane");
-            mainStage.setScene(scene);
-            mainStage.show();
-
-        } catch (Exception ex) {
-            System.out.println("An exception occurred due to load the main stage");
-            ex.printStackTrace();
-        }
-    }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
         operatorList = FXCollections.observableArrayList();
         addOperatorToList();
+
         operatorBox.setItems(operatorList);
         progressBar.setProgress(-1.0);
         progressBar.setVisible(false);
-
         setButtonStyle();
         loadTableSatellite();
         closeSession();
@@ -117,7 +103,6 @@ public class MainController implements Initializable {
         earthViewController.setUpdateSatellitesInformation(satelliteInformationController.getSatelliteUpdateCallback());
 
     }
-
 
     public void loadSatelliteInformation() {
         try {
@@ -145,6 +130,7 @@ public class MainController implements Initializable {
 
     public void loadTableSatellite() {
         try {
+            tableViewPane = (BorderPane) mainPanel.lookup("#tableViewPane");
             FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/views/TableSatelliteExtended.fxml"));
             BorderPane tableViewLayout = fxmlLoader.load();
             satelliteController = fxmlLoader.getController();
@@ -217,10 +203,12 @@ public class MainController implements Initializable {
     }
 
     private void buttonSettings() {
+        stopSimulationButton.setDisable(true);
         resumeButton.setDisable(true);
         showSatellitesButton.setOnAction(event -> {
             LoggerCustom.getInstance().logMessage("INFO: Check the map to see the satellites");
             displaySatellites();
+            simulateCollision.setDisable(false);
             pauseButton.setDisable(false);
             stopSimulationButton.setDisable(false);
             closeApproachButton.setDisable(false);
@@ -232,6 +220,7 @@ public class MainController implements Initializable {
             LoggerCustom.getInstance().logMessage("INFO: The simulation was stopped");
             earthViewController.delete();
             showSatellitesButton.setDisable(false);
+            simulateCollision.setDisable(true);
             pauseButton.setDisable(true);
             closeApproachButton.setDisable(true);
             stopSimulationButton.setDisable(true);
@@ -255,6 +244,7 @@ public class MainController implements Initializable {
 
         simulateCollision.setOnAction(event -> {
             showSatellitesAtCloseApproach();
+            satelliteInformationController.clearSatellitesDataFromFields();
             earthViewController.triggerCollision(true);
             earthViewController.pauseSimulation();
             earthViewController.resumeSimulation();
@@ -264,7 +254,7 @@ public class MainController implements Initializable {
     public void displaySatellites() {
         List<DisplaySatelliteModel> satellites = satelliteController.getTwoSatellitesSelected();
         if (satellites == null || satellites.isEmpty()) {
-            Alert alert = new Alert(Alert.AlertType.ERROR, "No satellite data available.", ButtonType.OK);
+            Alert alert = new Alert(Alert.AlertType.ERROR, "No satellites data are available. Please select an entry in table.", ButtonType.OK);
             alert.showAndWait();
             return;
         }
@@ -295,7 +285,8 @@ public class MainController implements Initializable {
         earthViewController.setStartDate(closeApproach);
         earthViewController.updateSatellites(closeApproach);
         EarthViewController.wwd.redraw();
-        pauseButton.setDisable(false);
+        pauseButton.setDisable(true);
+        resumeButton.setDisable(false);
     }
 
     private void processSatelliteData() {
@@ -311,18 +302,23 @@ public class MainController implements Initializable {
                     LoggerCustom.getInstance().logMessage("INFO: The process for extract the data is running...");
                     mainPanel.setDisable(true);
                     displayProgressBar();
-                    CollectSatelliteData collectSatelliteData = new CollectSatelliteData();
+                    CollectSatelliteData collectSatelliteData = new CollectSatelliteData(connectionData);
                     Map<String, Item> listOfUniqueSatelliteTemp = collectSatelliteData.extractSatelliteData("MIN_RNG", operator, valueField.getText());
-                    satelliteController.setListOfUniqueSatellite(listOfUniqueSatelliteTemp);
-                    downloadTLEs(collectSatelliteData, listOfUniqueSatelliteTemp);
+                    if(listOfUniqueSatelliteTemp != null){
+                        satelliteController.setListOfUniqueSatellite(listOfUniqueSatelliteTemp);
+                        downloadTLEs(collectSatelliteData, listOfUniqueSatelliteTemp);
+                    }
                     Platform.runLater(() -> {
                         progressBar.setVisible(false);
-                        if (listOfUniqueSatelliteTemp.isEmpty()) {
+                        if(listOfUniqueSatelliteTemp == null){
+                           alertInvalidCredentials();
+                           event.consume();
+                        }
+                        if (listOfUniqueSatelliteTemp != null && listOfUniqueSatelliteTemp.isEmpty()) {
                             alertNoResults();
                             event.consume();
-                        } else {
-                            setTaskOnSuccess();
                         }
+                        setTaskOnSuccess();
                     });
                     return null;
                 }
@@ -356,6 +352,17 @@ public class MainController implements Initializable {
         alert.showAndWait();
         LoggerCustom.getInstance().logMessage("INFO: Change configuration to find data");
         mainPanel.setDisable(false);
+    }
+    public void alertInvalidCredentials() {
+
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Authentication Failed");
+        alert.setHeaderText("Invalid Credentials");
+        alert.setContentText("The username or password is incorrect." +
+                "\nIMPORTANT: The application will close. " +
+                "Reopen the application and enter the login data correctly.\n");
+        alert.showAndWait();
+        System.exit(0);
     }
 
     public void setTaskOnSuccess() {
@@ -436,5 +443,14 @@ public class MainController implements Initializable {
                 break;
         }
         return operator;
+    }
+
+
+    public InternetConnectionData getConnectionData() {
+        return connectionData;
+    }
+
+    public void setConnectionData(InternetConnectionData connectionData) {
+        this.connectionData = connectionData;
     }
 }
