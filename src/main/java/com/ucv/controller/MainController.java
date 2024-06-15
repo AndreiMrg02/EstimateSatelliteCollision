@@ -224,6 +224,7 @@ public class MainController implements Initializable {
             pauseButton.setDisable(true);
             closeApproachButton.setDisable(true);
             stopSimulationButton.setDisable(true);
+            extractDataButton.setDisable(false);
             earthViewController.triggerCollision(false);
             satelliteController.getSatelliteTable().setDisable(false);
         });
@@ -244,6 +245,8 @@ public class MainController implements Initializable {
 
         simulateCollision.setOnAction(event -> {
             showSatellitesAtCloseApproach();
+            pauseButton.setDisable(false);
+            resumeButton.setDisable(true);
             satelliteInformationController.clearSatellitesDataFromFields();
             earthViewController.triggerCollision(true);
             earthViewController.pauseSimulation();
@@ -285,6 +288,7 @@ public class MainController implements Initializable {
         earthViewController.setStartDate(closeApproach);
         earthViewController.updateSatellites(closeApproach);
         EarthViewController.wwd.redraw();
+        extractDataButton.setDisable(true);
         pauseButton.setDisable(true);
         resumeButton.setDisable(false);
     }

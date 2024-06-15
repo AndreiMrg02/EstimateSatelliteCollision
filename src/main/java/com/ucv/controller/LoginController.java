@@ -29,42 +29,6 @@ public class LoginController implements Initializable {
     private final static Logger logger = LogManager.getLogger(LoginController.class);
 
 
-/*    public void connect() {
-
-        try {
-            cookieInit();
-            String baseURL = "https://www.space-track.org";
-            String authPath = "/ajaxauth/login";
-
-            URL url = new URL(baseURL + authPath);
-
-            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
-            conn.setDoOutput(true);
-            conn.setRequestMethod("POST");
-
-            String input = "identity=" + userTextField.getText() + "&password=" + pwBox.getText();
-
-            OutputStream os = conn.getOutputStream();
-            os.write(input.getBytes());
-            os.flush();
-            if (conn.getResponseCode() == 401) {
-                System.out.println("Authentication failed: Invalid username or password.");
-                authenticated = false;
-                showAlert();
-                conn.disconnect();
-            } else {
-                authenticated = true;
-                internetConnectionData = new InternetConnectionData(baseURL,authPath,userTextField.getText(), pwBox.getText());
-                new URL(internetConnectionData.getBaseURL() + "/ajaxauth/logout");
-                conn.disconnect();
-                Stage stage = (Stage) userTextField.getScene().getWindow();
-                stage.close();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            authenticated = false;
-        }
-    }*/
 public void connect() {
 
     try {
