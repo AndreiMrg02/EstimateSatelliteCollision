@@ -1,11 +1,14 @@
 package com.ucv.datamodel.satellite;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.orekit.propagation.analytical.tle.TLE;
 
 public class SpatialObject {
     private String name;
     private TLE tle;
     private String tca;
+    private static final Logger logger = LogManager.getLogger(SpatialObject.class);
 
 
     public String getName() {
@@ -37,7 +40,7 @@ public class SpatialObject {
             TLE tleObject = new TLE(tleLine1, tleLine2);
             this.setTle(tleObject);
         } else {
-            System.err.println("Șirul nu are suficiente linii pentru a seta proprietățile.");
+            logger.error("The string does not have enough lines to set the properties.");
         }
     }
 

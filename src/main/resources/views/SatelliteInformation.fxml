@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<StackPane prefHeight="748.0" prefWidth="540.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ucv.controller.SatelliteInformationController">
+<StackPane prefHeight="707.0" prefWidth="540.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ucv.controller.SatelliteInformationController">
    <children>
       <VBox spacing="5.0">
          <children>
@@ -116,6 +116,9 @@
                      </children>
                   </VBox>
                </children>
+               <VBox.margin>
+                  <Insets right="5.0" top="7.0" />
+               </VBox.margin>
             </StackPane>
             <StackPane fx:id="satelliteOnePane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="v-box" stylesheets="@css/panel.css">
                <children>
@@ -197,6 +200,9 @@
                      </children>
                   </VBox>
                </children>
+               <VBox.margin>
+                  <Insets right="5.0" />
+               </VBox.margin>
             </StackPane>
             <StackPane fx:id="satelliteTwoPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="v-box" stylesheets="@css/panel.css">
                <children>
@@ -278,6 +284,9 @@
                      </children>
                   </VBox>
                </children>
+               <VBox.margin>
+                  <Insets right="5.0" />
+               </VBox.margin>
             </StackPane>
          </children>
       </VBox>

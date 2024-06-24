@@ -36,7 +36,7 @@ public class LoginController implements Initializable {
             Stage stage = (Stage) userTextField.getScene().getWindow();
             stage.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error during connection attempt");
             authenticated = false;
         }
     }

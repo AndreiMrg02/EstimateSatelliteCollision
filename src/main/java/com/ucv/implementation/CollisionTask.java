@@ -107,7 +107,7 @@ public class CollisionTask implements Runnable {
 
     private boolean verifySatellitesDate(AbsoluteDate startDate, AbsoluteDate endDate) {
         if (startDate == null || endDate == null) {
-            System.out.println("Nu exista data comuna intre satelitii: " + satelliteOneName + " si " + satelliteTwoName);
+            LoggerCustom.getInstance().logMessage(String.format("There is no common date between satellite %s and satellite %s", satelliteOneName, satelliteTwoName));
             return true;
         }
         return false;

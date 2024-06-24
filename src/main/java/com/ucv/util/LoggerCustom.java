@@ -1,7 +1,11 @@
 package com.ucv.util;
 
 import javafx.application.Platform;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
@@ -25,6 +29,39 @@ public class LoggerCustom {
         this.console = console;
         this.scrollPane = scrollPane;
         this.scrollPane.setContent(console);
+        addContextMenu();
+    }
+
+    private void addContextMenu() {
+        // Create "Clear" menu item
+        MenuItem clearItem = new MenuItem("Clear");
+        clearItem.setOnAction(e -> clearConsole());
+
+        // Create "Copy" menu item
+        MenuItem copyItem = new MenuItem("Copy");
+        copyItem.setOnAction(e -> copyText());
+
+        ContextMenu contextMenu = new ContextMenu(clearItem, copyItem);
+        console.setOnContextMenuRequested(e ->
+                contextMenu.show(console, e.getScreenX(), e.getScreenY()));
+    }
+
+    private void clearConsole() {
+        Platform.runLater(() -> console.getChildren().clear());
+    }
+
+    private void copyText() {
+        Platform.runLater(() -> {
+            StringBuilder sb = new StringBuilder();
+            console.getChildren().forEach(node -> {
+                if (node instanceof Text) {
+                    sb.append(((Text) node).getText());
+                }
+            });
+            final ClipboardContent content = new ClipboardContent();
+            content.putString(sb.toString());
+            Clipboard.getSystemClipboard().setContent(content);
+        });
     }
 
     public void logMessage(String message) {

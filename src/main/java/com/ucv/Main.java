@@ -3,7 +3,6 @@ package com.ucv;
 
 import com.ucv.controller.LoginController;
 import com.ucv.controller.MainController;
-import com.ucv.util.PaneCustomStyle;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
@@ -14,7 +13,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import javafx.stage.WindowEvent;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -56,18 +54,16 @@ public class Main extends Application {
 
     private void loadLoginScreen(Stage primaryStage, MainController mainController) {
         try {
-            PaneCustomStyle customStyle = new PaneCustomStyle();
             FXMLLoader fxmlLoaderInformation = new FXMLLoader(Main.class.getResource("/views/login.fxml"));
             VBox root = fxmlLoaderInformation.load();
             LoginController loginController = fxmlLoaderInformation.getController();
             Scene loginScene = new Scene(root);
             Stage loginStage = new Stage();
-            customStyle.addClip(root, 15, 15);
             loginStage.setTitle("Login");
             loginStage.setScene(loginScene);
             loginStage.initStyle(StageStyle.UNDECORATED);
             loginStage.showAndWait();
-            // Show login stage and wait for it to close
+            mainController.getMinimizeButton().setOnMouseClicked(mouseEvent -> primaryStage.setIconified(true));
             if (loginController.isAuthenticated()) {
                 Platform.runLater(() -> {
                     mainController.setConnectionData(loginController.getInternetConnectionData());

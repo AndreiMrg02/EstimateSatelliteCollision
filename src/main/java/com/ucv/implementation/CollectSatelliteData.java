@@ -116,8 +116,6 @@ package com.ucv.implementation;
 import com.ucv.datamodel.internet.InternetConnectionData;
 import com.ucv.datamodel.xml.Item;
 import com.ucv.util.XmlParser;
-import javafx.application.Platform;
-import javafx.scene.control.Alert;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -151,16 +149,16 @@ public class CollectSatelliteData {
             URL url;
 
             String output;
-            if(verifyConnectionResponse(conn)){
+            if (verifyConnectionResponse(conn)) {
                 return null;
             }
+            assert conn != null;
             new InputStreamReader((conn.getInputStream()));
             BufferedReader br;
             url = new URL(connectionData.getBaseURL() + query);
             br = new BufferedReader(new InputStreamReader((url.openStream())));
             StringBuilder xmlData = new StringBuilder();
             while ((output = br.readLine()) != null) {
-                System.out.println(output);
                 xmlData.append(output);
             }
             url = new URL(connectionData.getBaseURL() + "/ajaxauth/logout");
@@ -170,7 +168,7 @@ public class CollectSatelliteData {
             return parser.parseItems(xmlData.toString());
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error extracting satellite data", e);
         }
         return new HashMap<>();
     }
@@ -180,8 +178,8 @@ public class CollectSatelliteData {
             if (connection.getResponseCode() == 401) {
                 return true;
             }
-        }catch (Exception ex){
-            ex.printStackTrace();
+        } catch (Exception ex) {
+            logger.error("Error verifying connection response", ex);
         }
         return false;
     }
@@ -193,7 +191,9 @@ public class CollectSatelliteData {
             cookieInit();
             HttpsURLConnection conn = getHttpsURLConnection();
             URL url;
-            new InputStreamReader((conn.getInputStream()));
+            if(conn != null) {
+                new InputStreamReader((conn.getInputStream()));
+            }
             BufferedReader br;
 
             url = new URL(connectionData.getBaseURL() + query);
@@ -201,12 +201,13 @@ public class CollectSatelliteData {
             appendReadLine(br, stringBuilder);
             url = new URL(connectionData.getBaseURL() + "/ajaxauth/logout");
             br = new BufferedReader(new InputStreamReader((url.openStream())));
+            assert conn != null;
             conn.disconnect();
 
             return stringBuilder.toString();
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error extracting satellite TLEs", e);
         }
 
         return null;
@@ -216,15 +217,13 @@ public class CollectSatelliteData {
         try {
             String output;
             while ((output = br.readLine()) != null) {
-                System.out.println(output);
-
                 if (!output.equals("NO RESULTS RETURNED")) {
                     stringBuilder.append(output);
                     stringBuilder.append("\n");
                 }
             }
         } catch (Exception exception) {
-            logger.error("Unexpected error occurred due to append read line");
+            logger.error("Unexpected error occurred due to append read line", exception);
         }
     }
 
@@ -244,7 +243,7 @@ public class CollectSatelliteData {
 
             return conn;
         } catch (Exception ex) {
-            logger.error("Unexpected error occurred due to connect to Space-Track");
+            logger.error("Unexpected error occurred due to connect to Space-Track", ex);
         }
         return null;
     }

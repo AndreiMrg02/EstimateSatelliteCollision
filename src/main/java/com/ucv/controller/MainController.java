@@ -18,9 +18,11 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextFlow;
+import org.apache.log4j.Logger;
 import org.orekit.propagation.analytical.Ephemeris;
 import org.orekit.time.AbsoluteDate;
 
@@ -35,6 +37,10 @@ import static com.ucv.database.HibernateUtil.closeSession;
 
 public class MainController implements Initializable {
 
+    @FXML
+    private HBox menuPanel;
+    @FXML
+    private Button minimizeButton;
     @FXML
     private Button closeButton;
     @FXML
@@ -78,8 +84,10 @@ public class MainController implements Initializable {
     private SatelliteController satelliteController;
     private SatelliteInformationController satelliteInformationController;
     private InternetConnectionData connectionData;
-
-    private static final String regex = "^[0-9]+$";
+    private static final Logger logger = Logger.getLogger(MainController.class);
+    private double xOffset = 0;
+    private double yOffset = 0;
+    private static final String REGEX = "^[0-9]+$";
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -102,6 +110,15 @@ public class MainController implements Initializable {
         LoggerCustom.getInstance().setConsole(loggerBox, scrollPaneLog);
         loadSatelliteInformation();
         earthViewController.setUpdateSatellitesInformation(satelliteInformationController.getSatelliteUpdateCallback());
+        menuPanel.setOnMousePressed(event -> {
+            xOffset = event.getSceneX();
+            yOffset = event.getSceneY();
+        });
+
+        menuPanel.setOnMouseDragged(event -> {
+            mainPanel.getScene().getWindow().setX(event.getScreenX() - xOffset);
+            mainPanel.getScene().getWindow().setY(event.getScreenY() - yOffset);
+        });
 
     }
 
@@ -113,7 +130,7 @@ public class MainController implements Initializable {
             informationPane.getChildren().add(paneWithTable);
             informationPane.setVisible(false);
         } catch (Exception ex) {
-            System.out.println("An exception occurred due to can not instantiate the satellite information pane.");
+            logger.error("Failed to load the satellite information view.", ex);
         }
     }
 
@@ -124,8 +141,7 @@ public class MainController implements Initializable {
             earthViewController = fxmlLoaderEarth.getController();
             Platform.runLater(() -> earthPane.getChildren().add(paneWithEarth));
         } catch (Exception ex) {
-            System.out.println("An exception occurred due to can not instantiate the earth pane.");
-            ex.printStackTrace();
+            logger.error("Failed to load the Earth view.", ex);
         }
     }
 
@@ -137,14 +153,14 @@ public class MainController implements Initializable {
             satelliteController = fxmlLoader.getController();
             successExtractList(tableViewLayout);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Failed to load the satellite view.", e);
         }
         processSatelliteData();
     }
 
     public boolean validateThresholdField() {
 
-        Pattern pattern = Pattern.compile(regex);
+        Pattern pattern = Pattern.compile(REGEX);
         Matcher matcher = pattern.matcher(thresholdBox.getText());
         if (matcher.matches()) {
             return true;
@@ -157,7 +173,7 @@ public class MainController implements Initializable {
 
     public boolean validateValueField() {
 
-        Pattern pattern = Pattern.compile(regex);
+        Pattern pattern = Pattern.compile(REGEX);
         Matcher matcher = pattern.matcher(valueField.getText());
         if (matcher.matches()) {
             return true;
@@ -311,15 +327,15 @@ public class MainController implements Initializable {
                     displayProgressBar();
                     CollectSatelliteData collectSatelliteData = new CollectSatelliteData(connectionData);
                     Map<String, Item> listOfUniqueSatelliteTemp = collectSatelliteData.extractSatelliteData("MIN_RNG", operator, valueField.getText());
-                    if(listOfUniqueSatelliteTemp != null){
+                    if (listOfUniqueSatelliteTemp != null) {
                         satelliteController.setListOfUniqueSatellite(listOfUniqueSatelliteTemp);
                         downloadTLEs(collectSatelliteData, listOfUniqueSatelliteTemp);
                     }
                     Platform.runLater(() -> {
                         progressBar.setVisible(false);
-                        if(listOfUniqueSatelliteTemp == null){
-                           alertInvalidCredentials();
-                           event.consume();
+                        if (listOfUniqueSatelliteTemp == null) {
+                            alertInvalidCredentials();
+                            event.consume();
                         }
                         if (listOfUniqueSatelliteTemp != null && listOfUniqueSatelliteTemp.isEmpty()) {
                             alertNoResults();
@@ -360,6 +376,7 @@ public class MainController implements Initializable {
         LoggerCustom.getInstance().logMessage("INFO: Change configuration to find data");
         mainPanel.setDisable(false);
     }
+
     public void alertInvalidCredentials() {
 
         Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -401,8 +418,8 @@ public class MainController implements Initializable {
     private void downloadTLEs(CollectSatelliteData downloadTLE, Map<String, Item> listOfUniqueSatellite) {
         String specificTagBuilder = "%3C";
         String epochDesc = "%20";
-        String queryFirstSatellite = "";
-        String querySecondSatellite = "";
+        String queryFirstSatellite;
+        String querySecondSatellite;
         String colonForSpaceTrack = "%3A";
         String newTca = "";
         for (Item item : listOfUniqueSatellite.values()) {
@@ -452,24 +469,19 @@ public class MainController implements Initializable {
         return operator;
     }
 
-
-    public InternetConnectionData getConnectionData() {
-        return connectionData;
-    }
-
     public void setConnectionData(InternetConnectionData connectionData) {
         this.connectionData = connectionData;
-    }
-
-    public void handleClose() {
-        mainPanel.getScene().getWindow().setOnCloseRequest(windowEvent -> System.exit(0));
     }
 
     public Button getCloseButton() {
         return closeButton;
     }
 
-    public void setCloseButton(Button closeButton) {
-        this.closeButton = closeButton;
+    public Button getMinimizeButton() {
+        return minimizeButton;
+    }
+
+    public void setMinimizeButton(Button minimizeButton) {
+        this.minimizeButton = minimizeButton;
     }
 }

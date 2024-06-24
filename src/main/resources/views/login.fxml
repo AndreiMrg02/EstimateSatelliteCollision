@@ -20,14 +20,14 @@
          <children>
             <Button id="closeButton" onAction="#handleClose" text="X">
                <HBox.margin>
-                  <Insets />
+                  <Insets right="2.0" top="2.0" />
                </HBox.margin>
             </Button>
          </children>
       </HBox>
       <Text id="titleText" fx:id="sceneTitle" text="Estimate Collision Risk">
          <font>
-            <Font name="Berlin Sans FB Demi Bold" size="12.0" />
+            <Font name="Berlin Sans FB Demi Bold" size="32.0" />
          </font></Text>
       <GridPane alignment="CENTER" hgap="15.0" vgap="15.0">
          <padding>
@@ -43,13 +43,13 @@
             <RowConstraints />
          </rowConstraints>
          <children>
-            <Label id="label" text="Email" GridPane.columnIndex="0" GridPane.rowIndex="0">
+            <Label id="emailAndPasswordText" text="Email:" textFill="WHITE" GridPane.columnIndex="0" GridPane.rowIndex="0">
                <font>
                   <Font name="System Bold" size="12.0" />
                </font>
             </Label>
             <TextField id="textField" fx:id="userTextField" prefHeight="42.0" prefWidth="262.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-            <Label id="label" text="Password:" GridPane.columnIndex="0" GridPane.rowIndex="1">
+            <Label id="emailAndPasswordText" text="Password:" textFill="WHITE" GridPane.columnIndex="0" GridPane.rowIndex="1">
                <font>
                   <Font name="System Bold" size="31.0" />
                </font>

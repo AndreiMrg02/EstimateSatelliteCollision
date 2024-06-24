@@ -139,7 +139,7 @@
    <center>
       <StackPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER">
          <StackPane fx:id="informationPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" />
-         <StackPane prefHeight="150.0" prefWidth="200.0">
+         <StackPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="707.0" prefWidth="519.0">
             <children>
                <ProgressIndicator fx:id="progressBar" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="74.0" prefWidth="91.0" progress="0.0" styleClass="progress-bar">
                   <padding>
@@ -148,7 +148,7 @@
                </ProgressIndicator>
             </children>
             <StackPane.margin>
-               <Insets right="3.0" />
+               <Insets right="3.0" top="9.0" />
             </StackPane.margin>
          </StackPane>
       </StackPane>
@@ -167,9 +167,14 @@
       </StackPane>
    </right>
    <top>
-      <HBox alignment="TOP_RIGHT" minHeight="-Infinity" prefHeight="38.0" prefWidth="1455.0" styleClass="close-bar" stylesheets="@css/panel.css" BorderPane.alignment="TOP_RIGHT">
+      <HBox fx:id="menuPanel" alignment="TOP_RIGHT" minHeight="-Infinity" prefHeight="38.0" prefWidth="1455.0" spacing="3.0" styleClass="close-bar" stylesheets="@css/panel.css" BorderPane.alignment="TOP_RIGHT">
          <children>
-            <Button id="close-button" fx:id="closeButton" alignment="CENTER" contentDisplay="RIGHT" prefHeight="30.0" prefWidth="30.0" styleClass="close-button" text="X" />
+            <Button id="close-button" fx:id="minimizeButton" alignment="CENTER" contentDisplay="RIGHT" prefHeight="25.0" prefWidth="25.0" styleClass="minimize-button" text="-" />
+            <Button id="close-button" fx:id="closeButton" alignment="CENTER" contentDisplay="RIGHT" layoutX="1437.0" layoutY="14.0" prefHeight="25.0" prefWidth="25.0" styleClass="close-button" text="X">
+               <font>
+                  <Font size="9.0" />
+               </font>
+            </Button>
          </children>
          <padding>
             <Insets bottom="5.0" />

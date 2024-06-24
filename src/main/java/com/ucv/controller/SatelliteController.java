@@ -6,6 +6,7 @@ import com.ucv.datamodel.satellite.SpatialObject;
 import com.ucv.datamodel.xml.Item;
 import com.ucv.implementation.CollisionTask;
 import com.ucv.implementation.TlePropagator;
+import com.ucv.util.LoggerCustom;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -15,6 +16,8 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.FileChooser;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.orekit.propagation.SpacecraftState;
 import org.orekit.propagation.analytical.tle.TLE;
 
@@ -48,6 +51,7 @@ public class SatelliteController implements Initializable {
     private List<CollisionData> collisionDataList;
     private List<TlePropagator> tleThreads;
     private int threshold;
+    private final Logger logger = LogManager.getLogger(SatelliteController.class);
 
     public void setDisplaySatelliteModels(Set<DisplaySatelliteModel> displaySatelliteModels) {
         this.displaySatelliteModels = displaySatelliteModels;
@@ -64,7 +68,7 @@ public class SatelliteController implements Initializable {
                 writer.write(tle + System.lineSeparator());
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(String.format("Failed to write to file: %s", file.getAbsolutePath()), e);
         }
     }
 
@@ -103,19 +107,20 @@ public class SatelliteController implements Initializable {
 
     public void manageSatellites() {
         addTLEsToTextFile();
+        LoggerCustom.getInstance().logMessage("The process to save states in data has started...");
         for (SpatialObject spatialObject : spatialObjectList.values()) {
             TlePropagator object = new TlePropagator(spatialObject);
             object.start();
             tleThreads.add(object);
-            System.out.println("Au fost adaugate starile pentru satelitul: " + spatialObject.getName() + "cu TLE-ul: " + spatialObject.getTle());
         }
         for (TlePropagator threadTLE : tleThreads) {
             try {
                 threadTLE.join();
             } catch (InterruptedException e) {
-                System.out.println("Eroare: " + e.getMessage());
+                logger.error(String.format("Thread interrupted: %s",e.getMessage()));
             }
         }
+        LoggerCustom.getInstance().logMessage("The process to save states in data base stopped.");
         estimateCollisionBetweenSatellites();
     }
 
@@ -131,6 +136,8 @@ public class SatelliteController implements Initializable {
     }
 
     private void estimateCollisionBetweenSatellites() {
+        LoggerCustom.getInstance().logMessage("The collision risk estimation process has started...");
+
         List<String> satelliteNames = getSatellitesName();
         ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         try {

@@ -42,10 +42,7 @@ import org.orekit.utils.Constants;
 import org.orekit.utils.IERSConventions;
 import org.orekit.utils.PVCoordinates;
 
-import javax.swing.*;
 import java.awt.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.File;
 import java.net.URL;
 import java.util.List;
@@ -72,6 +69,7 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
     private Map<String, List<Airspace>> sphereFragmentsMap;
     private SatelliteInformationUpdate updateSatellitesInformation;
     private final Logger logger = LogManager.getLogger(EarthViewController.class);
+
     public void setUpdateSatellitesInformation(SatelliteInformationUpdate updateSatellitesInformation) {
         this.updateSatellitesInformation = updateSatellitesInformation;
     }
@@ -159,7 +157,9 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
         this.closeApproachDate = closeApproach;
         this.labelLayer = new AnnotationLayer();
 
-        assert ephemerisMap != null;
+       if(ephemerisMap == null){
+           return;
+       }
         for (Map.Entry<String, Ephemeris> entry : ephemerisMap.entrySet()) {
             SphereAirspace sphere = new SphereAirspace();
             sphere.setRadius(100000);
@@ -309,10 +309,10 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
                     Position labelPos = new Position(LatLon.fromRadians(gp.getLatitude(), gp.getLongitude()), gp.getAltitude() + sphere.getRadius() * 1.2);
                     label.setPosition(labelPos);
                     if (updateSatellitesInformation != null) {
-                        if(isCollision){
-                            updateSatellitesInformation.updateSatelliteInformation("",0,0,0,0);
-                        }else{
-                        updateSatellitesInformation.updateSatelliteInformation(name, FastMath.toDegrees(gp.getLatitude()), FastMath.toDegrees(gp.getLongitude()), FastMath.toDegrees(gp.getAltitude()), speed);
+                        if (isCollision) {
+                            updateSatellitesInformation.updateSatelliteInformation("", 0, 0, 0, 0);
+                        } else {
+                            updateSatellitesInformation.updateSatelliteInformation(name, FastMath.toDegrees(gp.getLatitude()), FastMath.toDegrees(gp.getLongitude()), FastMath.toDegrees(gp.getAltitude()), speed);
                         }
                     }
                     if (isCollision) {
@@ -321,7 +321,7 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
                     }
                 }
             } catch (OrekitException e) {
-                e.printStackTrace();
+                logger.error(String.format("Error updating satellites for date: %s and satellite: %s", targetDate, name), e);
             }
         });
     }
@@ -344,7 +344,6 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
             GlobeAnnotation label = new GlobeAnnotation(name, new Position(sphere.getLocation(), sphere.getRadius() * 1.2));
             sphereMap.put(name, new AbstractMap.SimpleEntry<>(sphere, label));
             satAirspaces.addAirspace(sphere);
-            System.out.println("New sphere created for satellite: " + name);
         }
     }
 
@@ -384,7 +383,7 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
         }
         sphereFragmentsMap.put(sphereId, newFragments);
         satAirspaces.removeAirspace(sphere);
-        Platform.runLater(() -> wwd.redraw());
+        Platform.runLater(wwd::redraw);
     }
 
     private void clearPreviousFragments(String sphereId) {
@@ -440,13 +439,13 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
         startDate = null;
         endDate = null;
         closeApproachDate = null;
-        Platform.runLater(() -> wwd.redraw());
+        Platform.runLater(wwd::redraw);
     }
 
 
     public synchronized void delete() {
         resetState();
-        System.out.println("Spheres have been removed and simulation stopped!");
+        LoggerCustom.getInstance().logMessage("Spheres have been removed and simulation stopped!");
     }
 
     public OneAxisEllipsoid getEarth() {

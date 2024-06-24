@@ -13,6 +13,7 @@ import javafx.scene.layout.StackPane;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import static com.ucv.util.UtilConstant.DEGREES;
 import static com.ucv.util.UtilConstant.UNKNOWN;
 
 public class SatelliteInformationController implements Initializable, SatelliteInformationUpdate {
@@ -95,13 +96,13 @@ public class SatelliteInformationController implements Initializable, SatelliteI
                 setCollisionText(satelliteName);
             }
             if (satelliteName.equals(satelliteOneLabel.getText())) {
-                latitudeSatelliteOne.setText(String.format("%.2f degrees", latitude));
-                longitudeSatelliteOne.setText(String.format("%.2f degrees", longitude));
+                latitudeSatelliteOne.setText(String.format(DEGREES, latitude));
+                longitudeSatelliteOne.setText(String.format(DEGREES, longitude));
                 satelliteOneAltitude.setText(String.format("%.2f Km", altitude/1000.));
                 speedSatelliteOne.setText(String.format("%.2f Km/s",  speed/1000.));
             } else if (satelliteName.equals(satelliteTwoLabel.getText())) {
-                latitudeSatelliteTwo.setText(String.format("%.2f degrees", latitude));
-                longitudeSatelliteTwo.setText(String.format("%.2f degrees", longitude));
+                latitudeSatelliteTwo.setText(String.format(DEGREES, latitude));
+                longitudeSatelliteTwo.setText(String.format(DEGREES, longitude));
                 satelliteTwoAltitude.setText(String.format("%.2f Km", altitude/1000.));
                 speedSatelliteTwo.setText(String.format("%.2f Km/s", speed/1000.));
             }
