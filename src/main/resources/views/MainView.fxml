@@ -162,7 +162,7 @@
             <Insets top="20.0" />
          </opaqueInsets>
          <BorderPane.margin>
-            <Insets top="9.0" />
+            <Insets right="5.0" top="9.0" />
          </BorderPane.margin>
       </StackPane>
    </right>

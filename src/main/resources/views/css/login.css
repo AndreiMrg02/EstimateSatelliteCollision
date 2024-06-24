@@ -4,7 +4,10 @@
     -fx-border-color: rgba(225, 225, 227, 0.83);
     -fx-border-width: 0.5;
     -fx-font-weight: bold;
-    -fx-background-image: url('/img/wallpaper8.jpg');
+    -fx-background-image: url('/img/login.gif');
+    -fx-background-size: cover;
+    -fx-background-position: center center;
+    -fx-background-repeat: no-repeat;
 }
 
 #emailAndPasswordText {
