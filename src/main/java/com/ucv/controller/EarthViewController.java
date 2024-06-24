@@ -23,6 +23,8 @@ import javafx.embed.swing.SwingNode;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.layout.StackPane;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hipparchus.geometry.euclidean.threed.Vector3D;
 import org.hipparchus.util.FastMath;
 import org.orekit.bodies.GeodeticPoint;
@@ -40,19 +42,21 @@ import org.orekit.utils.Constants;
 import org.orekit.utils.IERSConventions;
 import org.orekit.utils.PVCoordinates;
 
+import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.net.URL;
 import java.util.List;
 import java.util.*;
 
 public class EarthViewController extends ApplicationTemplate implements Initializable, Runnable {
-    protected static WorldWindow wwd;
+    public static final WorldWindow wwd = new WorldWindowGLJPanel();
     @FXML
     private StackPane earthPanel;
     private Map<String, Ephemeris> ephemerisMap;
     private Map<String, Map.Entry<SphereAirspace, GlobeAnnotation>> sphereMap;
-
     private AbsoluteDate startDate;
     private AbsoluteDate endDate;
     private OneAxisEllipsoid earth;
@@ -67,30 +71,29 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
     private AbsoluteDate targetDate;
     private Map<String, List<Airspace>> sphereFragmentsMap;
     private SatelliteInformationUpdate updateSatellitesInformation;
-
+    private final Logger logger = LogManager.getLogger(EarthViewController.class);
     public void setUpdateSatellitesInformation(SatelliteInformationUpdate updateSatellitesInformation) {
         this.updateSatellitesInformation = updateSatellitesInformation;
     }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        WorldWind.setOfflineMode(true);
-        wwd = new WorldWindowGLJPanel();
-        wwd.setModel(new BasicModel());
-        sphereFragmentsMap = new HashMap<>();
-        SwingNode swingNode = new SwingNode();
-        swingNode.setContent((WorldWindowGLJPanel) wwd);
-        swingNode.setVisible(true);
-        addContinentAnnotations();
-        /*Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            if (wwd != null) {
-                wwd.shutdown();
-            }
-        }));*/
-        StackPane borderPane = (StackPane) earthPanel.lookup("#earthPanel");
-        borderPane.getChildren().add(swingNode);
-        isCollision = false;
+        try {
 
+            logger.info("Initializing WorldWind");
+            WorldWind.setOfflineMode(true);
+            wwd.setModel(new BasicModel());
+            sphereFragmentsMap = new HashMap<>();
+            SwingNode swingNode = new SwingNode();
+            swingNode.setContent((WorldWindowGLJPanel) wwd);
+            swingNode.setVisible(true);
+            addContinentAnnotations();
+            StackPane borderPane = (StackPane) earthPanel.lookup("#earthPanel");
+            borderPane.getChildren().add(swingNode);
+            isCollision = false;
+        } catch (Exception e) {
+            logger.error("An error occurred during earth initialization", e);
+        }
     }
 
     public EarthViewController() {

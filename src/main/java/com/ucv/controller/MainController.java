@@ -25,7 +25,6 @@ import org.orekit.propagation.analytical.Ephemeris;
 import org.orekit.time.AbsoluteDate;
 
 import java.io.IOException;
-import java.net.CookieManager;
 import java.net.URL;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -36,6 +35,8 @@ import static com.ucv.database.HibernateUtil.closeSession;
 
 public class MainController implements Initializable {
 
+    @FXML
+    private Button closeButton;
     @FXML
     private StackPane informationPane;
     @FXML
@@ -121,7 +122,7 @@ public class MainController implements Initializable {
             FXMLLoader fxmlLoaderEarth = new FXMLLoader(getClass().getResource("/views/EarthViewNou.fxml"));
             StackPane paneWithEarth = fxmlLoaderEarth.load();
             earthViewController = fxmlLoaderEarth.getController();
-            earthPane.getChildren().add(paneWithEarth);
+            Platform.runLater(() -> earthPane.getChildren().add(paneWithEarth));
         } catch (Exception ex) {
             System.out.println("An exception occurred due to can not instantiate the earth pane.");
             ex.printStackTrace();
@@ -206,6 +207,7 @@ public class MainController implements Initializable {
         stopSimulationButton.setDisable(true);
         resumeButton.setDisable(true);
         showSatellitesButton.setOnAction(event -> {
+            closeButton.setDisable(true);
             LoggerCustom.getInstance().logMessage("INFO: Check the map to see the satellites");
             displaySatellites();
             simulateCollision.setDisable(false);
@@ -217,6 +219,7 @@ public class MainController implements Initializable {
         });
 
         stopSimulationButton.setOnAction(event -> {
+            closeButton.setDisable(false);
             LoggerCustom.getInstance().logMessage("INFO: The simulation was stopped");
             earthViewController.delete();
             showSatellitesButton.setDisable(false);
@@ -456,5 +459,17 @@ public class MainController implements Initializable {
 
     public void setConnectionData(InternetConnectionData connectionData) {
         this.connectionData = connectionData;
+    }
+
+    public void handleClose() {
+        mainPanel.getScene().getWindow().setOnCloseRequest(windowEvent -> System.exit(0));
+    }
+
+    public Button getCloseButton() {
+        return closeButton;
+    }
+
+    public void setCloseButton(Button closeButton) {
+        this.closeButton = closeButton;
     }
 }

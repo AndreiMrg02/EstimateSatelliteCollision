@@ -15,7 +15,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.TextFlow?>
 
-<BorderPane fx:id="mainPanel" styleClass="main-panel" stylesheets="@css/panel.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ucv.controller.MainController">
+<BorderPane fx:id="mainPanel" prefHeight="913.0" prefWidth="1457.0" styleClass="main-panel" stylesheets="@css/panel.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ucv.controller.MainController">
    <left>
       <AnchorPane id="dataPanel" fx:id="dataPanel" cache="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="732.0" prefWidth="378.0" styleClass="dataPanel" stylesheets="@css/panel.css" BorderPane.alignment="CENTER">
          <BorderPane fx:id="tableViewPane" layoutX="8.0" layoutY="292.0" prefHeight="452.0" prefWidth="368.0" AnchorPane.leftAnchor="8.0">
@@ -120,14 +120,20 @@
                   </font></Button>
             </HBox>
          </VBox>
-         <ScrollPane fx:id="scrollPaneLog" maxWidth="-Infinity" prefHeight="132.0" prefWidth="913.0">
+         <ScrollPane fx:id="scrollPaneLog" maxWidth="-Infinity" prefHeight="132.0" prefWidth="913.0" stylesheets="@css/console.css">
             <StackPane.margin>
                <Insets right="546.0" />
             </StackPane.margin>
             <content>
-               <TextFlow id="console" fx:id="loggerBox" prefHeight="130.0" prefWidth="911.0" stylesheets="@css/console.css" />
+               <TextFlow id="console" fx:id="loggerBox" prefHeight="132.0" prefWidth="911.0" stylesheets="@css/console.css" />
             </content>
          </ScrollPane>
+         <BorderPane.margin>
+            <Insets />
+         </BorderPane.margin>
+         <padding>
+            <Insets bottom="5.0" />
+         </padding>
       </StackPane>
    </bottom>
    <center>
@@ -148,7 +154,7 @@
       </StackPane>
    </center>
    <opaqueInsets>
-      <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+      <Insets top="100.0" />
    </opaqueInsets>
    <right>
       <StackPane fx:id="earthPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="708.0" prefWidth="557.0" BorderPane.alignment="CENTER">
@@ -160,4 +166,14 @@
          </BorderPane.margin>
       </StackPane>
    </right>
+   <top>
+      <HBox alignment="TOP_RIGHT" minHeight="-Infinity" prefHeight="38.0" prefWidth="1455.0" styleClass="close-bar" stylesheets="@css/panel.css" BorderPane.alignment="TOP_RIGHT">
+         <children>
+            <Button id="close-button" fx:id="closeButton" alignment="CENTER" contentDisplay="RIGHT" prefHeight="30.0" prefWidth="30.0" styleClass="close-button" text="X" />
+         </children>
+         <padding>
+            <Insets bottom="5.0" />
+         </padding>
+      </HBox>
+   </top>
 </BorderPane>

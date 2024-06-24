@@ -7,18 +7,14 @@
 }
 .main-panel {
     -fx-background-color: transparent;
-    -fx-background-radius: 15;
-    -fx-border-radius: 15;
-    -fx-border-color: rgba(98, 98, 98, 0.33);
-
+    -fx-background-radius: 15 15 15 15;
+    -fx-border-radius: 15 15 15 15;
     -fx-background-image: url('/img/wallpaper8.jpg');
     -fx-background-size: cover;
     -fx-background-position: center center;
     -fx-background-repeat: no-repeat;
-
-    /* Shadow */
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.25), 10, 0.5, 0, 5);
 }
+
 
 .v-box {
     -fx-background-radius: 15;
@@ -33,6 +29,37 @@
     -fx-background-repeat: no-repeat;
 
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.25), 10, 0.5, 0, 5);
+}
+/* style.css */
+
+.close-bar {
+    -fx-background-color: #04142c;
+    -fx-padding: 5px;
+    -fx-alignment: center-right;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 10, 0, 0, 2);
+}
+
+.close-button {
+    -fx-background-color: #e74c3c;
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-border-radius: 10px;
+    -fx-padding: 3px 5px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 5, 0, 0, 1);
+    -fx-transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.close-button:hover {
+    -fx-background-color: #c0392b;
+    -fx-scale-x: 1.1;
+    -fx-scale-y: 1.1;
+}
+
+.close-button:pressed {
+    -fx-background-color: #a93226;
+    -fx-scale-x: 1.1;
+    -fx-scale-y: 1.1;
 }
 
 .transparent-background {

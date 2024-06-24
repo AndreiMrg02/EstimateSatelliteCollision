@@ -6,22 +6,30 @@ import com.ucv.controller.MainController;
 import com.ucv.util.PaneCustomStyle;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.stage.WindowEvent;
 import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.orekit.data.DataContext;
 import org.orekit.data.DataProvidersManager;
 import org.orekit.data.DirectoryCrawler;
 
 import java.io.File;
 
+import static com.ucv.controller.EarthViewController.wwd;
+
 
 public class Main extends Application {
     private Scene mainScene;
+    private Logger logger = LogManager.getLogger(Main.class);
 
     public void start(Stage stage) {
         try {
@@ -33,7 +41,7 @@ public class Main extends Application {
             stage.setScene(mainScene);
             loadLoginScreen(stage, mainController);
             BasicConfigurator.configure();
-            stage.setOnCloseRequest(windowEvent -> Platform.runLater(() -> System.exit(0)));
+            stage.setOnCloseRequest(windowEvent -> System.exit(0));
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -63,7 +71,16 @@ public class Main extends Application {
             if (loginController.isAuthenticated()) {
                 Platform.runLater(() -> {
                     mainController.setConnectionData(loginController.getInternetConnectionData());
+                    try {
+                        mainController.getCloseButton().setOnMouseClicked((MouseEvent mouseEvent) -> {
+                            wwd.shutdown();
+                            System.exit(0);
+                        });
+                    } catch (Exception e) {
+                        logger.error("An error occurred while setting the close button action", e);
+                    }
                     primaryStage.setScene(mainScene);
+                    primaryStage.initStyle(StageStyle.UNDECORATED);
                     primaryStage.show();
                 });
             } else {
