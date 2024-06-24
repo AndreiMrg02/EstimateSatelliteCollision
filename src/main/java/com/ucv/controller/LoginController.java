@@ -62,7 +62,7 @@ public class LoginController implements Initializable {
                 alert.showAndWait();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error during register");
         }
     }
 

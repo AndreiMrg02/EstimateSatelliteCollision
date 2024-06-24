@@ -5,7 +5,6 @@ import com.ucv.controller.LoginController;
 import com.ucv.controller.MainController;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
@@ -27,7 +26,7 @@ import static com.ucv.controller.EarthViewController.wwd;
 
 public class Main extends Application {
     private Scene mainScene;
-    private Logger logger = LogManager.getLogger(Main.class);
+    private final Logger logger = LogManager.getLogger(Main.class);
 
     public void start(Stage stage) {
         try {
@@ -41,7 +40,7 @@ public class Main extends Application {
             BasicConfigurator.configure();
             stage.setOnCloseRequest(windowEvent -> System.exit(0));
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.error("Unexpected error due to start application");
         }
     }
 
@@ -81,10 +80,11 @@ public class Main extends Application {
                 });
             } else {
                 loginStage.showAndWait();
-                System.out.println("Authentication failed.");
+                logger.error("Authentication failed.");
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.error("Unexpected error due to login process.");
+
         }
     }
 }
