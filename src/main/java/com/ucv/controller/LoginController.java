@@ -10,12 +10,9 @@ import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.net.ssl.HttpsURLConnection;
 import java.awt.*;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.*;
+import java.net.URI;
+import java.net.URL;
 import java.util.ResourceBundle;
 
 public class LoginController implements Initializable {
@@ -26,23 +23,24 @@ public class LoginController implements Initializable {
     private TextField userTextField;
     private boolean authenticated;
     private InternetConnectionData internetConnectionData;
-    private final static Logger logger = LogManager.getLogger(LoginController.class);
+    private static final Logger logger = LogManager.getLogger(LoginController.class);
 
 
-public void connect() {
+    public void connect() {
 
-    try {
-        String baseURL = "https://www.space-track.org";
-        String authPath = "/ajaxauth/login";
-        authenticated = true;
-        internetConnectionData = new InternetConnectionData(baseURL,authPath,userTextField.getText(), pwBox.getText());
-        Stage stage = (Stage) userTextField.getScene().getWindow();
-        stage.close();
-    } catch (Exception e) {
-        e.printStackTrace();
-        authenticated = false;
+        try {
+            String baseURL = "https://www.space-track.org";
+            String authPath = "/ajaxauth/login";
+            authenticated = true;
+            internetConnectionData = new InternetConnectionData(baseURL, authPath, userTextField.getText(), pwBox.getText());
+            Stage stage = (Stage) userTextField.getScene().getWindow();
+            stage.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            authenticated = false;
+        }
     }
-}
+
     public void handleClose() {
         System.exit(0);
     }
@@ -72,6 +70,7 @@ public void connect() {
     public void initialize(URL location, ResourceBundle resources) {
         authenticated = false;
     }
+
     public boolean isAuthenticated() {
         return authenticated;
     }

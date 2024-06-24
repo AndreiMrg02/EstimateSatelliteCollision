@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="748.0" prefWidth="540.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ucv.controller.SatelliteInformationController">
+<StackPane prefHeight="748.0" prefWidth="540.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ucv.controller.SatelliteInformationController">
    <children>
       <VBox spacing="5.0">
          <children>
@@ -35,7 +35,7 @@
                                     <Insets left="2.0" top="5.0" />
                                  </HBox.margin>
                                  <children>
-                                    <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="32.0" prefWidth="96.0" text="Start Date " textFill="#866d7f" textOverrun="LEADING_ELLIPSIS" VBox.vgrow="ALWAYS">
+                                    <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="32.0" prefWidth="96.0" text="Start Date " textFill="#a8829e" textOverrun="LEADING_ELLIPSIS" VBox.vgrow="ALWAYS">
                                        <font>
                                           <Font name="Copperplate Gothic Bold" size="14.0" />
                                        </font>
@@ -45,7 +45,7 @@
                                           <Font name="System Bold" size="15.0" />
                                        </font>
                                     </TextArea>
-                                    <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="32.0" prefWidth="133.0" text="Close Approach&#10;         Date" textFill="#6f5c69" textOverrun="LEADING_ELLIPSIS" VBox.vgrow="ALWAYS">
+                                    <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="32.0" prefWidth="133.0" text="Close Approach&#10;         Date" textFill="#a8829e" textOverrun="LEADING_ELLIPSIS" VBox.vgrow="ALWAYS">
                                        <font>
                                           <Font name="Copperplate Gothic Bold" size="14.0" />
                                        </font>
@@ -62,7 +62,7 @@
                                     <Insets top="5.0" />
                                  </HBox.margin>
                                  <children>
-                                    <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="32.0" prefWidth="96.0" text="End Date" textFill="#6f5c69" textOverrun="LEADING_ELLIPSIS" VBox.vgrow="ALWAYS">
+                                    <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="32.0" prefWidth="96.0" text="End Date" textFill="#a8829e" textOverrun="LEADING_ELLIPSIS" VBox.vgrow="ALWAYS">
                                        <font>
                                           <Font name="Copperplate Gothic Bold" size="14.0" />
                                        </font>
@@ -72,7 +72,7 @@
                                           <Font name="System Bold" size="15.0" />
                                        </font>
                                     </TextArea>
-                                    <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="32.0" prefWidth="160.0" text="Close Approach&#10;      Distance" textFill="#6f5c69" textOverrun="LEADING_ELLIPSIS" VBox.vgrow="ALWAYS">
+                                    <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="32.0" prefWidth="160.0" text="Close Approach&#10;      Distance" textFill="#a8829e" textOverrun="LEADING_ELLIPSIS" VBox.vgrow="ALWAYS">
                                        <font>
                                           <Font name="Copperplate Gothic Bold" size="14.0" />
                                        </font>
@@ -89,7 +89,7 @@
                                     <Insets top="5.0" />
                                  </HBox.margin>
                                  <children>
-                                    <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="32.0" prefWidth="96.0" text="Threshold" textFill="#6f5c69" textOverrun="LEADING_ELLIPSIS" VBox.vgrow="ALWAYS">
+                                    <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="32.0" prefWidth="96.0" text="Threshold" textFill="#a8829e" textOverrun="LEADING_ELLIPSIS" VBox.vgrow="ALWAYS">
                                        <font>
                                           <Font name="Copperplate Gothic Bold" size="14.0" />
                                        </font>
@@ -99,7 +99,7 @@
                                           <Font name="System Bold" size="15.0" />
                                        </font>
                                     </TextArea>
-                                    <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="32.0" prefWidth="109.0" text="Collision&#10;Probability    " textFill="#6f5c69" textOverrun="LEADING_ELLIPSIS" VBox.vgrow="ALWAYS">
+                                    <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="32.0" prefWidth="109.0" text="Collision&#10;Probability    " textFill="#a8829e" textOverrun="LEADING_ELLIPSIS" VBox.vgrow="ALWAYS">
                                        <font>
                                           <Font name="Copperplate Gothic Bold" size="14.0" />
                                        </font>
@@ -131,7 +131,7 @@
                                     <Font name="System Bold" size="21.0" />
                                  </font>
                               </Label>
-                              <Label fx:id="satelliteOneLabel" prefHeight="31.0" prefWidth="295.0" textFill="#626480" HBox.hgrow="ALWAYS">
+                              <Label fx:id="satelliteOneLabel" prefHeight="31.0" prefWidth="295.0" textFill="#71bce4" HBox.hgrow="ALWAYS">
                                  <font>
                                     <Font name="System Bold" size="20.0" />
                                  </font>
@@ -140,7 +140,7 @@
                         </HBox>
                         <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="60.0">
                            <children>
-                              <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="80.0" text="Altitude:" textFill="#6f5c69" textOverrun="LEADING_ELLIPSIS" HBox.hgrow="ALWAYS">
+                              <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="80.0" text="Altitude:" textFill="#a8829e" textOverrun="LEADING_ELLIPSIS" HBox.hgrow="ALWAYS">
                                  <font>
                                     <Font name="Copperplate Gothic Bold" size="14.0" />
                                  </font>
@@ -154,7 +154,7 @@
                         </HBox>
                         <HBox alignment="CENTER" layoutX="10.0" layoutY="44.0" prefHeight="100.0" prefWidth="200.0" spacing="40.0">
                            <children>
-                              <Label contentDisplay="CENTER" prefHeight="51.0" prefWidth="98.0" text="Longitude:" textFill="#6f5c69" textOverrun="LEADING_ELLIPSIS" HBox.hgrow="ALWAYS">
+                              <Label contentDisplay="CENTER" prefHeight="51.0" prefWidth="98.0" text="Longitude:" textFill="#a8829e" textOverrun="LEADING_ELLIPSIS" HBox.hgrow="ALWAYS">
                                  <font>
                                     <Font name="Copperplate Gothic Bold" size="14.0" />
                                  </font>
@@ -168,7 +168,7 @@
                         </HBox>
                         <HBox alignment="CENTER" layoutX="10.0" layoutY="116.0" prefHeight="100.0" prefWidth="200.0" spacing="60.0">
                            <children>
-                              <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="53.0" prefWidth="80.0" text="Latitude:" textFill="#6f5c69" textOverrun="LEADING_ELLIPSIS" HBox.hgrow="ALWAYS">
+                              <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="53.0" prefWidth="80.0" text="Latitude:" textFill="#a8829e" textOverrun="LEADING_ELLIPSIS" HBox.hgrow="ALWAYS">
                                  <font>
                                     <Font name="Copperplate Gothic Bold" size="14.0" />
                                  </font>
@@ -182,7 +182,7 @@
                         </HBox>
                         <HBox alignment="CENTER" layoutX="10.0" layoutY="166.0" prefHeight="100.0" prefWidth="200.0" spacing="60.0">
                            <children>
-                              <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="53.0" prefWidth="80.0" text="SPEED" textFill="#6f5c69" textOverrun="LEADING_ELLIPSIS" HBox.hgrow="ALWAYS">
+                              <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="53.0" prefWidth="80.0" text="SPEED" textFill="#a8829e" textOverrun="LEADING_ELLIPSIS" HBox.hgrow="ALWAYS">
                                  <font>
                                     <Font name="Copperplate Gothic Bold" size="14.0" />
                                  </font>
@@ -212,7 +212,7 @@
                                     <Font name="System Bold" size="21.0" />
                                  </font>
                               </Label>
-                              <Label fx:id="satelliteTwoLabel" prefHeight="31.0" prefWidth="297.0" textFill="#626480" HBox.hgrow="ALWAYS">
+                              <Label fx:id="satelliteTwoLabel" prefHeight="31.0" prefWidth="297.0" textFill="#71bce4" HBox.hgrow="ALWAYS">
                                  <font>
                                     <Font name="System Bold" size="20.0" />
                                  </font>
@@ -221,7 +221,7 @@
                         </HBox>
                         <HBox alignment="CENTER" prefHeight="100.0" prefWidth="575.0" spacing="60.0">
                            <children>
-                              <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="80.0" text="Altitude:" textFill="#6f5c69" textOverrun="LEADING_ELLIPSIS" HBox.hgrow="ALWAYS">
+                              <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="80.0" text="Altitude:" textFill="#a8829e" textOverrun="LEADING_ELLIPSIS" HBox.hgrow="ALWAYS">
                                  <font>
                                     <Font name="Copperplate Gothic Bold" size="14.0" />
                                  </font>
@@ -235,7 +235,7 @@
                         </HBox>
                         <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="48.0">
                            <children>
-                              <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="90.0" text="Longitude:" textFill="#6f5c69" textOverrun="LEADING_ELLIPSIS" HBox.hgrow="ALWAYS">
+                              <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="90.0" text="Longitude:" textFill="#a8829e" textOverrun="LEADING_ELLIPSIS" HBox.hgrow="ALWAYS">
                                  <font>
                                     <Font name="Copperplate Gothic Bold" size="14.0" />
                                  </font>
@@ -249,7 +249,7 @@
                         </HBox>
                         <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="60.0">
                            <children>
-                              <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="80.0" text="Latitude:" textFill="#6f5c69" textOverrun="LEADING_ELLIPSIS" HBox.hgrow="ALWAYS">
+                              <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="80.0" text="Latitude:" textFill="#a8829e" textOverrun="LEADING_ELLIPSIS" HBox.hgrow="ALWAYS">
                                  <font>
                                     <Font name="Copperplate Gothic Bold" size="14.0" />
                                  </font>
@@ -263,7 +263,7 @@
                         </HBox>
                         <HBox alignment="CENTER" layoutX="10.0" layoutY="166.0" prefHeight="100.0" prefWidth="200.0" spacing="60.0" styleClass="transparent-background">
                            <children>
-                              <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="80.0" text="SPEED:" textFill="#6f5c69" textOverrun="LEADING_ELLIPSIS" HBox.hgrow="ALWAYS">
+                              <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="80.0" text="SPEED:" textFill="#a8829e" textOverrun="LEADING_ELLIPSIS" HBox.hgrow="ALWAYS">
                                  <font>
                                     <Font name="Copperplate Gothic Bold" size="14.0" />
                                  </font>
