@@ -5,6 +5,7 @@
     -fx-border-color: black;
     -fx-border-width: 0;
 }
+
 .main-panel {
     -fx-border-width: 0.1;
     -fx-border-color: white; /* Example color, adjust as needed */
@@ -30,6 +31,7 @@
 
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.25), 10, 0.5, 0, 5);
 }
+
 /* style.css */
 
 .close-bar {
@@ -64,27 +66,28 @@
     -fx-scale-x: 1.1;
     -fx-scale-y: 1.1;
 }
+
 .minimize-button {
-    -fx-background-color: #3498db;  /* Blue shade for the minimize button */
-    -fx-text-fill: white;  /* White text color */
-    -fx-font-size: 12px;  /* Font size of 12 pixels */
-    -fx-border-radius: 10px;  /* Rounded corners with a radius of 10 pixels */
-    -fx-padding: 3px 5px;  /* Padding inside the button */
-    -fx-cursor: hand;  /* Cursor changes to a hand when hovering over the button */
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 5, 0, 0, 1);  /* Subtle drop shadow effect */
-    -fx-transition: background-color 0.3s ease, transform 0.3s ease;  /* Smooth transition for background color and transform */
+    -fx-background-color: #3498db; /* Blue shade for the minimize button */
+    -fx-text-fill: white; /* White text color */
+    -fx-font-size: 12px; /* Font size of 12 pixels */
+    -fx-border-radius: 10px; /* Rounded corners with a radius of 10 pixels */
+    -fx-padding: 3px 5px; /* Padding inside the button */
+    -fx-cursor: hand; /* Cursor changes to a hand when hovering over the button */
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 5, 0, 0, 1); /* Subtle drop shadow effect */
+    -fx-transition: background-color 0.3s ease, transform 0.3s ease; /* Smooth transition for background color and transform */
 }
 
 .minimize-button:hover {
-    -fx-background-color: #2980b9;  /* Darker blue when hovering */
-    -fx-scale-x: 1.1;  /* Scales the button up slightly on the X-axis when hovering */
-    -fx-scale-y: 1.1;  /* Scales the button up slightly on the Y-axis when hovering */
+    -fx-background-color: #2980b9; /* Darker blue when hovering */
+    -fx-scale-x: 1.1; /* Scales the button up slightly on the X-axis when hovering */
+    -fx-scale-y: 1.1; /* Scales the button up slightly on the Y-axis when hovering */
 }
 
 .minimize-button:pressed {
-    -fx-background-color: #2471a3;  /* Even darker blue when the button is pressed */
-    -fx-scale-x: 1.1;  /* Keeps the button scaled up even when pressed */
-    -fx-scale-y: 1.1;  /* Keeps the button scaled up even when pressed */
+    -fx-background-color: #2471a3; /* Even darker blue when the button is pressed */
+    -fx-scale-x: 1.1; /* Keeps the button scaled up even when pressed */
+    -fx-scale-y: 1.1; /* Keeps the button scaled up even when pressed */
 }
 
 .transparent-background {

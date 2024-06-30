@@ -5,7 +5,6 @@ import com.ucv.datamodel.xml.Items;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 import java.io.StringReader;
@@ -15,6 +14,7 @@ import java.util.Map;
 public class XmlParser {
     Logger logger = LogManager.getLogger(XmlParser.class);
     Items xml = new Items();
+
     public Map<String, Item> parseItems(String xmlData) {
         try {
             JAXBContext jaxbContext = JAXBContext.newInstance(Items.class);
@@ -28,7 +28,7 @@ public class XmlParser {
             }
             return items;
         } catch (Exception e) {
-            logger.error(String.format("Unexpected error occurred during parsing data: %s",  e.getMessage()));
+            logger.error(String.format("Unexpected error occurred during parsing data: %s", e.getMessage()));
             return new HashMap<>();
         }
     }

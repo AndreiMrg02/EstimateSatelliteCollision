@@ -1,184 +1,236 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ChoiceBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ProgressIndicator?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.TextArea?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
-<?import javafx.scene.text.TextFlow?>
-
-<BorderPane fx:id="mainPanel" prefHeight="913.0" prefWidth="1457.0" styleClass="main-panel" stylesheets="@css/panel.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ucv.controller.MainController">
-   <left>
-      <AnchorPane id="dataPanel" fx:id="dataPanel" cache="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="732.0" prefWidth="378.0" styleClass="dataPanel" stylesheets="@css/panel.css" BorderPane.alignment="CENTER">
-         <BorderPane fx:id="tableViewPane" layoutX="8.0" layoutY="292.0" prefHeight="452.0" prefWidth="368.0" AnchorPane.leftAnchor="8.0">
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" fx:id="mainPanel" prefHeight="913.0" prefWidth="1457.0" styleClass="main-panel"
+            stylesheets="@css/panel.css" xmlns="http://javafx.com/javafx/21"
+            fx:controller="com.ucv.controller.MainController">
+    <left>
+        <AnchorPane id="dataPanel" fx:id="dataPanel" cache="true" maxHeight="1.7976931348623157E308"
+                    maxWidth="1.7976931348623157E308" prefHeight="732.0" prefWidth="378.0" styleClass="dataPanel"
+                    stylesheets="@css/panel.css" BorderPane.alignment="CENTER">
+            <BorderPane fx:id="tableViewPane" layoutX="8.0" layoutY="292.0" prefHeight="452.0" prefWidth="368.0"
+                        AnchorPane.leftAnchor="8.0">
+                <opaqueInsets>
+                    <Insets/>
+                </opaqueInsets>
+            </BorderPane>
+            <VBox fx:id="configurationPane" alignment="CENTER" layoutX="14.0" layoutY="17.0"
+                  maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity"
+                  prefHeight="281.0" prefWidth="356.0" spacing="4.0" styleClass="v-box" stylesheets="@css/panel.css"
+                  AnchorPane.topAnchor="10.0">
+                <Label alignment="TOP_CENTER" contentDisplay="CENTER" prefHeight="20.0" prefWidth="284.0"
+                       text="Configuration" textAlignment="CENTER" textFill="#44a8d0" textOverrun="LEADING_ELLIPSIS"
+                       VBox.vgrow="ALWAYS">
+                    <font>
+                        <Font name="Britannic Bold" size="27.0"/>
+                    </font>
+                    <VBox.margin>
+                        <Insets bottom="15.0"/>
+                    </VBox.margin>
+                </Label>
+                <HBox alignment="CENTER" layoutX="10.0" layoutY="10.0" prefHeight="48.0" prefWidth="354.0"
+                      spacing="40.0">
+                    <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="30.0" prefWidth="95.0" text="Operator"
+                           textFill="WHITE" textOverrun="LEADING_ELLIPSIS" HBox.hgrow="ALWAYS">
+                        <font>
+                            <Font name="Copperplate Gothic Bold" size="14.0"/>
+                        </font>
+                        <HBox.margin>
+                            <Insets left="5.0"/>
+                        </HBox.margin>
+                    </Label>
+                    <ChoiceBox fx:id="operatorBox" minHeight="-Infinity" prefHeight="35.0" prefWidth="135.0"
+                               stylesheets="@css/choiceBox.css" HBox.hgrow="ALWAYS"/>
+                </HBox>
+                <HBox alignment="CENTER" layoutX="10.0" layoutY="52.0" prefHeight="48.0" prefWidth="299.0"
+                      spacing="40.0">
+                    <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="30.0" prefWidth="95.0"
+                           text="range(km)" textFill="WHITE" textOverrun="LEADING_ELLIPSIS" HBox.hgrow="ALWAYS">
+                        <font>
+                            <Font name="Copperplate Gothic Bold" size="14.0"/>
+                        </font>
+                        <HBox.margin>
+                            <Insets left="5.0"/>
+                        </HBox.margin>
+                    </Label>
+                    <TextArea fx:id="valueField" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
+                              minWidth="-Infinity" prefHeight="35.0" prefWidth="135.0" styleClass="text-area"
+                              wrapText="true" HBox.hgrow="ALWAYS"/>
+                </HBox>
+                <HBox alignment="CENTER" layoutX="11.0" layoutY="178.0" prefHeight="48.0" prefWidth="299.0"
+                      spacing="40.0">
+                    <children>
+                        <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="30.0" prefWidth="95.0"
+                               text="Threshold" textFill="WHITE" textOverrun="LEADING_ELLIPSIS" HBox.hgrow="ALWAYS">
+                            <font>
+                                <Font name="Copperplate Gothic Bold" size="14.0"/>
+                            </font>
+                            <HBox.margin>
+                                <Insets left="5.0"/>
+                            </HBox.margin>
+                        </Label>
+                        <TextArea fx:id="thresholdBox" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
+                                  minWidth="-Infinity" prefHeight="35.0" prefWidth="135.0" styleClass="text-area"
+                                  wrapText="true" HBox.hgrow="ALWAYS"/>
+                    </children>
+                </HBox>
+                <HBox alignment="CENTER" layoutX="11.0" layoutY="188.0" prefHeight="48.0" prefWidth="299.0"
+                      spacing="40.0">
+                    <children>
+                        <RadioButton fx:id="spaceTrackTleRadio" mnemonicParsing="false" text="Space-Track TLE"
+                                     textFill="WHITE">
+                            <font>
+                                <Font name="System Bold" size="12.0"/>
+                            </font>
+                        </RadioButton>
+                        <RadioButton fx:id="localTleRadio" mnemonicParsing="false" text="Local TLE" textFill="WHITE">
+                            <font>
+                                <Font name="System Bold" size="12.0"/>
+                            </font>
+                        </RadioButton>
+                    </children>
+                </HBox>
+                <HBox alignment="CENTER" layoutX="10.0" layoutY="178.0" prefHeight="28.0" prefWidth="354.0"
+                      spacing="6.0">
+                    <Button id="submitButton" fx:id="extractDataButton" alignment="CENTER" contentDisplay="CENTER"
+                            minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="35.0"
+                            prefWidth="162.0" stylesheets="@css/button.css" text="Estimate Collision"
+                            HBox.hgrow="ALWAYS">
+                        <font>
+                            <Font name="System Bold" size="12.0"/>
+                        </font>
+                    </Button>
+                    <padding>
+                        <Insets bottom="5.0"/>
+                    </padding>
+                </HBox>
+            </VBox>
+        </AnchorPane>
+    </left>
+    <bottom>
+        <StackPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="132.0"
+                   prefWidth="1455.0" BorderPane.alignment="CENTER">
+            <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+                  prefHeight="132.0" prefWidth="515.0" spacing="10.0" StackPane.alignment="TOP_RIGHT">
+                <StackPane.margin>
+                    <Insets right="25.0"/>
+                </StackPane.margin>
+                <HBox alignment="CENTER" prefHeight="50.0" prefWidth="1484.0" spacing="5.0">
+                    <VBox.margin>
+                        <Insets top="10.0"/>
+                    </VBox.margin>
+                    <Button fx:id="showSatellitesButton" disable="true" maxHeight="-Infinity" maxWidth="-Infinity"
+                            mnemonicParsing="false" prefHeight="42.0" prefWidth="160.0" stylesheets="@css/button.css"
+                            text="Show Satellites">
+                        <HBox.margin>
+                            <Insets/>
+                        </HBox.margin>
+                        <font>
+                            <Font name="System Bold" size="12.0"/>
+                        </font>
+                    </Button>
+                    <Button fx:id="pauseButton" disable="true" mnemonicParsing="false" prefHeight="42.0"
+                            prefWidth="160.0" stylesheets="@css/button.css" text="Pause">
+                        <font>
+                            <Font name="System Bold" size="12.0"/>
+                        </font>
+                    </Button>
+                    <Button fx:id="resumeButton" disable="true" mnemonicParsing="false" prefHeight="42.0"
+                            prefWidth="160.0" stylesheets="@css/button.css" text="Resume">
+                        <font>
+                            <Font name="System Bold" size="12.0"/>
+                        </font>
+                    </Button>
+                </HBox>
+                <HBox alignment="CENTER" prefHeight="50.0" prefWidth="1484.0" spacing="5.0">
+                    <Button fx:id="closeApproachButton" disable="true" mnemonicParsing="false" prefHeight="42.0"
+                            prefWidth="160.0" stylesheets="@css/button.css" text="Close approach">
+                        <font>
+                            <Font name="System Bold" size="12.0"/>
+                        </font>
+                    </Button>
+                    <Button fx:id="stopSimulationButton" disable="true" mnemonicParsing="false" prefHeight="42.0"
+                            prefWidth="160.0" stylesheets="@css/button.css" text="Stop Simulation">
+                        <font>
+                            <Font name="System Bold" size="12.0"/>
+                        </font>
+                    </Button>
+                    <Button fx:id="simulateCollision" disable="true" mnemonicParsing="false" prefHeight="42.0"
+                            prefWidth="160.0" stylesheets="@css/button.css" text="Simulate Collision">
+                        <font>
+                            <Font name="System Bold" size="12.0"/>
+                        </font>
+                    </Button>
+                </HBox>
+            </VBox>
+            <ScrollPane fx:id="scrollPaneLog" maxWidth="-Infinity" prefHeight="132.0" prefWidth="913.0"
+                        stylesheets="@css/console.css">
+                <StackPane.margin>
+                    <Insets right="546.0"/>
+                </StackPane.margin>
+                <TextFlow id="console" fx:id="loggerBox" prefHeight="132.0" prefWidth="911.0"
+                          stylesheets="@css/console.css"/>
+            </ScrollPane>
+            <BorderPane.margin>
+                <Insets/>
+            </BorderPane.margin>
+            <padding>
+                <Insets bottom="5.0"/>
+            </padding>
+        </StackPane>
+    </bottom>
+    <center>
+        <StackPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER">
+            <StackPane fx:id="informationPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"/>
+            <StackPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="707.0"
+                       prefWidth="519.0">
+                <StackPane.margin>
+                    <Insets right="3.0" top="9.0"/>
+                </StackPane.margin>
+                <ProgressIndicator fx:id="progressBar" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
+                                   minWidth="-Infinity" prefHeight="74.0" prefWidth="91.0" progress="0.0"
+                                   styleClass="progress-bar">
+                    <padding>
+                        <Insets left="30.0"/>
+                    </padding>
+                    <StackPane.margin>
+                        <Insets left="100.0"/>
+                    </StackPane.margin>
+                </ProgressIndicator>
+            </StackPane>
+        </StackPane>
+    </center>
+    <opaqueInsets>
+        <Insets top="100.0"/>
+    </opaqueInsets>
+    <right>
+        <StackPane fx:id="earthPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+                   prefHeight="708.0" prefWidth="557.0" BorderPane.alignment="CENTER">
             <opaqueInsets>
-               <Insets />
-            </opaqueInsets></BorderPane>
-         <VBox fx:id="configurationPane" alignment="CENTER" layoutX="14.0" layoutY="17.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" prefHeight="281.0" prefWidth="356.0" spacing="4.0" styleClass="v-box" stylesheets="@css/panel.css" AnchorPane.topAnchor="10.0">
-            <Label alignment="TOP_CENTER" contentDisplay="CENTER" prefHeight="20.0" prefWidth="284.0" text="Configuration" textAlignment="CENTER" textFill="#44a8d0" textOverrun="LEADING_ELLIPSIS" VBox.vgrow="ALWAYS">
-               <font>
-                  <Font name="System Bold" size="21.0" />
-               </font>
-               <VBox.margin>
-                  <Insets bottom="25.0" />
-               </VBox.margin>
-            </Label>
-            <HBox alignment="CENTER" layoutX="10.0" layoutY="10.0" prefHeight="48.0" prefWidth="354.0" spacing="40.0">
-               <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="30.0" prefWidth="95.0" text="Operator" textFill="WHITE" textOverrun="LEADING_ELLIPSIS" HBox.hgrow="ALWAYS">
-                  <font>
-                     <Font name="Copperplate Gothic Bold" size="14.0" />
-                  </font>
-                  <HBox.margin>
-                     <Insets left="5.0" />
-                  </HBox.margin>
-               </Label>
-               <ChoiceBox fx:id="operatorBox" minHeight="-Infinity" prefHeight="35.0" prefWidth="135.0" stylesheets="@css/choiceBox.css" HBox.hgrow="ALWAYS" />
-            </HBox>
-            <HBox alignment="CENTER" layoutX="10.0" layoutY="52.0" prefHeight="48.0" prefWidth="299.0" spacing="40.0">
-               <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="30.0" prefWidth="95.0" text="range(km)" textFill="WHITE" textOverrun="LEADING_ELLIPSIS" HBox.hgrow="ALWAYS">
-                  <font>
-                     <Font name="Copperplate Gothic Bold" size="14.0" />
-                  </font>
-                  <HBox.margin>
-                     <Insets left="5.0" />
-                  </HBox.margin>
-               </Label>
-               <TextArea fx:id="valueField" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="35.0" prefWidth="135.0" styleClass="text-area" wrapText="true" HBox.hgrow="ALWAYS" />
-            </HBox>
-            <HBox alignment="CENTER" layoutX="11.0" layoutY="178.0" prefHeight="48.0" prefWidth="299.0" spacing="40.0">
-               <children>
-                  <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="30.0" prefWidth="95.0" text="Threshold" textFill="WHITE" textOverrun="LEADING_ELLIPSIS" HBox.hgrow="ALWAYS">
-                     <font>
-                        <Font name="Copperplate Gothic Bold" size="14.0" />
-                     </font>
-                     <HBox.margin>
-                        <Insets left="5.0" />
-                     </HBox.margin>
-                  </Label>
-                  <TextArea fx:id="thresholdBox" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="35.0" prefWidth="135.0" styleClass="text-area" wrapText="true" HBox.hgrow="ALWAYS" />
-               </children>
-            </HBox>
-            <HBox alignment="CENTER" layoutX="10.0" layoutY="178.0" prefHeight="28.0" prefWidth="354.0" spacing="6.0">
-               <Button id="submitButton" fx:id="extractDataButton" alignment="CENTER" contentDisplay="CENTER" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="35.0" prefWidth="210.0" stylesheets="@css/button.css" text="Estimate Collision" HBox.hgrow="ALWAYS">
-                  <font>
-                     <Font name="System Bold" size="12.0" />
-                  </font>
-               </Button>
-            </HBox>
-         </VBox>
-      </AnchorPane>
-   </left>
-   <bottom>
-      <StackPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="132.0" prefWidth="1455.0" BorderPane.alignment="CENTER">
-         <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="132.0" prefWidth="487.0" spacing="10.0" StackPane.alignment="TOP_RIGHT">
-            <StackPane.margin>
-               <Insets right="25.0" />
-            </StackPane.margin>
-            <HBox alignment="CENTER" prefHeight="50.0" prefWidth="1484.0" spacing="5.0">
-               <VBox.margin>
-                  <Insets top="10.0" />
-               </VBox.margin>
-               <Button fx:id="showSatellitesButton" disable="true" maxHeight="-Infinity" maxWidth="-Infinity" mnemonicParsing="false" prefHeight="42.0" prefWidth="155.0" stylesheets="@css/button.css" text="Show Satellites">
-                  <HBox.margin>
-                     <Insets />
-                  </HBox.margin>
-                  <font>
-                     <Font name="System Bold" size="12.0" />
-                  </font>
-               </Button>
-               <Button fx:id="pauseButton" disable="true" mnemonicParsing="false" prefHeight="42.0" prefWidth="155.0" stylesheets="@css/button.css" text="Pause">
-                  <font>
-                     <Font name="System Bold" size="12.0" />
-                  </font>
-               </Button>
-               <Button fx:id="resumeButton" disable="true" mnemonicParsing="false" prefHeight="42.0" prefWidth="155.0" stylesheets="@css/button.css" text="Resume">
-                  <font>
-                     <Font name="System Bold" size="12.0" />
-                  </font>
-               </Button>
-            </HBox>
-            <HBox alignment="CENTER" prefHeight="50.0" prefWidth="1484.0" spacing="5.0">
-               <Button fx:id="closeApproachButton" disable="true" mnemonicParsing="false" prefHeight="42.0" prefWidth="155.0" stylesheets="@css/button.css" text="Close approach">
-                  <font>
-                     <Font name="System Bold" size="12.0" />
-                  </font></Button>
-               <Button fx:id="stopSimulationButton" disable="true" mnemonicParsing="false" prefHeight="42.0" prefWidth="155.0" stylesheets="@css/button.css" text="Stop Simulation">
-                  <font>
-                     <Font name="System Bold" size="12.0" />
-                  </font></Button>
-               <Button fx:id="simulateCollision" disable="true" mnemonicParsing="false" prefHeight="42.0" prefWidth="155.0" stylesheets="@css/button.css" text="Simulate Collision">
-                  <font>
-                     <Font name="System Bold" size="12.0" />
-                  </font></Button>
-            </HBox>
-         </VBox>
-         <ScrollPane fx:id="scrollPaneLog" maxWidth="-Infinity" prefHeight="132.0" prefWidth="913.0" stylesheets="@css/console.css">
-            <StackPane.margin>
-               <Insets right="546.0" />
-            </StackPane.margin>
-            <content>
-               <TextFlow id="console" fx:id="loggerBox" prefHeight="132.0" prefWidth="911.0" stylesheets="@css/console.css" />
-            </content>
-         </ScrollPane>
-         <BorderPane.margin>
-            <Insets />
-         </BorderPane.margin>
-         <padding>
-            <Insets bottom="5.0" />
-         </padding>
-      </StackPane>
-   </bottom>
-   <center>
-      <StackPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER">
-         <StackPane fx:id="informationPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" />
-         <StackPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="707.0" prefWidth="519.0">
-            <children>
-               <ProgressIndicator fx:id="progressBar" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="74.0" prefWidth="91.0" progress="0.0" styleClass="progress-bar">
-                  <padding>
-                     <Insets left="20.0" />
-                  </padding>
-               </ProgressIndicator>
-            </children>
-            <StackPane.margin>
-               <Insets right="3.0" top="9.0" />
-            </StackPane.margin>
-         </StackPane>
-      </StackPane>
-   </center>
-   <opaqueInsets>
-      <Insets top="100.0" />
-   </opaqueInsets>
-   <right>
-      <StackPane fx:id="earthPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="708.0" prefWidth="557.0" BorderPane.alignment="CENTER">
-         <opaqueInsets>
-            <Insets top="20.0" />
-         </opaqueInsets>
-         <BorderPane.margin>
-            <Insets right="5.0" top="9.0" />
-         </BorderPane.margin>
-      </StackPane>
-   </right>
-   <top>
-      <HBox fx:id="menuPanel" alignment="TOP_RIGHT" minHeight="-Infinity" prefHeight="38.0" prefWidth="1455.0" spacing="3.0" styleClass="close-bar" stylesheets="@css/panel.css" BorderPane.alignment="TOP_RIGHT">
-         <children>
-            <Button id="close-button" fx:id="minimizeButton" alignment="CENTER" contentDisplay="RIGHT" prefHeight="25.0" prefWidth="25.0" styleClass="minimize-button" text="-" />
-            <Button id="close-button" fx:id="closeButton" alignment="CENTER" contentDisplay="RIGHT" layoutX="1437.0" layoutY="14.0" prefHeight="25.0" prefWidth="25.0" styleClass="close-button" text="X">
-               <font>
-                  <Font size="9.0" />
-               </font>
+                <Insets top="20.0"/>
+            </opaqueInsets>
+            <BorderPane.margin>
+                <Insets right="5.0" top="9.0"/>
+            </BorderPane.margin>
+        </StackPane>
+    </right>
+    <top>
+        <HBox fx:id="menuPanel" alignment="TOP_RIGHT" minHeight="-Infinity" prefHeight="38.0" prefWidth="1455.0"
+              spacing="3.0" styleClass="close-bar" stylesheets="@css/panel.css" BorderPane.alignment="TOP_RIGHT">
+            <padding>
+                <Insets bottom="5.0"/>
+            </padding>
+            <Button id="close-button" fx:id="minimizeButton" alignment="CENTER" contentDisplay="RIGHT" prefHeight="25.0"
+                    prefWidth="25.0" styleClass="minimize-button" text="-"/>
+            <Button id="close-button" fx:id="closeButton" alignment="CENTER" contentDisplay="RIGHT" layoutX="1437.0"
+                    layoutY="14.0" prefHeight="25.0" prefWidth="25.0" styleClass="close-button" text="X">
+                <font>
+                    <Font size="9.0"/>
+                </font>
             </Button>
-         </children>
-         <padding>
-            <Insets bottom="5.0" />
-         </padding>
-      </HBox>
-   </top>
+        </HBox>
+    </top>
 </BorderPane>

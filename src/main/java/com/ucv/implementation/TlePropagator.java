@@ -3,6 +3,7 @@ package com.ucv.implementation;
 
 import com.ucv.database.DBOperation;
 import com.ucv.datamodel.satellite.SpatialObject;
+import com.ucv.util.LoggerCustom;
 import org.apache.log4j.Logger;
 import org.orekit.bodies.CelestialBodyFactory;
 import org.orekit.bodies.OneAxisEllipsoid;
@@ -18,6 +19,7 @@ import org.orekit.frames.FramesFactory;
 import org.orekit.orbits.PositionAngleType;
 import org.orekit.propagation.Propagator;
 import org.orekit.propagation.SpacecraftState;
+import org.orekit.propagation.analytical.tle.TLE;
 import org.orekit.propagation.analytical.tle.TLEPropagator;
 import org.orekit.propagation.conversion.DormandPrince54IntegratorBuilder;
 import org.orekit.propagation.conversion.JacobianPropagatorConverter;
@@ -46,9 +48,14 @@ public class TlePropagator extends Thread {
 
     private Propagator initPropagator(SpatialObject spatialObject) {
         final Propagator initPropagator;
-
-        // create a TLE propagator
-        Propagator tlePropagator = TLEPropagator.selectExtrapolator(spatialObject.getTle());
+        String[] lines = spatialObject.getTle().split("\\r?\\n");
+        if (lines.length != 2) {
+            logger.error("TLE format error");
+        }
+        String lineOne = lines[0].trim();
+        String lineTwo = lines[1].trim();
+        TLE tle = new TLE(lineOne, lineTwo);
+        Propagator tlePropagator = TLEPropagator.selectExtrapolator(tle);
         // get the ITRF frame
         Frame itrf = FramesFactory.getITRF(IERSConventions.IERS_2010, false);
         // create the Earth
@@ -90,7 +97,8 @@ public class TlePropagator extends Thread {
         for (SpacecraftState state : states) {
             DBOperation.addStateDB(state, spatialObject.getName());
         }
-        logger.info(String.format("Data extraction for satelite finished: %s", spatialObject.getName()));
+        LoggerCustom.getInstance().logMessage(String.format("INFO: Detect satellite: %s",spatialObject.getName()));
+        logger.info(String.format("Data extraction for satellite finished: %s", spatialObject.getName()));
     }
 
 }

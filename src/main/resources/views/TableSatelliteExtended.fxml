@@ -1,25 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ButtonBar?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.BorderPane?>
-
-<BorderPane fx:id="satellitePane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="475.0" prefWidth="368.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ucv.controller.SatelliteController">
-   <top>
-      <TableView fx:id="satelliteTable" prefHeight="429.0" prefWidth="368.0" stylesheets="@css/tableView.css" BorderPane.alignment="CENTER">
-        <columns>
-          <TableColumn id="sat1NameColumn" fx:id="satOneNameColumn" prefWidth="181.0" text="Sattelite One Name" />
-          <TableColumn id="sat2NameColumn" fx:id="satTwoNameColumn" minWidth="0.0" prefWidth="186.0" text="Satellite Two Name" />
-        </columns>
-      </TableView>
-   </top>
-   <bottom>
-      <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-        <buttons>
-            <Button fx:id="extractTleToFileButton" alignment="CENTER" contentDisplay="CENTER" layoutX="738.0" layoutY="14.0" mnemonicParsing="false" onAction="#extractTleToFile" prefHeight="32.0" prefWidth="119.0" stylesheets="@css/button.css" text="Extract TLEs" textAlignment="CENTER" />
-        </buttons>
-      </ButtonBar>
-   </bottom>
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" fx:id="satellitePane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
+            minWidth="-Infinity" prefHeight="475.0" prefWidth="368.0" xmlns="http://javafx.com/javafx/21"
+            fx:controller="com.ucv.controller.SatelliteController">
+    <top>
+        <TableView fx:id="satelliteTable" prefHeight="429.0" prefWidth="368.0" stylesheets="@css/tableView.css"
+                   BorderPane.alignment="CENTER">
+            <columns>
+                <TableColumn id="sat1NameColumn" fx:id="satOneNameColumn" prefWidth="181.0" text="Sattelite One Name"/>
+                <TableColumn id="sat2NameColumn" fx:id="satTwoNameColumn" minWidth="0.0" prefWidth="186.0"
+                             text="Satellite Two Name"/>
+            </columns>
+        </TableView>
+    </top>
+    <bottom>
+        <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+            <buttons>
+                <Button fx:id="extractTleToFileButton" alignment="CENTER" contentDisplay="CENTER" layoutX="738.0"
+                        layoutY="14.0" mnemonicParsing="false" onAction="#extractTleToFile" prefHeight="32.0"
+                        prefWidth="119.0" stylesheets="@css/button.css" text="Extract TLEs" textAlignment="CENTER"/>
+            </buttons>
+        </ButtonBar>
+    </bottom>
 </BorderPane>

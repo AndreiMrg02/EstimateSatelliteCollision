@@ -1,5 +1,6 @@
 package com.ucv.database;
 
+import com.ucv.datamodel.database.ConnectionInformation;
 import com.ucv.datamodel.database.State;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,8 +19,8 @@ import org.orekit.utils.TimeStampedPVCoordinates;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.ucv.util.UtilConstant.MU;
 import static com.ucv.database.HibernateUtil.getCurrentSession;
+import static com.ucv.util.UtilConstant.MU;
 
 
 public class DBOperation {
@@ -27,6 +28,44 @@ public class DBOperation {
 
     private DBOperation() {
 
+    }
+
+    public static void saveLastConnectionToDB(ConnectionInformation connectionInformation) {
+        try {
+            Session session = getCurrentSession();
+            session.beginTransaction();
+            Query<ConnectionInformation> query = session.createQuery(
+                    "FROM ConnectionInformation WHERE username = :username", ConnectionInformation.class);
+            query.setParameter("username", connectionInformation.getUsername());
+            ConnectionInformation existingConnection = query.uniqueResult();
+
+            if (existingConnection != null) {
+                existingConnection.setLastConnectionDate(connectionInformation.getLastConnectionDate());
+                session.merge(existingConnection);
+            } else {
+                session.persist(connectionInformation);
+            }
+
+            session.getTransaction().commit();
+        } catch (Exception ex) {
+            logger.error(String.format("Unexpected error occurred due to add/update connection in database for the user %s", connectionInformation.getUsername()), ex);
+        }
+    }
+
+    public static ConnectionInformation getLastConnectionFromDB(String username) {
+        ConnectionInformation connectionInformation = null;
+        try {
+            Session session = getCurrentSession();
+            session.beginTransaction();
+            Query<ConnectionInformation> query = session.createQuery(
+                    "FROM ConnectionInformation WHERE username = :username", ConnectionInformation.class);
+            query.setParameter("username", username);
+            connectionInformation = query.uniqueResult();
+            session.getTransaction().commit();
+        } catch (Exception ex) {
+            logger.error(String.format("Unexpected error occurred while fetching connection info for the user %s", username), ex);
+        }
+        return connectionInformation;
     }
 
     public static synchronized void addStateDB(SpacecraftState spacecraftState, String satName) {

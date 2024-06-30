@@ -11,7 +11,7 @@
 /* Style the table rows with a hover effect */
 .table-row-cell {
     -fx-table-cell-border-color: #1a1a1a;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 0, 2);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 10, 0, 0, 2);
     -fx-background-color: rgba(41, 51, 76, 0.8); /* Medium transparent background color */
     -fx-padding: 10px;
     -fx-font-size: 14px;
@@ -21,13 +21,13 @@
 /* Style the selected row with a stronger glow */
 .table-row-cell:selected {
     -fx-background-color: rgba(0, 105, 217, 0.8); /* Medium transparent Bootstrap primary color */
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 10, 0, 0, 2);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 10, 0, 0, 2);
 }
 
 /* Add a smooth transition for the hover effect */
 .table-row-cell:hover {
     -fx-background-color: rgba(0, 86, 179, 0.8); /* Medium transparent Bootstrap hover color */
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 10, 0, 0, 2);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 10, 0, 0, 2);
     -fx-transition: background-color 0.3s, -fx-background-insets 0.3s;
 }
 

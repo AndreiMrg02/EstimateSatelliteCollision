@@ -50,6 +50,7 @@ import java.util.*;
 
 public class EarthViewController extends ApplicationTemplate implements Initializable, Runnable {
     public static final WorldWindow wwd = new WorldWindowGLJPanel();
+    private final Logger logger = LogManager.getLogger(EarthViewController.class);
     @FXML
     private StackPane earthPanel;
     private Map<String, Ephemeris> ephemerisMap;
@@ -68,7 +69,20 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
     private AbsoluteDate targetDate;
     private Map<String, List<Airspace>> sphereFragmentsMap;
     private SatelliteInformationUpdate updateSatellitesInformation;
-    private final Logger logger = LogManager.getLogger(EarthViewController.class);
+
+    public EarthViewController() {
+        try {
+            File orekitData = new File("data/orekit-data");
+            DataProvidersManager manager = DataContext.getDefault().getDataProvidersManager();
+            manager.addProvider(new DirectoryCrawler(orekitData));
+
+            this.earth = new OneAxisEllipsoid(Constants.WGS84_EARTH_EQUATORIAL_RADIUS, Constants.WGS84_EARTH_FLATTENING, FramesFactory.getITRF(IERSConventions.IERS_2010, true));
+            this.sphereMap = new HashMap<>();
+            this.ephemerisMap = new HashMap<>();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     public void setUpdateSatellitesInformation(SatelliteInformationUpdate updateSatellitesInformation) {
         this.updateSatellitesInformation = updateSatellitesInformation;
@@ -91,20 +105,6 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
             isCollision = false;
         } catch (Exception e) {
             logger.error("An error occurred during earth initialization", e);
-        }
-    }
-
-    public EarthViewController() {
-        try {
-            File orekitData = new File("data/orekit-data");
-            DataProvidersManager manager = DataContext.getDefault().getDataProvidersManager();
-            manager.addProvider(new DirectoryCrawler(orekitData));
-
-            this.earth = new OneAxisEllipsoid(Constants.WGS84_EARTH_EQUATORIAL_RADIUS, Constants.WGS84_EARTH_FLATTENING, FramesFactory.getITRF(IERSConventions.IERS_2010, true));
-            this.sphereMap = new HashMap<>();
-            this.ephemerisMap = new HashMap<>();
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
@@ -157,9 +157,9 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
         this.closeApproachDate = closeApproach;
         this.labelLayer = new AnnotationLayer();
 
-       if(ephemerisMap == null){
-           return;
-       }
+        if (ephemerisMap == null) {
+            return;
+        }
         for (Map.Entry<String, Ephemeris> entry : ephemerisMap.entrySet()) {
             SphereAirspace sphere = new SphereAirspace();
             sphere.setRadius(100000);

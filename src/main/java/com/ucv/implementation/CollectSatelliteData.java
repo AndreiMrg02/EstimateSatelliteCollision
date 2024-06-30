@@ -1,116 +1,3 @@
-/*
-package com.ucv.implementation;
-
-import com.ucv.datamodel.xml.Item;
-import com.ucv.util.XmlParser;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-
-import javax.net.ssl.HttpsURLConnection;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.*;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-public class CollectSatelliteData {
-
-    private final CookieManager cookieManager;
-    private final Logger logger = LogManager.getLogger(CollectSatelliteData.class);
-
-    public CollectSatelliteData(CookieManager cookieManager) {
-        this.cookieManager = cookieManager;
-    }
-    public Map<String, Item> extractSatelliteData(String predicate, String operator, String value) {
-        try {
-            String descendingTCA = "TCA%20desc";
-            String query = String.format("/basicspacedata/query/class/cdm_public/%s/%s%s/orderby/%s/format/xml/emptyresult/show", predicate, operator, value, descendingTCA);
-            HttpURLConnection conn = getCurrentConnection(query);
-
-            BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            StringBuilder xmlData = new StringBuilder();
-            String output;
-
-            while ((output = br.readLine()) != null) {
-                System.out.println(output);
-                xmlData.append(output);
-            }
-
-            conn.disconnect();
-
-            XmlParser parser = new XmlParser();
-            return parser.parseItems(xmlData.toString());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            logger.error("Error extracting satellite data", e);
-        }
-        return new HashMap<>();
-    }
-
-    private HttpURLConnection getCurrentConnection(String query) throws IOException {
-        String baseUrl = "https://www.space-track.org";
-        URL url = new URL(baseUrl + query);
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setRequestMethod("GET");
-        List<HttpCookie> cookies = cookieManager.getCookieStore().getCookies();
-        String cookieHeader = cookies.stream()
-                .map(HttpCookie::toString)
-                .collect(Collectors.joining(";"));
-        conn.setRequestProperty("Cookie", cookieHeader);
-        return conn;
-    }
-
-    public String extractSatelliteTLEs(String query) {
-        try {
-            String baseURL = "https://www.space-track.org";
-            String authPath = "/ajaxauth/login";
-
-            StringBuilder stringBuilder = new StringBuilder();
-            HttpURLConnection conn = getCurrentConnection(query);
-            URL url;
-            new InputStreamReader((conn.getInputStream()));
-            BufferedReader br;
-
-            url = new URL(baseURL + query);
-            br = new BufferedReader(new InputStreamReader((url.openStream())));
-            appendReadLine(br, stringBuilder);
-            url = new URL(baseURL + authPath);
-            br = new BufferedReader(new InputStreamReader((url.openStream())));
-            conn.disconnect();
-
-            return stringBuilder.toString();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-    private void appendReadLine(BufferedReader br, StringBuilder stringBuilder) {
-        try {
-            String output;
-            while ((output = br.readLine()) != null) {
-                System.out.println(output);
-
-                if (!output.equals("NO RESULTS RETURNED")) {
-                    stringBuilder.append(output);
-                    stringBuilder.append("\n");
-                }
-            }
-        } catch (Exception exception) {
-            logger.error("Unexpected error occurred due to append read line");
-        }
-    }
-
-
-
-}
-*/
 package com.ucv.implementation;
 
 import com.ucv.datamodel.internet.InternetConnectionData;
@@ -152,7 +39,6 @@ public class CollectSatelliteData {
             if (verifyConnectionResponse(conn)) {
                 return null;
             }
-            assert conn != null;
             new InputStreamReader((conn.getInputStream()));
             BufferedReader br;
             url = new URL(connectionData.getBaseURL() + query);
@@ -191,7 +77,7 @@ public class CollectSatelliteData {
             cookieInit();
             HttpsURLConnection conn = getHttpsURLConnection();
             URL url;
-            if(conn != null) {
+            if (conn != null) {
                 new InputStreamReader((conn.getInputStream()));
             }
             BufferedReader br;

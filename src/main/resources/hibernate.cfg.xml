@@ -16,9 +16,10 @@
         <property name="hibernate.dialect">org.hibernate.dialect.PostgreSQLDialect</property>
         <property name="hibernate.show_sql">false</property>
         <property name="hibernate.format_sql">false</property>
-        <property name="hbm2ddl.auto">create-drop</property>
+        <property name="hbm2ddl.auto">update</property>
 
         <mapping class="com.ucv.datamodel.database.State"/>
+        <mapping class="com.ucv.datamodel.database.ConnectionInformation"/>
 
     </session-factory>
 </hibernate-configuration>

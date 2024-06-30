@@ -1,9 +1,9 @@
 package com.ucv.implementation;
 
-import com.ucv.util.LoggerCustom;
 import com.ucv.datamodel.satellite.CollisionData;
 import com.ucv.datamodel.satellite.DisplaySatelliteModel;
 import com.ucv.datamodel.satellite.PositionDifference;
+import com.ucv.util.LoggerCustom;
 import org.hipparchus.geometry.euclidean.threed.Vector3D;
 import org.orekit.propagation.SpacecraftState;
 import org.orekit.propagation.analytical.Ephemeris;
@@ -37,15 +37,15 @@ public class CollisionTask implements Runnable {
         this.satelliteNames = new ArrayList<>();
     }
 
-    @Override
-    public void run() {
-        estimateCollision();
-    }
-
     public static String formatAbsoluteDate(AbsoluteDate date) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date javaDate = date.toDate(TimeScalesFactory.getUTC());
         return dateFormat.format(javaDate);
+    }
+
+    @Override
+    public void run() {
+        estimateCollision();
     }
 
     private void estimateCollision() {
@@ -113,7 +113,7 @@ public class CollisionTask implements Runnable {
         return false;
     }
 
-    private  void propagateSatellites(Ephemeris ephemerisSatelliteOne, Ephemeris ephemerisSatelliteTwo, PositionDifference closestApproach) {
+    private void propagateSatellites(Ephemeris ephemerisSatelliteOne, Ephemeris ephemerisSatelliteTwo, PositionDifference closestApproach) {
         ephemerisSatelliteOne.setStepHandler(60, currentState -> {
             SpacecraftState stateTwo = ephemerisSatelliteTwo.propagate(currentState.getDate());
             Vector3D positionDifference = currentState.getPosition().subtract(stateTwo.getPosition());
@@ -125,7 +125,7 @@ public class CollisionTask implements Runnable {
         });
     }
 
-    public  double estimateCollisionProbability(double closestApproachDistance, double targetDistance) {
+    public double estimateCollisionProbability(double closestApproachDistance, double targetDistance) {
 
         double probability = Math.pow(targetDistance / closestApproachDistance, 2);
         if (probability >= 100) {

@@ -19,7 +19,6 @@ import javafx.stage.FileChooser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.orekit.propagation.SpacecraftState;
-import org.orekit.propagation.analytical.tle.TLE;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -37,13 +36,14 @@ import static com.ucv.database.DBOperation.getStatesBySatelliteName;
 
 
 public class SatelliteController implements Initializable {
+    private final ObservableList<Item> items = FXCollections.observableArrayList();
+    private final Logger logger = LogManager.getLogger(SatelliteController.class);
     @FXML
     private TableView<CollisionData> satelliteTable;
     @FXML
     private TableColumn<CollisionData, String> satOneNameColumn = new TableColumn<>("Satellite One Name");
     @FXML
     private TableColumn<CollisionData, String> satTwoNameColumn = new TableColumn<>("Satellite Two Name");
-    private final ObservableList<Item> items = FXCollections.observableArrayList();
     private ArrayList<String> listOfTle;
     private Map<String, SpatialObject> spatialObjectList;
     private Set<DisplaySatelliteModel> displaySatelliteModels;
@@ -51,7 +51,6 @@ public class SatelliteController implements Initializable {
     private List<CollisionData> collisionDataList;
     private List<TlePropagator> tleThreads;
     private int threshold;
-    private final Logger logger = LogManager.getLogger(SatelliteController.class);
 
     public void setDisplaySatelliteModels(Set<DisplaySatelliteModel> displaySatelliteModels) {
         this.displaySatelliteModels = displaySatelliteModels;
@@ -117,7 +116,7 @@ public class SatelliteController implements Initializable {
             try {
                 threadTLE.join();
             } catch (InterruptedException e) {
-                logger.error(String.format("Thread interrupted: %s",e.getMessage()));
+                logger.error(String.format("Thread interrupted: %s", e.getMessage()));
             }
         }
         LoggerCustom.getInstance().logMessage("The process to save states in data base stopped.");
@@ -126,9 +125,9 @@ public class SatelliteController implements Initializable {
 
     private void addTLEsToTextFile() {
         listOfTle.addAll(spatialObjectList.values().stream().flatMap(spatialObject -> {
-            TLE tle = spatialObject.getTle();
+            String tle = spatialObject.getTle();
             if (tle != null) {
-                return Stream.of(tle.getLine1(), tle.getLine2(), "");
+                return Stream.of(tle);
             } else {
                 return Stream.of();
             }
@@ -186,7 +185,8 @@ public class SatelliteController implements Initializable {
      */
     public void addSpatialObject(String tca, String satName, String tle) {
         SpatialObject spatialObject = new SpatialObject();
-        spatialObject.setPropertiesFromString(tle, satName);
+        spatialObject.setName(satName);
+        spatialObject.setTle(tle);
         spatialObject.setTca(tca);
         spatialObjectList.put(satName, spatialObject);
     }

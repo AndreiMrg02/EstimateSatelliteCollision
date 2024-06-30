@@ -1,360 +1,361 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ProgressIndicator?>
-<?import javafx.scene.control.TextArea?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
-
-<StackPane prefHeight="707.0" prefWidth="540.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<StackPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="707.0" prefWidth="540.0" xmlns="http://javafx.com/javafx/21"
            fx:controller="com.ucv.controller.SatelliteInformationController">
-   <VBox spacing="5.0">
-      <StackPane fx:id="paneInformationCollision" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
-                 minWidth="-Infinity" prefHeight="258.0" prefWidth="540.0" styleClass="v-box"
-                 stylesheets="@css/panel.css">
-         <VBox.margin>
-            <Insets right="5.0" top="7.0"/>
-         </VBox.margin>
-         <VBox alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
-               prefHeight="241.0" prefWidth="538.0" spacing="20.0">
-            <StackPane.margin>
-               <Insets top="5.0"/>
-            </StackPane.margin>
+    <VBox spacing="5.0">
+        <StackPane fx:id="paneInformationCollision" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
+                   minWidth="-Infinity" prefHeight="258.0" prefWidth="540.0" styleClass="v-box"
+                   stylesheets="@css/panel.css">
+            <VBox.margin>
+                <Insets right="5.0" top="7.0"/>
+            </VBox.margin>
+            <VBox alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+                  prefHeight="241.0" prefWidth="538.0" spacing="20.0">
+                <StackPane.margin>
+                    <Insets top="5.0"/>
+                </StackPane.margin>
+                <children>
+                    <Label alignment="CENTER" prefHeight="33.0" prefWidth="457.0" text="Information about collision"
+                           textAlignment="CENTER" textFill="#44a8d0" textOverrun="CLIP">
+                        <font>
+                            <Font name="Britannic Bold" size="28.0"/>
+                        </font>
+                    </Label>
+                    <HBox alignment="CENTER_LEFT" prefHeight="200.0" prefWidth="535.0" spacing="3.0">
+                        <VBox.margin>
+                            <Insets/>
+                        </VBox.margin>
+                        <children>
+                            <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="10.0">
+                                <HBox.margin>
+                                    <Insets left="2.0" top="5.0"/>
+                                </HBox.margin>
+                                <children>
+                                    <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="32.0" prefWidth="96.0"
+                                           text="Start Date " textFill="#a8829e" textOverrun="LEADING_ELLIPSIS"
+                                           VBox.vgrow="ALWAYS">
+                                        <font>
+                                            <Font name="Copperplate Gothic Bold" size="14.0"/>
+                                        </font>
+                                    </Label>
+                                    <TextArea fx:id="startDateTextArea" disable="true" maxHeight="-Infinity"
+                                              maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+                                              opacity="0.7" prefHeight="31.0" prefWidth="174.0" VBox.vgrow="ALWAYS">
+                                        <font>
+                                            <Font name="System Bold" size="15.0"/>
+                                        </font>
+                                    </TextArea>
+                                    <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="32.0"
+                                           prefWidth="133.0" text="Close Approach&#10;         Date" textFill="#a8829e"
+                                           textOverrun="LEADING_ELLIPSIS" VBox.vgrow="ALWAYS">
+                                        <font>
+                                            <Font name="Copperplate Gothic Bold" size="14.0"/>
+                                        </font>
+                                    </Label>
+                                    <TextArea fx:id="closeApproachDateTextArea" disable="true" maxHeight="-Infinity"
+                                              maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+                                              opacity="0.7" prefHeight="31.0" prefWidth="174.0" VBox.vgrow="ALWAYS">
+                                        <font>
+                                            <Font name="System Bold" size="15.0"/>
+                                        </font>
+                                    </TextArea>
+                                </children>
+                            </VBox>
+                            <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="10.0">
+                                <HBox.margin>
+                                    <Insets top="5.0"/>
+                                </HBox.margin>
+                                <children>
+                                    <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="32.0" prefWidth="96.0"
+                                           text="End Date" textFill="#a8829e" textOverrun="LEADING_ELLIPSIS"
+                                           VBox.vgrow="ALWAYS">
+                                        <font>
+                                            <Font name="Copperplate Gothic Bold" size="14.0"/>
+                                        </font>
+                                    </Label>
+                                    <TextArea fx:id="endDateTextArea" disable="true" maxHeight="-Infinity"
+                                              maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+                                              opacity="0.7" prefHeight="31.0" prefWidth="174.0" VBox.vgrow="ALWAYS">
+                                        <font>
+                                            <Font name="System Bold" size="15.0"/>
+                                        </font>
+                                    </TextArea>
+                                    <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="32.0"
+                                           prefWidth="160.0" text="Close Approach&#10;      Distance" textFill="#a8829e"
+                                           textOverrun="LEADING_ELLIPSIS" VBox.vgrow="ALWAYS">
+                                        <font>
+                                            <Font name="Copperplate Gothic Bold" size="14.0"/>
+                                        </font>
+                                    </Label>
+                                    <TextArea fx:id="closeApproachDistanceTextArea" disable="true" maxHeight="-Infinity"
+                                              maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+                                              opacity="0.7" prefHeight="31.0" prefWidth="174.0" VBox.vgrow="ALWAYS">
+                                        <font>
+                                            <Font name="System Bold" size="15.0"/>
+                                        </font>
+                                    </TextArea>
+                                </children>
+                            </VBox>
+                            <VBox alignment="CENTER" prefHeight="195.0" prefWidth="180.0" spacing="10.0">
+                                <HBox.margin>
+                                    <Insets top="5.0"/>
+                                </HBox.margin>
+                                <children>
+                                    <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="32.0" prefWidth="96.0"
+                                           text="Threshold" textFill="#a8829e" textOverrun="LEADING_ELLIPSIS"
+                                           VBox.vgrow="ALWAYS">
+                                        <font>
+                                            <Font name="Copperplate Gothic Bold" size="14.0"/>
+                                        </font>
+                                    </Label>
+                                    <TextArea fx:id="thresholdTextArea" disable="true" maxHeight="-Infinity"
+                                              maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+                                              opacity="0.7" prefHeight="31.0" prefWidth="175.0" VBox.vgrow="ALWAYS">
+                                        <font>
+                                            <Font name="System Bold" size="15.0"/>
+                                        </font>
+                                    </TextArea>
+                                    <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="32.0"
+                                           prefWidth="109.0" text="Collision&#10;Probability    " textFill="#a8829e"
+                                           textOverrun="LEADING_ELLIPSIS" VBox.vgrow="ALWAYS">
+                                        <font>
+                                            <Font name="Copperplate Gothic Bold" size="14.0"/>
+                                        </font>
+                                    </Label>
+                                    <TextArea fx:id="pcTextArea" disable="true" maxHeight="-Infinity"
+                                              maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+                                              opacity="0.7" prefHeight="31.0" prefWidth="174.0" VBox.vgrow="ALWAYS">
+                                        <font>
+                                            <Font name="System Bold" size="15.0"/>
+                                        </font>
+                                    </TextArea>
+                                </children>
+                            </VBox>
+                        </children>
+                    </HBox>
+                </children>
+            </VBox>
+        </StackPane>
+        <StackPane fx:id="satelliteOnePane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+                   styleClass="v-box" stylesheets="@css/panel.css">
             <children>
-               <Label alignment="CENTER" prefHeight="33.0" prefWidth="297.0" text="Information about collision"
-                      textAlignment="CENTER" textFill="#44a8d0" textOverrun="CLIP">
-                  <font>
-                     <Font name="System Bold" size="21.0"/>
-                  </font>
-               </Label>
-               <HBox alignment="CENTER_LEFT" prefHeight="200.0" prefWidth="535.0" spacing="3.0">
-                  <VBox.margin>
-                     <Insets/>
-                  </VBox.margin>
-                  <children>
-                     <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="10.0">
-                        <HBox.margin>
-                           <Insets left="2.0" top="5.0"/>
-                        </HBox.margin>
-                        <children>
-                           <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="32.0" prefWidth="96.0"
-                                  text="Start Date " textFill="#a8829e" textOverrun="LEADING_ELLIPSIS"
-                                  VBox.vgrow="ALWAYS">
-                              <font>
-                                 <Font name="Copperplate Gothic Bold" size="14.0"/>
-                              </font>
-                           </Label>
-                           <TextArea fx:id="startDateTextArea" disable="true" maxHeight="-Infinity"
-                                     maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" opacity="0.7"
-                                     prefHeight="31.0" prefWidth="174.0" VBox.vgrow="ALWAYS">
-                              <font>
-                                 <Font name="System Bold" size="15.0"/>
-                              </font>
-                           </TextArea>
-                           <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="32.0" prefWidth="133.0"
-                                  text="Close Approach&#10;         Date" textFill="#a8829e"
-                                  textOverrun="LEADING_ELLIPSIS" VBox.vgrow="ALWAYS">
-                              <font>
-                                 <Font name="Copperplate Gothic Bold" size="14.0"/>
-                              </font>
-                           </Label>
-                           <TextArea fx:id="closeApproachDateTextArea" disable="true" maxHeight="-Infinity"
-                                     maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" opacity="0.7"
-                                     prefHeight="31.0" prefWidth="174.0" VBox.vgrow="ALWAYS">
-                              <font>
-                                 <Font name="System Bold" size="15.0"/>
-                              </font>
-                           </TextArea>
-                        </children>
-                     </VBox>
-                     <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="10.0">
-                        <HBox.margin>
-                           <Insets top="5.0"/>
-                        </HBox.margin>
-                        <children>
-                           <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="32.0" prefWidth="96.0"
-                                  text="End Date" textFill="#a8829e" textOverrun="LEADING_ELLIPSIS"
-                                  VBox.vgrow="ALWAYS">
-                              <font>
-                                 <Font name="Copperplate Gothic Bold" size="14.0"/>
-                              </font>
-                           </Label>
-                           <TextArea fx:id="endDateTextArea" disable="true" maxHeight="-Infinity"
-                                     maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" opacity="0.7"
-                                     prefHeight="31.0" prefWidth="174.0" VBox.vgrow="ALWAYS">
-                              <font>
-                                 <Font name="System Bold" size="15.0"/>
-                              </font>
-                           </TextArea>
-                           <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="32.0" prefWidth="160.0"
-                                  text="Close Approach&#10;      Distance" textFill="#a8829e"
-                                  textOverrun="LEADING_ELLIPSIS" VBox.vgrow="ALWAYS">
-                              <font>
-                                 <Font name="Copperplate Gothic Bold" size="14.0"/>
-                              </font>
-                           </Label>
-                           <TextArea fx:id="closeApproachDistanceTextArea" disable="true" maxHeight="-Infinity"
-                                     maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" opacity="0.7"
-                                     prefHeight="31.0" prefWidth="174.0" VBox.vgrow="ALWAYS">
-                              <font>
-                                 <Font name="System Bold" size="15.0"/>
-                              </font>
-                           </TextArea>
-                        </children>
-                     </VBox>
-                     <VBox alignment="CENTER" prefHeight="195.0" prefWidth="180.0" spacing="10.0">
-                        <HBox.margin>
-                           <Insets top="5.0"/>
-                        </HBox.margin>
-                        <children>
-                           <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="32.0" prefWidth="96.0"
-                                  text="Threshold" textFill="#a8829e" textOverrun="LEADING_ELLIPSIS"
-                                  VBox.vgrow="ALWAYS">
-                              <font>
-                                 <Font name="Copperplate Gothic Bold" size="14.0"/>
-                              </font>
-                           </Label>
-                           <TextArea fx:id="thresholdTextArea" disable="true" maxHeight="-Infinity"
-                                     maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" opacity="0.7"
-                                     prefHeight="31.0" prefWidth="175.0" VBox.vgrow="ALWAYS">
-                              <font>
-                                 <Font name="System Bold" size="15.0"/>
-                              </font>
-                           </TextArea>
-                           <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="32.0" prefWidth="109.0"
-                                  text="Collision&#10;Probability    " textFill="#a8829e"
-                                  textOverrun="LEADING_ELLIPSIS" VBox.vgrow="ALWAYS">
-                              <font>
-                                 <Font name="Copperplate Gothic Bold" size="14.0"/>
-                              </font>
-                           </Label>
-                           <TextArea fx:id="pcTextArea" disable="true" maxHeight="-Infinity" maxWidth="-Infinity"
-                                     minHeight="-Infinity" minWidth="-Infinity" opacity="0.7" prefHeight="31.0"
-                                     prefWidth="174.0" VBox.vgrow="ALWAYS">
-                              <font>
-                                 <Font name="System Bold" size="15.0"/>
-                              </font>
-                           </TextArea>
-                        </children>
-                     </VBox>
-                  </children>
-               </HBox>
+                <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="10.0"
+                      StackPane.alignment="CENTER">
+                    <StackPane.margin>
+                        <Insets bottom="3.0" top="3.0"/>
+                    </StackPane.margin>
+                    <children>
+                        <HBox alignment="CENTER" prefHeight="34.0" prefWidth="460.0">
+                            <children>
+                                <Label alignment="CENTER" prefHeight="30.0" prefWidth="151.0" text="Satellite one: "
+                                       textAlignment="CENTER" textFill="#44a8d0" textOverrun="CLIP" HBox.hgrow="ALWAYS">
+                                    <font>
+                                        <Font name="Britannic Bold" size="25.0"/>
+                                    </font>
+                                </Label>
+                                <Label fx:id="satelliteOneLabel" prefHeight="31.0" prefWidth="295.0" textFill="#71bce4"
+                                       HBox.hgrow="ALWAYS">
+                                    <font>
+                                        <Font name="System Bold" size="25.0"/>
+                                    </font>
+                                </Label>
+                            </children>
+                        </HBox>
+                        <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="60.0">
+                            <children>
+                                <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="80.0"
+                                       text="Altitude:" textFill="#a8829e" textOverrun="LEADING_ELLIPSIS"
+                                       HBox.hgrow="ALWAYS">
+                                    <font>
+                                        <Font name="Copperplate Gothic Bold" size="14.0"/>
+                                    </font>
+                                </Label>
+                                <TextArea fx:id="satelliteOneAltitude" disable="true" maxHeight="-Infinity"
+                                          maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" opacity="0.7"
+                                          prefHeight="40.0" prefWidth="250.0" HBox.hgrow="ALWAYS">
+                                    <font>
+                                        <Font name="System Bold" size="15.0"/>
+                                    </font>
+                                </TextArea>
+                            </children>
+                        </HBox>
+                        <HBox alignment="CENTER" layoutX="10.0" layoutY="44.0" prefHeight="100.0" prefWidth="200.0"
+                              spacing="40.0">
+                            <children>
+                                <Label contentDisplay="CENTER" prefHeight="51.0" prefWidth="98.0" text="Longitude:"
+                                       textFill="#a8829e" textOverrun="LEADING_ELLIPSIS" HBox.hgrow="ALWAYS">
+                                    <font>
+                                        <Font name="Copperplate Gothic Bold" size="14.0"/>
+                                    </font>
+                                </Label>
+                                <TextArea fx:id="longitudeSatelliteOne" disable="true" maxHeight="-Infinity"
+                                          maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" opacity="0.7"
+                                          prefHeight="40.0" prefWidth="250.0" HBox.hgrow="ALWAYS">
+                                    <font>
+                                        <Font name="System Bold" size="15.0"/>
+                                    </font>
+                                </TextArea>
+                            </children>
+                        </HBox>
+                        <HBox alignment="CENTER" layoutX="10.0" layoutY="116.0" prefHeight="100.0" prefWidth="200.0"
+                              spacing="60.0">
+                            <children>
+                                <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="53.0" prefWidth="80.0"
+                                       text="Latitude:" textFill="#a8829e" textOverrun="LEADING_ELLIPSIS"
+                                       HBox.hgrow="ALWAYS">
+                                    <font>
+                                        <Font name="Copperplate Gothic Bold" size="14.0"/>
+                                    </font>
+                                </Label>
+                                <TextArea fx:id="latitudeSatelliteOne" disable="true" maxHeight="-Infinity"
+                                          maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" opacity="0.7"
+                                          prefHeight="40.0" prefWidth="250.0" HBox.hgrow="ALWAYS">
+                                    <font>
+                                        <Font name="System Bold" size="15.0"/>
+                                    </font>
+                                </TextArea>
+                            </children>
+                        </HBox>
+                        <HBox alignment="CENTER" layoutX="10.0" layoutY="166.0" prefHeight="100.0" prefWidth="200.0"
+                              spacing="60.0">
+                            <children>
+                                <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="53.0" prefWidth="80.0"
+                                       text="SPEED" textFill="#a8829e" textOverrun="LEADING_ELLIPSIS"
+                                       HBox.hgrow="ALWAYS">
+                                    <font>
+                                        <Font name="Copperplate Gothic Bold" size="14.0"/>
+                                    </font>
+                                </Label>
+                                <TextArea fx:id="speedSatelliteOne" disable="true" maxHeight="-Infinity"
+                                          maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" opacity="0.7"
+                                          prefHeight="40.0" prefWidth="250.0" HBox.hgrow="ALWAYS">
+                                    <font>
+                                        <Font name="System Bold" size="15.0"/>
+                                    </font>
+                                </TextArea>
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
             </children>
-         </VBox>
-      </StackPane>
-      <StackPane fx:id="satelliteOnePane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
-                 styleClass="v-box" stylesheets="@css/panel.css">
-         <children>
-            <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="10.0"
-                  StackPane.alignment="CENTER">
-               <StackPane.margin>
-                  <Insets bottom="3.0" top="3.0"/>
-               </StackPane.margin>
-               <children>
-                  <HBox alignment="CENTER" prefHeight="34.0" prefWidth="460.0">
-                     <children>
-                        <Label alignment="CENTER" prefHeight="31.0" prefWidth="91.0" text="Satellite: "
-                               textAlignment="CENTER" textFill="#44a8d0" textOverrun="CLIP" HBox.hgrow="ALWAYS">
-                           <font>
-                              <Font name="System Bold" size="21.0"/>
-                           </font>
-                        </Label>
-                        <Label fx:id="satelliteOneLabel" prefHeight="31.0" prefWidth="295.0" textFill="#71bce4"
-                               HBox.hgrow="ALWAYS">
-                           <font>
-                              <Font name="System Bold" size="20.0"/>
-                           </font>
-                        </Label>
-                     </children>
-                  </HBox>
-                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="60.0">
-                     <children>
-                        <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="80.0"
-                               text="Altitude:" textFill="#a8829e" textOverrun="LEADING_ELLIPSIS"
-                               HBox.hgrow="ALWAYS">
-                           <font>
-                              <Font name="Copperplate Gothic Bold" size="14.0"/>
-                           </font>
-                        </Label>
-                        <TextArea fx:id="satelliteOneAltitude" disable="true" maxHeight="-Infinity"
-                                  maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" opacity="0.7"
-                                  prefHeight="40.0" prefWidth="250.0" HBox.hgrow="ALWAYS">
-                           <font>
-                              <Font name="System Bold" size="15.0"/>
-                           </font>
-                        </TextArea>
-                     </children>
-                  </HBox>
-                  <HBox alignment="CENTER" layoutX="10.0" layoutY="44.0" prefHeight="100.0" prefWidth="200.0"
-                        spacing="40.0">
-                     <children>
-                        <Label contentDisplay="CENTER" prefHeight="51.0" prefWidth="98.0" text="Longitude:"
-                               textFill="#a8829e" textOverrun="LEADING_ELLIPSIS" HBox.hgrow="ALWAYS">
-                           <font>
-                              <Font name="Copperplate Gothic Bold" size="14.0"/>
-                           </font>
-                        </Label>
-                        <TextArea fx:id="longitudeSatelliteOne" disable="true" maxHeight="-Infinity"
-                                  maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" opacity="0.7"
-                                  prefHeight="40.0" prefWidth="250.0" HBox.hgrow="ALWAYS">
-                           <font>
-                              <Font name="System Bold" size="15.0"/>
-                           </font>
-                        </TextArea>
-                     </children>
-                  </HBox>
-                  <HBox alignment="CENTER" layoutX="10.0" layoutY="116.0" prefHeight="100.0" prefWidth="200.0"
-                        spacing="60.0">
-                     <children>
-                        <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="53.0" prefWidth="80.0"
-                               text="Latitude:" textFill="#a8829e" textOverrun="LEADING_ELLIPSIS"
-                               HBox.hgrow="ALWAYS">
-                           <font>
-                              <Font name="Copperplate Gothic Bold" size="14.0"/>
-                           </font>
-                        </Label>
-                        <TextArea fx:id="latitudeSatelliteOne" disable="true" maxHeight="-Infinity"
-                                  maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" opacity="0.7"
-                                  prefHeight="40.0" prefWidth="250.0" HBox.hgrow="ALWAYS">
-                           <font>
-                              <Font name="System Bold" size="15.0"/>
-                           </font>
-                        </TextArea>
-                     </children>
-                  </HBox>
-                  <HBox alignment="CENTER" layoutX="10.0" layoutY="166.0" prefHeight="100.0" prefWidth="200.0"
-                        spacing="60.0">
-                     <children>
-                        <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="53.0" prefWidth="80.0"
-                               text="SPEED" textFill="#a8829e" textOverrun="LEADING_ELLIPSIS" HBox.hgrow="ALWAYS">
-                           <font>
-                              <Font name="Copperplate Gothic Bold" size="14.0"/>
-                           </font>
-                        </Label>
-                        <TextArea fx:id="speedSatelliteOne" disable="true" maxHeight="-Infinity" maxWidth="-Infinity"
-                                  minHeight="-Infinity" minWidth="-Infinity" opacity="0.7" prefHeight="40.0"
-                                  prefWidth="250.0" HBox.hgrow="ALWAYS">
-                           <font>
-                              <Font name="System Bold" size="15.0"/>
-                           </font>
-                        </TextArea>
-                     </children>
-                  </HBox>
-               </children>
-            </VBox>
-         </children>
-         <VBox.margin>
-            <Insets right="5.0"/>
-         </VBox.margin>
-      </StackPane>
-      <StackPane fx:id="satelliteTwoPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
-                 styleClass="v-box" stylesheets="@css/panel.css">
-         <children>
-            <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="10.0"
-                  styleClass="transparent-background" StackPane.alignment="CENTER">
-               <StackPane.margin>
-                  <Insets bottom="3.0" top="3.0"/>
-               </StackPane.margin>
-               <children>
-                  <HBox alignment="CENTER" prefHeight="35.0" prefWidth="460.0">
-                     <children>
-                        <Label alignment="CENTER" prefHeight="31.0" prefWidth="92.0" text="Satellite: "
-                               textAlignment="CENTER" textFill="#44a8d0" textOverrun="CLIP" HBox.hgrow="ALWAYS">
-                           <font>
-                              <Font name="System Bold" size="21.0"/>
-                           </font>
-                        </Label>
-                        <Label fx:id="satelliteTwoLabel" prefHeight="31.0" prefWidth="297.0" textFill="#71bce4"
-                               HBox.hgrow="ALWAYS">
-                           <font>
-                              <Font name="System Bold" size="20.0"/>
-                           </font>
-                        </Label>
-                     </children>
-                  </HBox>
-                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="575.0" spacing="60.0">
-                     <children>
-                        <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="80.0"
-                               text="Altitude:" textFill="#a8829e" textOverrun="LEADING_ELLIPSIS"
-                               HBox.hgrow="ALWAYS">
-                           <font>
-                              <Font name="Copperplate Gothic Bold" size="14.0"/>
-                           </font>
-                        </Label>
-                        <TextArea fx:id="satelliteTwoAltitude" disable="true" maxHeight="-Infinity"
-                                  maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" opacity="0.7"
-                                  prefHeight="40.0" prefWidth="250.0" HBox.hgrow="ALWAYS">
-                           <font>
-                              <Font name="System Bold" size="15.0"/>
-                           </font>
-                        </TextArea>
-                     </children>
-                  </HBox>
-                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="48.0">
-                     <children>
-                        <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="90.0"
-                               text="Longitude:" textFill="#a8829e" textOverrun="LEADING_ELLIPSIS"
-                               HBox.hgrow="ALWAYS">
-                           <font>
-                              <Font name="Copperplate Gothic Bold" size="14.0"/>
-                           </font>
-                        </Label>
-                        <TextArea fx:id="longitudeSatelliteTwo" disable="true" maxHeight="-Infinity"
-                                  maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" opacity="0.7"
-                                  prefHeight="40.0" prefWidth="250.0" HBox.hgrow="ALWAYS">
-                           <font>
-                              <Font name="System Bold" size="15.0"/>
-                           </font>
-                        </TextArea>
-                     </children>
-                  </HBox>
-                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="60.0">
-                     <children>
-                        <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="80.0"
-                               text="Latitude:" textFill="#a8829e" textOverrun="LEADING_ELLIPSIS"
-                               HBox.hgrow="ALWAYS">
-                           <font>
-                              <Font name="Copperplate Gothic Bold" size="14.0"/>
-                           </font>
-                        </Label>
-                        <TextArea fx:id="latitudeSatelliteTwo" disable="true" maxHeight="-Infinity"
-                                  maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" opacity="0.7"
-                                  prefHeight="40.0" prefWidth="250.0" HBox.hgrow="ALWAYS">
-                           <font>
-                              <Font name="System Bold" size="15.0"/>
-                           </font>
-                        </TextArea>
-                     </children>
-                  </HBox>
-                  <HBox alignment="CENTER" layoutX="10.0" layoutY="166.0" prefHeight="100.0" prefWidth="200.0"
-                        spacing="60.0" styleClass="transparent-background">
-                     <children>
-                        <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="80.0"
-                               text="SPEED:" textFill="#a8829e" textOverrun="LEADING_ELLIPSIS" HBox.hgrow="ALWAYS">
-                           <font>
-                              <Font name="Copperplate Gothic Bold" size="14.0"/>
-                           </font>
-                        </Label>
-                        <TextArea fx:id="speedSatelliteTwo" disable="true" maxHeight="-Infinity" maxWidth="-Infinity"
-                                  minHeight="-Infinity" minWidth="-Infinity" opacity="0.7" prefHeight="40.0"
-                                  prefWidth="250.0" HBox.hgrow="ALWAYS">
-                           <font>
-                              <Font name="System Bold" size="15.0"/>
-                           </font>
-                        </TextArea>
-                     </children>
-                  </HBox>
-               </children>
-            </VBox>
-         </children>
-         <VBox.margin>
-            <Insets right="5.0"/>
-         </VBox.margin>
-      </StackPane>
-   </VBox>
-   <ProgressIndicator fx:id="progressBar" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
-                      minWidth="-Infinity" prefHeight="150.0" prefWidth="81.0" progress="0.0"/>
+            <VBox.margin>
+                <Insets right="5.0"/>
+            </VBox.margin>
+        </StackPane>
+        <StackPane fx:id="satelliteTwoPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+                   styleClass="v-box" stylesheets="@css/panel.css">
+            <children>
+                <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="10.0"
+                      styleClass="transparent-background" StackPane.alignment="CENTER">
+                    <StackPane.margin>
+                        <Insets bottom="3.0" top="3.0"/>
+                    </StackPane.margin>
+                    <children>
+                        <HBox alignment="CENTER" prefHeight="35.0" prefWidth="460.0">
+                            <children>
+                                <Label alignment="CENTER" prefHeight="30.0" prefWidth="144.0" text="Satellite two:"
+                                       textAlignment="CENTER" textFill="#44a8d0" textOverrun="CLIP" HBox.hgrow="ALWAYS">
+                                    <font>
+                                        <Font name="Britannic Bold" size="25.0"/>
+                                    </font>
+                                </Label>
+                                <Label fx:id="satelliteTwoLabel" prefHeight="31.0" prefWidth="297.0" textFill="#71bce4"
+                                       HBox.hgrow="ALWAYS">
+                                    <font>
+                                        <Font name="System Bold" size="25.0"/>
+                                    </font>
+                                </Label>
+                            </children>
+                        </HBox>
+                        <HBox alignment="CENTER" prefHeight="100.0" prefWidth="575.0" spacing="60.0">
+                            <children>
+                                <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="80.0"
+                                       text="Altitude:" textFill="#a8829e" textOverrun="LEADING_ELLIPSIS"
+                                       HBox.hgrow="ALWAYS">
+                                    <font>
+                                        <Font name="Copperplate Gothic Bold" size="14.0"/>
+                                    </font>
+                                </Label>
+                                <TextArea fx:id="satelliteTwoAltitude" disable="true" maxHeight="-Infinity"
+                                          maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" opacity="0.7"
+                                          prefHeight="40.0" prefWidth="250.0" HBox.hgrow="ALWAYS">
+                                    <font>
+                                        <Font name="System Bold" size="15.0"/>
+                                    </font>
+                                </TextArea>
+                            </children>
+                        </HBox>
+                        <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="48.0">
+                            <children>
+                                <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="90.0"
+                                       text="Longitude:" textFill="#a8829e" textOverrun="LEADING_ELLIPSIS"
+                                       HBox.hgrow="ALWAYS">
+                                    <font>
+                                        <Font name="Copperplate Gothic Bold" size="14.0"/>
+                                    </font>
+                                </Label>
+                                <TextArea fx:id="longitudeSatelliteTwo" disable="true" maxHeight="-Infinity"
+                                          maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" opacity="0.7"
+                                          prefHeight="40.0" prefWidth="250.0" HBox.hgrow="ALWAYS">
+                                    <font>
+                                        <Font name="System Bold" size="15.0"/>
+                                    </font>
+                                </TextArea>
+                            </children>
+                        </HBox>
+                        <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="60.0">
+                            <children>
+                                <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="80.0"
+                                       text="Latitude:" textFill="#a8829e" textOverrun="LEADING_ELLIPSIS"
+                                       HBox.hgrow="ALWAYS">
+                                    <font>
+                                        <Font name="Copperplate Gothic Bold" size="14.0"/>
+                                    </font>
+                                </Label>
+                                <TextArea fx:id="latitudeSatelliteTwo" disable="true" maxHeight="-Infinity"
+                                          maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" opacity="0.7"
+                                          prefHeight="40.0" prefWidth="250.0" HBox.hgrow="ALWAYS">
+                                    <font>
+                                        <Font name="System Bold" size="15.0"/>
+                                    </font>
+                                </TextArea>
+                            </children>
+                        </HBox>
+                        <HBox alignment="CENTER" layoutX="10.0" layoutY="166.0" prefHeight="100.0" prefWidth="200.0"
+                              spacing="60.0" styleClass="transparent-background">
+                            <children>
+                                <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="80.0"
+                                       text="SPEED:" textFill="#a8829e" textOverrun="LEADING_ELLIPSIS"
+                                       HBox.hgrow="ALWAYS">
+                                    <font>
+                                        <Font name="Copperplate Gothic Bold" size="14.0"/>
+                                    </font>
+                                </Label>
+                                <TextArea fx:id="speedSatelliteTwo" disable="true" maxHeight="-Infinity"
+                                          maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" opacity="0.7"
+                                          prefHeight="40.0" prefWidth="250.0" HBox.hgrow="ALWAYS">
+                                    <font>
+                                        <Font name="System Bold" size="15.0"/>
+                                    </font>
+                                </TextArea>
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+            </children>
+            <VBox.margin>
+                <Insets right="5.0"/>
+            </VBox.margin>
+        </StackPane>
+    </VBox>
+    <ProgressIndicator fx:id="progressBar" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
+                       minWidth="-Infinity" prefHeight="150.0" prefWidth="81.0" progress="0.0">
+        <StackPane.margin>
+            <Insets left="130.0"/>
+        </StackPane.margin>
+    </ProgressIndicator>
 </StackPane>

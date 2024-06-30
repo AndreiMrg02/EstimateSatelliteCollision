@@ -25,8 +25,15 @@ import static com.ucv.controller.EarthViewController.wwd;
 
 
 public class Main extends Application {
-    private Scene mainScene;
     private final Logger logger = LogManager.getLogger(Main.class);
+    private Scene mainScene;
+
+    public static void main(String[] args) {
+        File orekitData = new File("data/orekit-data");
+        DataProvidersManager manager = DataContext.getDefault().getDataProvidersManager();
+        manager.addProvider(new DirectoryCrawler(orekitData));
+        launch();
+    }
 
     public void start(Stage stage) {
         try {
@@ -42,13 +49,6 @@ public class Main extends Application {
         } catch (Exception ex) {
             logger.error("Unexpected error due to start application");
         }
-    }
-
-    public static void main(String[] args) {
-        File orekitData = new File("data/orekit-data");
-        DataProvidersManager manager = DataContext.getDefault().getDataProvidersManager();
-        manager.addProvider(new DirectoryCrawler(orekitData));
-        launch();
     }
 
     private void loadLoginScreen(Stage primaryStage, MainController mainController) {

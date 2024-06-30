@@ -11,10 +11,12 @@
 .choice-box .cell {
     -fx-padding: 4 8; /* Padding similar pentru opțiuni */
 }
+
 /* combo-box list view text, not hovered or focused */
 .choice-box .label {
     -fx-text-fill: #e5b2b2;
 }
+
 .choice-box:hover {
     -fx-border-color: #007bff; /* Schimbă culoarea bordurii la hover */
 }

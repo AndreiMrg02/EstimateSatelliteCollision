@@ -10,5 +10,7 @@ public class UtilConstant {
     public static final double DAYS = 0.1;
     public static final String DEGREES = "%.2f degrees";
     public static final String UNKNOWN = "UNKNOWN";
+    public static final String TIMESTAMP_FILE = "et.dat";
+    public static final String KEY_FILE = "key.key";
 
 }

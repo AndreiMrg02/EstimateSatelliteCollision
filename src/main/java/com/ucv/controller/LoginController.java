@@ -17,16 +17,32 @@ import java.util.ResourceBundle;
 
 public class LoginController implements Initializable {
 
+    private static final Logger logger = LogManager.getLogger(LoginController.class);
     @FXML
     private PasswordField pwBox;
     @FXML
     private TextField userTextField;
     private boolean authenticated;
     private InternetConnectionData internetConnectionData;
-    private static final Logger logger = LogManager.getLogger(LoginController.class);
 
+    private boolean validateEmail(String email) {
+        return email != null && !email.trim().isEmpty();
+    }
+
+    private boolean validatePassword(String password) {
+        return password != null && !password.trim().isEmpty();
+    }
 
     public void connect() {
+        if (!validateEmail(userTextField.getText())) {
+            showAlert("Invalid Email", "Please enter your email address.");
+            return;
+        }
+
+        if (!validatePassword(pwBox.getText())) {
+            showAlert("Invalid Password", "Please enter your password.");
+            return;
+        }
 
         try {
             String baseURL = "https://www.space-track.org";
@@ -36,9 +52,17 @@ public class LoginController implements Initializable {
             Stage stage = (Stage) userTextField.getScene().getWindow();
             stage.close();
         } catch (Exception e) {
-            logger.error("Error during connection attempt");
+            logger.error("Error during connection attempt", e);
             authenticated = false;
         }
+    }
+
+    private void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
     public void handleClose() {
@@ -62,7 +86,7 @@ public class LoginController implements Initializable {
                 alert.showAndWait();
             }
         } catch (Exception e) {
-            logger.error("Error during register");
+            logger.error("Error during register", e);
         }
     }
 
