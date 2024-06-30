@@ -79,8 +79,8 @@ public class SatelliteInformationController implements Initializable, SatelliteI
             startDateTextArea.setText(newValue.getStartDate());
             endDateTextArea.setText(newValue.getEndDate());
             closeApproachDateTextArea.setText(newValue.getCloseApproachDate());
-            double value = Double.parseDouble(newValue.getCloseApproach());
-            closeApproachDistanceTextArea.setText(String.format("%.2f meters", value));
+            double value = Double.parseDouble(newValue.getCloseApproach()) / 1000;
+            closeApproachDistanceTextArea.setText(String.format("%.2f Km", value ));
             satelliteOneLabel.setText(newValue.getSat1Name());
             satelliteTwoLabel.setText(newValue.getSat2Name());
             if (Integer.parseInt(thresholdValue) == 1) {
