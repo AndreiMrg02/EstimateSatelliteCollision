@@ -231,7 +231,7 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
 
             targetDate = targetDate.shiftedBy(30);
             if (restart) {
-                targetDate = startDate; // Resetare la data de început dacă este necesar
+                targetDate = startDate; 
                 restart = false;
             }
         }
@@ -300,7 +300,7 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
                     } else {
                         sphere.setRadius(100000);
                     }
-                    double speed = pvCoordinates.getVelocity().getNorm(); //m/s
+                    double speed = pvCoordinates.getVelocity().getNorm(); // m/s
                     sphere.setAttributes(attrs);
                     sphere.setLocation(LatLon.fromRadians(gp.getLatitude(), gp.getLongitude()));
                     sphere.setAltitude(gp.getAltitude());
@@ -421,7 +421,7 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
 
     public synchronized void resumeSimulation() {
         pause = false;
-        notifyAll(); // Trezește thread-ul de simulare dacă este în pauză
+        notifyAll();
     }
 
     public synchronized void resetState() {

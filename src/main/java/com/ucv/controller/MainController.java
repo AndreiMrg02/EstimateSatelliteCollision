@@ -241,7 +241,6 @@ public class MainController implements Initializable {
         stopSimulationButton.setDisable(true);
         resumeButton.setDisable(true);
         showSatellitesButton.setOnAction(event -> {
-            closeButton.setDisable(true);
             LoggerCustom.getInstance().logMessage("INFO: Check the map to see the satellites");
             displaySatellites();
             simulateCollision.setDisable(false);
@@ -261,7 +260,7 @@ public class MainController implements Initializable {
             pauseButton.setDisable(true);
             closeApproachButton.setDisable(true);
             stopSimulationButton.setDisable(true);
-            satelliteInformationController.clearSatellitesDataFromFields();
+            satelliteInformationController.clearSatellitesStates();
             resumeButton.setDisable(true);
             extractDataButton.setDisable(false);
             earthViewController.triggerCollision(false);

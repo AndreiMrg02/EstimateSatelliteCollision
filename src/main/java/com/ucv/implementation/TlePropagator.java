@@ -97,7 +97,7 @@ public class TlePropagator extends Thread {
         for (SpacecraftState state : states) {
             DBOperation.addStateDB(state, spatialObject.getName());
         }
-        LoggerCustom.getInstance().logMessage(String.format("INFO: Detect satellite: %s",spatialObject.getName()));
+        LoggerCustom.getInstance().logMessage(String.format("INFO: Spatial object detected: %s",spatialObject.getName()));
         logger.info(String.format("Data extraction for satellite finished: %s", spatialObject.getName()));
     }
 

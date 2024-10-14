@@ -129,6 +129,17 @@ public class SatelliteInformationController implements Initializable, SatelliteI
     }
 
     public void clearSatellitesDataFromFields() {
+        clearSatellitesStates();
+
+        pcTextArea.setText("");
+        closeApproachDateTextArea.setText("");
+        closeApproachDistanceTextArea.setText("");
+        startDateTextArea.setText("");
+        endDateTextArea.setText("");
+
+
+    }
+    public void clearSatellitesStates() {
         latitudeSatelliteOne.setText("");
         longitudeSatelliteOne.setText("");
         satelliteOneAltitude.setText("");
@@ -138,17 +149,6 @@ public class SatelliteInformationController implements Initializable, SatelliteI
         longitudeSatelliteTwo.setText("");
         satelliteTwoAltitude.setText("");
         speedSatelliteTwo.setText("");
-
-        pcTextArea.setText("");
-        closeApproachDateTextArea.setText("");
-        closeApproachDistanceTextArea.setText("");
-        startDateTextArea.setText("");
-        endDateTextArea.setText("");
-
-        satelliteOneAltitude.setText("");
-        satelliteTwoAltitude.setText("");
-
-
     }
 
     public SatelliteInformationUpdate getSatelliteUpdateCallback() {
