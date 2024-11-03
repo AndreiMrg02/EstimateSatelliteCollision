@@ -1,5 +1,6 @@
 package com.ucv.implementation;
 
+import com.ucv.controller.EarthViewController;
 import com.ucv.controller.SatelliteController;
 import com.ucv.datamodel.satellite.DisplaySatelliteModel;
 import javafx.scene.control.Alert;
@@ -15,7 +16,7 @@ public class DisplaySatelliteManager {
     private SatelliteController satelliteController;
     private EarthViewController earthViewController;
 
-    public DisplaySatelliteManager(SatelliteController satelliteController,EarthViewController earthViewController){
+    public DisplaySatelliteManager(SatelliteController satelliteController, EarthViewController earthViewController){
         this.satelliteController = satelliteController;
         this.earthViewController = earthViewController;
     }
