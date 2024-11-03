@@ -2,11 +2,11 @@ package com.ucv.controller;
 
 import com.ucv.Main;
 import com.ucv.datamodel.internet.InternetConnectionData;
-import com.ucv.datamodel.satellite.DisplaySatelliteModel;
 import com.ucv.datamodel.xml.Item;
 import com.ucv.implementation.CollectSatelliteData;
 import com.ucv.implementation.ConnectionService;
-import com.ucv.implementation.TleService;
+import com.ucv.implementation.DisplaySatelliteManager;
+import com.ucv.tle.TleService;
 import com.ucv.util.*;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
@@ -24,7 +24,6 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextFlow;
 import org.apache.log4j.Logger;
-import org.orekit.propagation.analytical.Ephemeris;
 import org.orekit.time.AbsoluteDate;
 
 import java.io.IOException;
@@ -96,6 +95,7 @@ public class MainController implements Initializable {
     private Task<Void> currentTask;
     private FieldValidator fieldValidator;
     private CustomAlert customAlert;
+    private DisplaySatelliteManager displaySatelliteManager;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -118,6 +118,7 @@ public class MainController implements Initializable {
         scrollPaneLog.setContent(loggerBox);
         LoggerCustom.getInstance().setConsole(loggerBox, scrollPaneLog);
         loadSatelliteInformation();
+        displaySatelliteManager = new DisplaySatelliteManager(satelliteController, earthViewController);
         earthViewController.setUpdateSatellitesInformation(satelliteInformationController.getSatelliteUpdateCallback());
         menuPanel.setOnMousePressed(event -> {
             xOffset = event.getSceneX();
@@ -258,7 +259,7 @@ public class MainController implements Initializable {
     private void showSatellitesAction() {
         showSatellitesButton.setOnAction(event -> {
             LoggerCustom.getInstance().logMessage("INFO: Check the map to see the satellites");
-            displaySatellites();
+            displaySatelliteManager.displaySatellites();
             simulateCollision.setDisable(false);
             pauseButton.setDisable(false);
             stopSimulationButton.setDisable(false);
@@ -284,32 +285,6 @@ public class MainController implements Initializable {
             earthViewController.triggerCollision(false);
             satelliteController.getSatelliteTable().setDisable(false);
         });
-    }
-
-    public void displaySatellites() {
-        List<DisplaySatelliteModel> satellites = satelliteController.getTwoSatellitesSelected();
-        if (satellites == null || satellites.isEmpty()) {
-            Alert alert = new Alert(Alert.AlertType.ERROR, "No satellites data are available. Please select an entry in table.", ButtonType.OK);
-            alert.showAndWait();
-            return;
-        }
-        earthViewController.resetState();
-        Map<String, Ephemeris> ephemerisMap = new HashMap<>();
-        AbsoluteDate startDate = null;
-        AbsoluteDate endDate = null;
-        AbsoluteDate closeApproach = null;
-        for (DisplaySatelliteModel model : satellites) {
-            ephemerisMap.put(model.getName(), model.getEphemeris());
-            if (startDate == null || model.getStartDate().compareTo(startDate) < 0) {
-                startDate = model.getStartDate();
-            }
-            if (endDate == null || model.getEndDate().compareTo(endDate) > 0) {
-                endDate = model.getEndDate();
-            }
-            closeApproach = model.getCloseApproachDate();
-        }
-        earthViewController.init(ephemerisMap, startDate, endDate, closeApproach);
-        earthViewController.startSimulation();
     }
 
     public void showSatellitesAtCloseApproach() {
@@ -355,12 +330,7 @@ public class MainController implements Initializable {
             protected Void call() {
                 LoggerCustom.getInstance().logMessage("INFO: The process for extracting the data is running...");
 
-                Platform.runLater(() -> {
-                    mainPanel.setDisable(true);
-                    menuPanel.setDisable(false);
-                    displayProgressBar();
-                });
-
+                Platform.runLater(() -> displayProgressBar());
                 CollectSatelliteData collectSatelliteData = new CollectSatelliteData(connectionData);
                 Map<String, Item> satelliteData = collectSatelliteData.extractSatelliteData("MIN_RNG", operator, valueField.getText());
 
@@ -371,9 +341,7 @@ public class MainController implements Initializable {
                     });
                     return null;
                 }
-
                 satelliteController.setListOfUniqueSatellite(satelliteData);
-
                 if (!tleService.downloadTLEs(satelliteData, tleData, collectSatelliteData, spaceTrackTleRadio, informationPane)) {
                     cancelTask();
                     return null;
@@ -415,6 +383,8 @@ public class MainController implements Initializable {
 
 
     private void displayProgressBar() {
+        mainPanel.setDisable(true);
+        menuPanel.setDisable(false);
         progressBar.toFront();
         progressBar.setVisible(true);
         progressBar.setStyle("-fx-accent: #ff0000;"); // Change the color to red for better visibility

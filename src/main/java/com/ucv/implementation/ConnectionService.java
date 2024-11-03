@@ -15,7 +15,7 @@ public class ConnectionService {
     public ConnectionService(InternetConnectionData internetConnectionData){
         this.connectionData = internetConnectionData;
     }
-    ConnectionInformation generateConnectionInfo() {
+    public ConnectionInformation generateConnectionInfo() {
         ConnectionInformation connectionInformation = new ConnectionInformation();
         connectionInformation.setUsername(connectionData.getUserName());
         LocalDateTime currentDateTime = LocalDateTime.now();

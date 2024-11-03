@@ -1,7 +1,6 @@
-
 #console {
-    -fx-background-color: #606060;
-    -fx-text-fill: #ffffff;
+    -fx-background-color: #606060; /* Fundal pentru consola */
+    -fx-text-fill: #ffffff; /* Textul alb */
     -fx-font-weight: bold;
     -fx-font-family: "Consolas", monospace;
     -fx-font-size: 14px;
@@ -9,12 +8,13 @@
     -fx-border-color: #3c3c3c;
     -fx-border-width: 2px;
     -fx-control-inner-background: #1e1e1e;
-    -fx-highlight-fill: #264f78;
-    -fx-highlight-text-fill: #d4d4d4;
+    -fx-highlight-fill: #264f78; /* Culoare de selecție */
+    -fx-highlight-text-fill: #ffffff; /* Textul selectat va fi alb */
     -fx-background-radius: 3px;
     -fx-border-radius: 2px;
 }
 
+/* Fundal pentru scroll */
 .scroll-pane {
     -fx-background-color: #2b2b2b; /* Fundalul ScrollPane */
 }

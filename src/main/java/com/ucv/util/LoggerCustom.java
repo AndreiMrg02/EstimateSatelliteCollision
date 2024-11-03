@@ -75,10 +75,9 @@ public class LoggerCustom {
                 } else if (message.contains("LOW")) {
                     text.setFill(Color.GREEN);
                 } else {
-                    text.setFill(Color.BLACK);
+                    text.setFill(Color.WHITE);
                 }
                 console.getChildren().add(text);
-                // Auto-scroll to the bottom
                 scrollPane.layout();
                 scrollPane.setVvalue(1.0);
             });

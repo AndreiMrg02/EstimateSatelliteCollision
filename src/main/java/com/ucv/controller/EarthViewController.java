@@ -1,20 +1,18 @@
 package com.ucv.controller;
 
 import com.ucv.implementation.CustomGlobeAnnotation;
-import com.ucv.implementation.SimulateCollision;
+import com.ucv.implementation.SatelliteUpdaterOnEarth;
 import com.ucv.util.LoggerCustom;
 import gov.nasa.worldwind.BasicModel;
 import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.WorldWindow;
 import gov.nasa.worldwind.awt.WorldWindowGLJPanel;
-import gov.nasa.worldwind.geom.LatLon;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.layers.AirspaceLayer;
 import gov.nasa.worldwind.layers.AnnotationLayer;
 import gov.nasa.worldwind.render.GlobeAnnotation;
 import gov.nasa.worldwind.render.Material;
 import gov.nasa.worldwind.render.airspaces.Airspace;
-import gov.nasa.worldwind.render.airspaces.AirspaceAttributes;
 import gov.nasa.worldwind.render.airspaces.BasicAirspaceAttributes;
 import gov.nasa.worldwind.render.airspaces.SphereAirspace;
 import gov.nasa.worldwindx.examples.ApplicationTemplate;
@@ -26,21 +24,16 @@ import javafx.scene.layout.StackPane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hipparchus.geometry.euclidean.threed.Vector3D;
-import org.hipparchus.util.FastMath;
-import org.orekit.bodies.GeodeticPoint;
 import org.orekit.bodies.OneAxisEllipsoid;
 import org.orekit.data.DataContext;
 import org.orekit.data.DataProvidersManager;
 import org.orekit.data.DirectoryCrawler;
 import org.orekit.errors.OrekitException;
 import org.orekit.frames.FramesFactory;
-import org.orekit.orbits.Orbit;
-import org.orekit.propagation.SpacecraftState;
 import org.orekit.propagation.analytical.Ephemeris;
 import org.orekit.time.AbsoluteDate;
 import org.orekit.utils.Constants;
 import org.orekit.utils.IERSConventions;
-import org.orekit.utils.PVCoordinates;
 
 import java.awt.*;
 import java.io.File;
@@ -59,7 +52,7 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
     private AbsoluteDate endDate;
     private OneAxisEllipsoid earth;
     private AirspaceLayer satAirspaces;
-    private AnnotationLayer labelLayer; // Adăugarea layer-ului pentru etichete
+    private AnnotationLayer labelLayer;
     private volatile boolean pause;
     private volatile boolean restart;
     private volatile boolean stop;
@@ -148,7 +141,7 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
 
     public synchronized void setStartDate(AbsoluteDate startDate) {
         this.startDate = startDate;
-        this.targetDate = startDate; // Actualizează și targetDate
+        this.targetDate = startDate;
     }
 
     @Override
@@ -156,36 +149,55 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
         if (setAbsoluteDateOnThread()) return;
 
         while (!stop) {
-            synchronized (this) {
-                while (pause) {
-                    try {
-                        wait();
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                        return;
-                    }
+            handlePause();
+
+            updateUI(targetDate);
+
+            if (sleepAndCheckInterrupted()) break;
+
+            advanceDate();
+        }
+    }
+
+    private void handlePause() {
+        synchronized (this) {
+            while (pause) {
+                try {
+                    wait();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return;
                 }
-            }
-            AbsoluteDate finalTargetDate = targetDate;
-            Platform.runLater(() -> {
-                updateSatellites(finalTargetDate);
-                wwd.redraw();
-            });
-
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                break;
-            }
-
-            targetDate = targetDate.shiftedBy(30);
-            if (restart) {
-                targetDate = startDate;
-                restart = false;
             }
         }
     }
+
+    public void updateUI(AbsoluteDate date) {
+        AbsoluteDate finalTargetDate = date;
+        Platform.runLater(() -> {
+            updateSatellites(finalTargetDate);
+            wwd.redraw();
+        });
+    }
+
+    private boolean sleepAndCheckInterrupted() {
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return true;
+        }
+        return false;
+    }
+
+    private void advanceDate() {
+        targetDate = targetDate.shiftedBy(30);
+        if (restart) {
+            targetDate = startDate;
+            restart = false;
+        }
+    }
+
 
     private boolean setAbsoluteDateOnThread() {
         stop = false;
@@ -229,80 +241,12 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
 
         ephemerisMap.forEach((name, ephemeris) -> {
             try {
-                processUpdateSatellite(targetDate, name, ephemeris, threeMinutesAfter, threeMinutesBefore, positions);
+                SatelliteUpdaterOnEarth satelliteUpdaterOnEarth = new SatelliteUpdaterOnEarth(earth, sphereMap, satAirspaces, updateSatellitesInformation, labelLayer, sphereFragmentsMap);
+                satelliteUpdaterOnEarth.processUpdateSatellite(targetDate, name, ephemeris, threeMinutesAfter, threeMinutesBefore, positions, isCollision);
             } catch (OrekitException e) {
                 logger.error(String.format("Error updating satellites for date: %s and satellite: %s", targetDate, name), e);
             }
         });
-    }
-
-    private void processUpdateSatellite(AbsoluteDate targetDate, String name, Ephemeris ephemeris, AbsoluteDate threeMinutesAfter, AbsoluteDate threeMinutesBefore, Map<String, Vector3D> positions) {
-        if (targetDate.compareTo(ephemeris.getMinDate()) >= 0 && targetDate.compareTo(ephemeris.getMaxDate()) <= 0) {
-            SpacecraftState state = ephemeris.propagate(targetDate);
-            Orbit orbit = state.getOrbit();
-            PVCoordinates pvCoordinates = orbit.getPVCoordinates();
-
-            GeodeticPoint gp = earth.transform(pvCoordinates.getPosition(), orbit.getFrame(), orbit.getDate());
-            Map.Entry<SphereAirspace, GlobeAnnotation> entry = sphereMap.get(name);
-            createSphere(name, entry);
-
-            SphereAirspace sphere = entry.getKey();
-            GlobeAnnotation label = entry.getValue();
-
-            AirspaceAttributes attrs = new BasicAirspaceAttributes();
-            attrs.setDrawOutline(true);
-            attrs.setMaterial(new Material(Color.GREEN));
-
-            if (targetDate.compareTo(threeMinutesAfter) >= 0 && targetDate.compareTo(threeMinutesBefore) <= 0) {
-                changeSphereOnCloseApproach(name, attrs, sphere, positions, orbit);
-            } else {
-                sphere.setRadius(100000);
-            }
-            double speed = pvCoordinates.getVelocity().getNorm(); // m/s
-            sphere.setAttributes(attrs);
-            sphere.setLocation(LatLon.fromRadians(gp.getLatitude(), gp.getLongitude()));
-            sphere.setAltitude(gp.getAltitude());
-            // Update label position
-            updatePositionAndSatteliteInformation(name, gp, sphere, label, speed);
-        }
-    }
-
-    private void updatePositionAndSatteliteInformation(String name, GeodeticPoint gp, SphereAirspace sphere, GlobeAnnotation label, double speed) {
-        Position labelPos = new Position(LatLon.fromRadians(gp.getLatitude(), gp.getLongitude()), gp.getAltitude() + sphere.getRadius() * 1.2);
-        label.setPosition(labelPos);
-        if (updateSatellitesInformation != null) {
-            if (isCollision) {
-                updateSatellitesInformation.updateSatelliteInformation("", 0, 0, 0, 0);
-            } else {
-                updateSatellitesInformation.updateSatelliteInformation(name, FastMath.toDegrees(gp.getLatitude()), FastMath.toDegrees(gp.getLongitude()), FastMath.toDegrees(gp.getAltitude()), speed);
-            }
-        }
-        if (isCollision) {
-            labelLayer.removeAllAnnotations();
-            SimulateCollision simulateCollision = new SimulateCollision(satAirspaces, sphereFragmentsMap);
-            simulateCollision.shatterSphere(sphere, name);
-        }
-    }
-
-    private void changeSphereOnCloseApproach(String name, AirspaceAttributes attrs, SphereAirspace sphere, Map<String, Vector3D> positions, Orbit orbit) {
-        attrs.setMaterial(new Material(Color.RED));
-        sphere.setRadius(10000);
-        positions.put(name, orbit.getPVCoordinates().getPosition());
-        if (positions.size() == 2) {
-            List<Vector3D> posList = new ArrayList<>(positions.values());
-            double distance = posList.get(0).distance(posList.get(1));
-            LoggerCustom.getInstance().logMessage(String.format("Distance between satellites: %f meters", distance));
-        }
-    }
-
-    private void createSphere(String name, Map.Entry<SphereAirspace, GlobeAnnotation> entry) {
-        if (entry == null) {
-            SphereAirspace sphere = new SphereAirspace();
-            sphere.setRadius(100000);
-            GlobeAnnotation label = new GlobeAnnotation(name, new Position(sphere.getLocation(), sphere.getRadius() * 1.2));
-            sphereMap.put(name, new AbstractMap.SimpleEntry<>(sphere, label));
-            satAirspaces.addAirspace(sphere);
-        }
     }
 
     public void triggerCollision(boolean verdict) {
