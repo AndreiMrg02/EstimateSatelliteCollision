@@ -4,6 +4,7 @@ import com.ucv.datamodel.satellite.CollisionData;
 import com.ucv.datamodel.satellite.DisplaySatelliteModel;
 import com.ucv.datamodel.satellite.PositionDifference;
 import com.ucv.util.LoggerCustom;
+import org.apache.log4j.Logger;
 import org.hipparchus.geometry.euclidean.threed.Vector3D;
 import org.orekit.propagation.SpacecraftState;
 import org.orekit.propagation.analytical.Ephemeris;
@@ -25,6 +26,7 @@ public class CollisionTask implements Runnable {
     private final Set<DisplaySatelliteModel> displaySatelliteModels;
     private final List<CollisionData> collisionData;
     private final int threshold;
+    private static final Logger logger = Logger.getLogger(CollisionTask.class);
 
     public CollisionTask(List<SpacecraftState> spacecraftStatesOne, List<SpacecraftState> spacecraftStatesTwo, String satelliteOneName, String satelliteTwoName, Set<DisplaySatelliteModel> displaySatelliteModels, List<CollisionData> collisionData, int threshold) {
         this.spacecraftStatesOne = new ArrayList<>(spacecraftStatesOne);
@@ -45,7 +47,11 @@ public class CollisionTask implements Runnable {
 
     @Override
     public void run() {
-        estimateCollision();
+        try {
+            estimateCollision();
+        }catch (Exception ex){
+            logger.error(String.format("[run - CollisionTask]An unexpected exception occurred due to: %s", ex.getMessage()));
+        }
     }
 
     private void estimateCollision() {
@@ -61,13 +67,14 @@ public class CollisionTask implements Runnable {
             ephemerisSatelliteOne.propagate(startDate, endDate);
             ephemerisSatelliteOne.clearStepHandlers();
             addDisplaySatellites(startDate, endDate, ephemerisSatelliteOne, closestApproach, ephemerisSatelliteTwo);
-            double collisionProbability = estimateCollisionProbability(closestApproach.getDifference(), threshold);
-            printCollisionProbability(collisionProbability);
+            CollisionProbabilityCalculator calculator = new CollisionProbabilityCalculator();
+            double collisionProbability = calculator.calculateProbability(closestApproach.getDifference(), threshold);
+            calculator.logRiskLevel(collisionProbability, satelliteOneName, satelliteTwoName);
             String collisionFormat = String.format("%.10f%%", collisionProbability);
             addCollisionData(closestApproach, startDate, endDate, collisionFormat);
 
         } catch (Exception exception) {
-            exception.printStackTrace();
+            logger.error(String.format("[estimateCollision] An unexpected exception occurred due to: %s", exception.getMessage()));
         }
     }
 
@@ -89,21 +96,6 @@ public class CollisionTask implements Runnable {
         }
     }
 
-    private void printCollisionProbability(double collisionProbability) {
-        if (collisionProbability >= 100) {
-            collisionProbability = 100;
-        }
-        if (collisionProbability == 100) {
-            LoggerCustom.getInstance().logMessage(String.format("INFO: It was detected a collision between satellite %s and satellite %s  with a collision probability %.3f%%", satelliteOneName, satelliteTwoName, collisionProbability));
-
-        } else if (collisionProbability > 50 && collisionProbability < 80) {
-            LoggerCustom.getInstance().logMessage(String.format("INFO: It was detected a MEDIUM collision risk between satellite %s and satellite %s with a collision probability %.3f%%", satelliteOneName, satelliteTwoName, collisionProbability));
-        } else if (collisionProbability >= 80) {
-            LoggerCustom.getInstance().logMessage(String.format("INFO: It was detected a HIGH collision risk between satellite %s and satellite %s  with a collision probability %.3f%%", satelliteOneName, satelliteTwoName, collisionProbability));
-        } else if (collisionProbability <= 50 && collisionProbability > 10) {
-            LoggerCustom.getInstance().logMessage(String.format("INFO: It was detected a LOW collision risk between satellite %s and satellite %s  with a collision probability %.3f%%", satelliteOneName, satelliteTwoName, collisionProbability));
-        }
-    }
 
     private boolean verifySatellitesDate(AbsoluteDate startDate, AbsoluteDate endDate) {
         if (startDate == null || endDate == null) {
@@ -124,16 +116,6 @@ public class CollisionTask implements Runnable {
             }
         });
     }
-
-    public double estimateCollisionProbability(double closestApproachDistance, double targetDistance) {
-
-        double probability = Math.pow(targetDistance / closestApproachDistance, 2);
-        if (probability >= 100) {
-            return 100;
-        }
-        return probability * 100;
-    }
-
     private AbsoluteDate extractStartDate() {
         if (spacecraftStatesOne.isEmpty() || spacecraftStatesTwo.isEmpty()) {
             return null;

@@ -1,10 +1,6 @@
 package com.ucv.datamodel.satellite;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 public class SpatialObject {
-    private static final Logger logger = LogManager.getLogger(SpatialObject.class);
     private String name;
     private String tle;
     private String tca;

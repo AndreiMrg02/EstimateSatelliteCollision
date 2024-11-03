@@ -1,15 +1,13 @@
 package com.ucv.controller;
 
 import com.ucv.Main;
-import com.ucv.database.DBOperation;
-import com.ucv.datamodel.database.ConnectionInformation;
 import com.ucv.datamodel.internet.InternetConnectionData;
 import com.ucv.datamodel.satellite.DisplaySatelliteModel;
 import com.ucv.datamodel.xml.Item;
 import com.ucv.implementation.CollectSatelliteData;
-import com.ucv.util.ButtonCustomStyle;
-import com.ucv.util.LoggerCustom;
-import com.ucv.util.PaneCustomStyle;
+import com.ucv.implementation.ConnectionService;
+import com.ucv.implementation.TleService;
+import com.ucv.util.*;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -19,33 +17,27 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextFlow;
-import javafx.stage.FileChooser;
 import org.apache.log4j.Logger;
 import org.orekit.propagation.analytical.Ephemeris;
 import org.orekit.time.AbsoluteDate;
 
-import java.io.*;
+import java.io.IOException;
 import java.net.URL;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static com.ucv.database.DBOperation.clearAllStates;
-import static com.ucv.database.DBOperation.getLastConnectionFromDB;
 import static com.ucv.database.HibernateUtil.closeSession;
 
 public class MainController implements Initializable {
 
     private static final Logger logger = Logger.getLogger(MainController.class);
-    private static final String REGEX = "^[0-9]+$";
+
     @FXML
     private RadioButton spaceTrackTleRadio;
     @FXML
@@ -96,17 +88,19 @@ public class MainController implements Initializable {
     private EarthViewController earthViewController;
     private SatelliteController satelliteController;
     private SatelliteInformationController satelliteInformationController;
+    private TleService tleService;
     private InternetConnectionData connectionData;
+    private ConnectionService connectionService;
     private double xOffset = 0;
     private double yOffset = 0;
     private Task<Void> currentTask;
+    private FieldValidator fieldValidator;
+    private CustomAlert customAlert;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-
         operatorList = FXCollections.observableArrayList();
         addOperatorToList();
-
         operatorBox.setItems(operatorList);
         progressBar.setProgress(-1.0);
         progressBar.setVisible(false);
@@ -114,11 +108,13 @@ public class MainController implements Initializable {
         manageRadioButtons();
         loadTableSatellite();
         closeSession();
+        this.customAlert = new CustomAlert();
         buttonSettings();
         roundedPane();
         loadEarth();
         drawEarthAfterInit();
         scrollPaneLog.setFitToWidth(true);
+        fieldValidator = new FieldValidator(spaceTrackTleRadio, localTleRadio, valueField, thresholdBox, satelliteController);
         scrollPaneLog.setContent(loggerBox);
         LoggerCustom.getInstance().setConsole(loggerBox, scrollPaneLog);
         loadSatelliteInformation();
@@ -176,31 +172,6 @@ public class MainController implements Initializable {
         processSatelliteData();
     }
 
-    public boolean validateThresholdField() {
-
-        Pattern pattern = Pattern.compile(REGEX);
-        Matcher matcher = pattern.matcher(thresholdBox.getText());
-        if (matcher.matches()) {
-            return true;
-        } else {
-            Alert alert = new Alert(Alert.AlertType.ERROR, "The threshold field must be a digit or a number!", ButtonType.OK);
-            alert.showAndWait();
-            return false;
-        }
-    }
-
-    public boolean validateValueField() {
-
-        Pattern pattern = Pattern.compile(REGEX);
-        Matcher matcher = pattern.matcher(valueField.getText());
-        if (matcher.matches()) {
-            return true;
-        } else {
-            Alert alert = new Alert(Alert.AlertType.ERROR, "The value field must be a digit or a number!", ButtonType.OK);
-            alert.showAndWait();
-            return false;
-        }
-    }
 
     private void drawEarthAfterInit() {
         AnimationTimer timer = new AnimationTimer() {
@@ -240,6 +211,51 @@ public class MainController implements Initializable {
     private void buttonSettings() {
         stopSimulationButton.setDisable(true);
         resumeButton.setDisable(true);
+        showSatellitesAction();
+
+        stopSimulationAction();
+
+        pauseAction();
+
+        closeApproachAction();
+
+        simulateCollisionAction();
+    }
+
+    private void pauseAction() {
+        pauseButton.setOnAction(event -> {
+            LoggerCustom.getInstance().logMessage("INFO: Simulation paused");
+            earthViewController.pauseSimulation();
+            resumeButton.setDisable(false);
+            pauseButton.setDisable(true);
+        });
+    }
+
+    private void closeApproachAction() {
+        closeApproachButton.setOnAction(event -> showSatellitesAtCloseApproach());
+        resumeButton.setOnAction(event -> {
+            earthViewController.resumeSimulation();
+            resumeButton.setDisable(true);
+            pauseButton.setDisable(false);
+            showSatellitesButton.setDisable(true);
+        });
+    }
+
+    private void simulateCollisionAction() {
+        simulateCollision.setOnAction(event -> {
+            LoggerCustom.getInstance().logMessage("INFO: A collision was simulated");
+
+            showSatellitesAtCloseApproach();
+            pauseButton.setDisable(false);
+            resumeButton.setDisable(true);
+            satelliteInformationController.clearSatellitesDataFromFields();
+            earthViewController.triggerCollision(true);
+            earthViewController.pauseSimulation();
+            earthViewController.resumeSimulation();
+        });
+    }
+
+    private void showSatellitesAction() {
         showSatellitesButton.setOnAction(event -> {
             LoggerCustom.getInstance().logMessage("INFO: Check the map to see the satellites");
             displaySatellites();
@@ -250,7 +266,9 @@ public class MainController implements Initializable {
             showSatellitesButton.setDisable(true);
             satelliteController.getSatelliteTable().setDisable(true);
         });
+    }
 
+    private void stopSimulationAction() {
         stopSimulationButton.setOnAction(event -> {
             closeButton.setDisable(false);
             LoggerCustom.getInstance().logMessage("INFO: The simulation was stopped");
@@ -265,33 +283,6 @@ public class MainController implements Initializable {
             extractDataButton.setDisable(false);
             earthViewController.triggerCollision(false);
             satelliteController.getSatelliteTable().setDisable(false);
-        });
-
-        pauseButton.setOnAction(event -> {
-            LoggerCustom.getInstance().logMessage("INFO: Simulation paused");
-            earthViewController.pauseSimulation();
-            resumeButton.setDisable(false);
-            pauseButton.setDisable(true);
-        });
-
-        closeApproachButton.setOnAction(event -> showSatellitesAtCloseApproach());
-        resumeButton.setOnAction(event -> {
-            earthViewController.resumeSimulation();
-            resumeButton.setDisable(true);
-            pauseButton.setDisable(false);
-            showSatellitesButton.setDisable(true);
-        });
-
-        simulateCollision.setOnAction(event -> {
-            LoggerCustom.getInstance().logMessage("INFO: A collision was simulated");
-
-            showSatellitesAtCloseApproach();
-            pauseButton.setDisable(false);
-            resumeButton.setDisable(true);
-            satelliteInformationController.clearSatellitesDataFromFields();
-            earthViewController.triggerCollision(true);
-            earthViewController.pauseSimulation();
-            earthViewController.resumeSimulation();
         });
     }
 
@@ -317,7 +308,6 @@ public class MainController implements Initializable {
             }
             closeApproach = model.getCloseApproachDate();
         }
-
         earthViewController.init(ephemerisMap, startDate, endDate, closeApproach);
         earthViewController.startSimulation();
     }
@@ -335,69 +325,73 @@ public class MainController implements Initializable {
     }
 
     private void processSatelliteData() {
+
         extractDataButton.setOnMouseClicked(event -> {
-            if (!validateValueField() || !validateThresholdField()) {
+            if (!fieldValidator.validateInputs()) {
                 return;
             }
-            if (!spaceTrackTleRadio.isSelected() && !localTleRadio.isSelected()) {
-                radioButtonAlert();
-                return;
-            }
-            Map<String, String[]> tleData = new LinkedHashMap<>();
+            connectionService = new ConnectionService(connectionData);
+            tleService = new TleService(connectionService, satelliteController, localTleRadio);
+            Map<String, String[]> tleData = new HashMap<>();
             if (localTleRadio.isSelected()) {
-                tleData = chooseTleFile();
-                if (tleData.isEmpty()) {
-                    LoggerCustom.getInstance().logMessage("WARNING: TLEs file is empty or you don't choose a file");
-                    LoggerCustom.getInstance().logMessage("WARNING: Please verify if you choose a file that contain only TLEs");
+                tleData = tleService.getTleData(mainPanel);
+                if (tleData == null || tleData.isEmpty()) {
                     return;
                 }
             }
             String operator = setOperator(operatorBox.getValue());
             resetDataForNewExtraction();
-            Map<String, String[]> finalTleData = tleData;
 
-            currentTask = new Task<>() {
-                @Override
-                protected Void call() {
-                    LoggerCustom.getInstance().logMessage("INFO: The process for extract the data is running...");
-                    Platform.runLater(() -> {
-                        mainPanel.setDisable(true);
-                        menuPanel.setDisable(false);
-                        displayProgressBar();
-                    });
-
-                    CollectSatelliteData collectSatelliteData = new CollectSatelliteData(connectionData);
-                    Map<String, Item> listOfUniqueSatelliteTemp = collectSatelliteData.extractSatelliteData("MIN_RNG", operator, valueField.getText());
-
-                    if (listOfUniqueSatelliteTemp != null) {
-                        satelliteController.setListOfUniqueSatellite(listOfUniqueSatelliteTemp);
-                        if (downloadTLEs(listOfUniqueSatelliteTemp, finalTleData, collectSatelliteData)) {
-                            Platform.runLater(() -> {
-                                progressBar.setVisible(false);
-                                if (listOfUniqueSatelliteTemp.isEmpty()) {
-                                    alertNoResults();
-                                    event.consume();
-                                }
-                                setTaskOnSuccess();
-                            });
-                        } else {
-                            cancelTask();
-                            return null;
-                        }
-                    } else {
-                        Platform.runLater(() -> {
-                            alertInvalidCredentials();
-                            event.consume();
-                        });
-                        return null;
-                    }
-                    return null;
-                }
-            };
+            currentTask = createSatelliteDataTask(tleData, operator, event);
             setTaskOnFailed(currentTask);
             new Thread(currentTask).start();
         });
     }
+
+
+    private Task<Void> createSatelliteDataTask(Map<String, String[]> tleData, String operator, MouseEvent event) {
+        return new Task<>() {
+            @Override
+            protected Void call() {
+                LoggerCustom.getInstance().logMessage("INFO: The process for extracting the data is running...");
+
+                Platform.runLater(() -> {
+                    mainPanel.setDisable(true);
+                    menuPanel.setDisable(false);
+                    displayProgressBar();
+                });
+
+                CollectSatelliteData collectSatelliteData = new CollectSatelliteData(connectionData);
+                Map<String, Item> satelliteData = collectSatelliteData.extractSatelliteData("MIN_RNG", operator, valueField.getText());
+
+                if (satelliteData.get("InvalidCredentials") != null) {
+                    Platform.runLater(() -> {
+                        customAlert.alertInvalidCredentials();
+                        event.consume();
+                    });
+                    return null;
+                }
+
+                satelliteController.setListOfUniqueSatellite(satelliteData);
+
+                if (!tleService.downloadTLEs(satelliteData, tleData, collectSatelliteData, spaceTrackTleRadio, informationPane)) {
+                    cancelTask();
+                    return null;
+                }
+                Platform.runLater(() -> {
+                    progressBar.setVisible(false);
+                    if (satelliteData.isEmpty()) {
+                        customAlert.alertNoResults(satelliteController, mainPanel);
+                        event.consume();
+                    }
+                    setTaskOnSuccess();
+                });
+
+                return null;
+            }
+        };
+    }
+
 
     private void cancelTask() {
         if (currentTask != null && currentTask.isRunning()) {
@@ -438,32 +432,6 @@ public class MainController implements Initializable {
         satelliteController.setDisplaySatelliteModels(new HashSet<>());
     }
 
-    public void alertNoResults() {
-        Alert alert = new Alert(Alert.AlertType.ERROR, "No results were found for the current settings", ButtonType.OK);
-        satelliteController.getSatelliteTable().refresh();
-        alert.showAndWait();
-        LoggerCustom.getInstance().logMessage("INFO: Change configuration to find data");
-        mainPanel.setDisable(false);
-    }
-
-    public void alertInvalidCredentials() {
-
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Authentication Failed");
-        alert.setHeaderText("Invalid Credentials");
-        alert.setContentText("The username or password is incorrect." + "\nIMPORTANT: The application will close. " + "Reopen the application and enter the login data correctly.\n");
-        alert.showAndWait();
-        System.exit(0);
-    }
-
-    public void alertWaitSpaceTrackTle() {
-        informationPane.setVisible(false);
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Extract error");
-        alert.setHeaderText("Space-Track TLE Unavailable");
-        alert.setContentText("To use the data download method using Space-Track TLE, you must wait one hour after the last use of it. " + "\nTo run the application you can use the Local TLE option using the TLEs generated file at the last run of this option.\n");
-        alert.showAndWait();
-    }
 
     public void setTaskOnSuccess() {
         mainPanel.setDisable(false);
@@ -479,157 +447,6 @@ public class MainController implements Initializable {
         tableViewPane.setCenter(tableViewLayout);
     }
 
-    public void radioButtonAlert() {
-
-        Alert alert = new Alert(Alert.AlertType.ERROR, "Please choose the type of data downloading(Local Tle or Space-Track Tle)", ButtonType.OK);
-        satelliteController.getSatelliteTable().refresh();
-        alert.showAndWait();
-        LoggerCustom.getInstance().logMessage("INFO: Choose Local Tle or Space-Track Tle");
-        LoggerCustom.getInstance().logMessage("IMPORTANT: The call to Space-Track can only be made once per hour!");
-    }
-
-    private boolean downloadTLEs(Map<String, Item> listOfUniqueSatellite, Map<String, String[]> tleData, CollectSatelliteData collectSatelliteData) {
-        if (localTleRadio.isSelected()) {
-            extractTLEsUsingLocalFile(listOfUniqueSatellite, tleData);
-            return true;
-        } else if (spaceTrackTleRadio.isSelected()) {
-            if (hasOneHourPassedSinceLastConnection(connectionData.getUserName())) {
-                extractTLEsUsingSpaceTrack(listOfUniqueSatellite, collectSatelliteData);
-                return true;
-            } else {
-                Platform.runLater(this::alertWaitSpaceTrackTle);
-                return false;
-            }
-        }
-        return false;
-    }
-
-    public Map<String, String[]> chooseTleFile() {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Select TLE File");
-        Map<String, String[]> tleData = new LinkedHashMap<>();
-        File tleFile = fileChooser.showOpenDialog(mainPanel.getScene().getWindow());
-        if (tleFile != null) {
-            tleData = readTLEFile(tleFile.getAbsolutePath());
-        } else {
-            logger.error("File selection cancelled by user.");
-        }
-        return tleData;
-    }
-
-    private void extractTLEsUsingLocalFile(Map<String, Item> listOfUniqueSatellite, Map<String, String[]> tleData) {
-
-        for (Item item : listOfUniqueSatellite.values()) {
-            if (tleData.containsKey(item.getSat1Id())) {
-                String[] tle = tleData.get(item.getSat1Id());
-                String tleString = tle[0] + "\n" + tle[1];
-                satelliteController.addSpatialObject(item.getTca(), item.getSat1Name(), tleString);
-            }
-            if (tleData.containsKey(item.getSat2Id())) {
-                String[] tle = tleData.get(item.getSat2Id());
-                String tleString = tle[0] + "\n" + tle[1];
-                satelliteController.addSpatialObject(item.getTca(), item.getSat2Name(), tleString);
-            }
-        }
-        satelliteController.manageSatellites();
-    }
-
-    public Map<String, String[]> readTLEFile(String filePath) {
-        Map<String, String[]> tleMap = new HashMap<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (line.startsWith("1 ")) {
-                    String line2 = reader.readLine();
-                    if (line2 != null && line2.startsWith("2 ")) {
-                        String satelliteId = line.substring(2, 7).trim();
-                        String[] tle = {line, line2};
-                        tleMap.put(satelliteId, tle);
-                    }
-                }
-            }
-        } catch (IOException e) {
-            logger.error("The TLE file contains corrupt data", e);
-        }
-        return tleMap;
-    }
-
-    private void extractTLEsUsingSpaceTrack(Map<String, Item> listOfUniqueSatellite, CollectSatelliteData collectSatelliteData) {
-
-        ConnectionInformation connectionInformation = generateConnectionInfo();
-        DBOperation.saveLastConnectionToDB(connectionInformation);
-        String queryToDownloadAllTLEs = "/basicspacedata/query/class/gp/decay_date/null-val/epoch/%3Enow-30/orderby/norad_cat_id/format/tle";
-        String allTles = collectSatelliteData.extractSatelliteTLEs(queryToDownloadAllTLEs);
-        String[] lines = allTles.split("\n");
-        Map<String, String> satelliteTLEs = new LinkedHashMap<>();
-        for (int i = 0; i < lines.length; i += 2) {
-            if (i + 1 < lines.length) {
-                String line1 = lines[i];
-                String line2 = lines[i + 1];
-                String satelliteId = line1.substring(2, 7).trim();
-                String tle = line1 + "\n" + line2;
-                satelliteTLEs.put(satelliteId, tle);
-            }
-        }
-        for (Item item : listOfUniqueSatellite.values()) {
-            if (satelliteTLEs.containsKey(item.getSat1Id())) {
-                String tle = satelliteTLEs.get(item.getSat1Id());
-                satelliteController.addSpatialObject(item.getTca(), item.getSat1Name(), tle);
-            }
-            if (satelliteTLEs.containsKey(item.getSat2Id())) {
-                String tle = satelliteTLEs.get(item.getSat2Id());
-                satelliteController.addSpatialObject(item.getTca(), item.getSat2Name(), tle);
-            }
-        }
-        generateTleFile(satelliteTLEs);
-        satelliteController.manageSatellites();
-    }
-
-    private ConnectionInformation generateConnectionInfo() {
-        ConnectionInformation connectionInformation = new ConnectionInformation();
-        connectionInformation.setUsername(connectionData.getUserName());
-        LocalDateTime currentDateTime = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        String formattedDateTime = currentDateTime.format(formatter);
-        connectionInformation.setLastConnectionDate(formattedDateTime);
-        return connectionInformation;
-    }
-
-    public boolean hasOneHourPassedSinceLastConnection(String username) {
-        ConnectionInformation connectionInformation = getLastConnectionFromDB(username);
-        if (connectionInformation == null) {
-            return true;
-        }
-        String lastConnectionDateStr = connectionInformation.getLastConnectionDate();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime lastConnectionDate = LocalDateTime.parse(lastConnectionDateStr, formatter);
-        LocalDateTime currentDate = LocalDateTime.now();
-
-        Duration duration = Duration.between(lastConnectionDate, currentDate);
-
-        if (duration.toHours() >= 1) {
-            return true;
-        } else {
-            long minutesLeft = 60 - duration.toMinutes();
-            long secondsLeft = 3600 - duration.getSeconds();
-            LoggerCustom.getInstance().logMessage(String.format("IMPORTANT:The remaining time to use this option again is: %s min and %s sec", minutesLeft, (secondsLeft % 60)));
-            return false;
-        }
-    }
-
-    public void generateTleFile(Map<String, String> satelliteTLEs) {
-        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
-        String fileName = "tle_output_" + timestamp + ".txt";
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
-            for (Map.Entry<String, String> entry : satelliteTLEs.entrySet()) {
-                writer.write(entry.getValue());
-                writer.newLine();
-            }
-        } catch (IOException e) {
-            logger.error("Unexpected exception occurred due to generate tle output file: " + e.getMessage());
-        }
-        LoggerCustom.getInstance().logMessage("The application generate a .txt file with the most recently TLE with name: " + fileName);
-    }
 
     private void updateCollisionInformation() {
         satelliteController.getSatelliteTable().getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -658,7 +475,7 @@ public class MainController implements Initializable {
         return operator;
     }
 
-    public void setConnectionData(InternetConnectionData connectionData) {
+    public synchronized void setConnectionData(InternetConnectionData connectionData) {
         this.connectionData = connectionData;
     }
 

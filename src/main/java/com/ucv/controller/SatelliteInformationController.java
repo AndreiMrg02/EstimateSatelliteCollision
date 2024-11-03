@@ -2,6 +2,7 @@ package com.ucv.controller;
 
 import com.ucv.datamodel.satellite.CollisionData;
 import com.ucv.util.PaneCustomStyle;
+import com.ucv.util.UtilConstant;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -80,7 +81,7 @@ public class SatelliteInformationController implements Initializable, SatelliteI
             endDateTextArea.setText(newValue.getEndDate());
             closeApproachDateTextArea.setText(newValue.getCloseApproachDate());
             double value = Double.parseDouble(newValue.getCloseApproach()) / 1000;
-            closeApproachDistanceTextArea.setText(String.format("%.2f Km", value ));
+            closeApproachDistanceTextArea.setText(String.format(UtilConstant.KM_INFO, value ));
             satelliteOneLabel.setText(newValue.getSat1Name());
             satelliteTwoLabel.setText(newValue.getSat2Name());
             if (Integer.parseInt(thresholdValue) == 1) {
@@ -101,12 +102,12 @@ public class SatelliteInformationController implements Initializable, SatelliteI
             if (satelliteName.equals(satelliteOneLabel.getText())) {
                 latitudeSatelliteOne.setText(String.format(DEGREES, latitude));
                 longitudeSatelliteOne.setText(String.format(DEGREES, longitude));
-                satelliteOneAltitude.setText(String.format("%.2f Km", altitude / 1000.));
+                satelliteOneAltitude.setText(String.format(UtilConstant.KM_INFO, altitude / 1000.));
                 speedSatelliteOne.setText(String.format("%.2f Km/s", speed / 1000.));
             } else if (satelliteName.equals(satelliteTwoLabel.getText())) {
                 latitudeSatelliteTwo.setText(String.format(DEGREES, latitude));
                 longitudeSatelliteTwo.setText(String.format(DEGREES, longitude));
-                satelliteTwoAltitude.setText(String.format("%.2f Km", altitude / 1000.));
+                satelliteTwoAltitude.setText(String.format(UtilConstant.KM_INFO, altitude / 1000.));
                 speedSatelliteTwo.setText(String.format("%.2f Km/s", speed / 1000.));
             }
         });

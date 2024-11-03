@@ -1,16 +1,16 @@
 package com.ucv.controller;
 
+import com.ucv.implementation.CustomGlobeAnnotation;
+import com.ucv.implementation.SimulateCollision;
 import com.ucv.util.LoggerCustom;
 import gov.nasa.worldwind.BasicModel;
 import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.WorldWindow;
-import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.awt.WorldWindowGLJPanel;
 import gov.nasa.worldwind.geom.LatLon;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.layers.AirspaceLayer;
 import gov.nasa.worldwind.layers.AnnotationLayer;
-import gov.nasa.worldwind.render.AnnotationAttributes;
 import gov.nasa.worldwind.render.GlobeAnnotation;
 import gov.nasa.worldwind.render.Material;
 import gov.nasa.worldwind.render.airspaces.Airspace;
@@ -69,6 +69,7 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
     private AbsoluteDate targetDate;
     private Map<String, List<Airspace>> sphereFragmentsMap;
     private SatelliteInformationUpdate updateSatellitesInformation;
+    private CustomGlobeAnnotation customGlobeAnnotation;
 
     public EarthViewController() {
         try {
@@ -79,8 +80,9 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
             this.earth = new OneAxisEllipsoid(Constants.WGS84_EARTH_EQUATORIAL_RADIUS, Constants.WGS84_EARTH_FLATTENING, FramesFactory.getITRF(IERSConventions.IERS_2010, true));
             this.sphereMap = new HashMap<>();
             this.ephemerisMap = new HashMap<>();
+            this.customGlobeAnnotation = new CustomGlobeAnnotation();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("An unexpected error occurred while loading orekit-data and init variables in the Earth View Controller");
         }
     }
 
@@ -99,7 +101,7 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
             SwingNode swingNode = new SwingNode();
             swingNode.setContent((WorldWindowGLJPanel) wwd);
             swingNode.setVisible(true);
-            addContinentAnnotations();
+            customGlobeAnnotation.addContinentAnnotations();
             StackPane borderPane = (StackPane) earthPanel.lookup("#earthPanel");
             borderPane.getChildren().add(swingNode);
             isCollision = false;
@@ -108,45 +110,6 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
         }
     }
 
-    public void addContinentAnnotations() {
-        AnnotationLayer annotationLayer = new AnnotationLayer();
-
-        Map<String, Position> continents = new HashMap<>();
-        continents.put("Europa", Position.fromDegrees(54.5260, 15.2551));
-        continents.put("Asia", Position.fromDegrees(34.0479, 100.6197));
-        continents.put("Africa", Position.fromDegrees(8.7832, 34.5085));
-        continents.put("America de Nord", Position.fromDegrees(54.5260, -105.2551));
-        continents.put("America de Sud", Position.fromDegrees(-8.7832, -55.4915));
-        continents.put("Antarctica", Position.fromDegrees(-82.8628, 135.0));
-        continents.put("Australia", Position.fromDegrees(-25.2744, 133.7751));
-
-        for (Map.Entry<String, Position> entry : continents.entrySet()) {
-            GlobeAnnotation annotation = new GlobeAnnotation(entry.getKey(), entry.getValue());
-
-            AnnotationAttributes attributes = styleAttributeAnnotation();
-
-            annotation.setAttributes(attributes);
-            annotationLayer.addAnnotation(annotation);
-        }
-
-        wwd.getModel().getLayers().add(annotationLayer);
-    }
-
-    private AnnotationAttributes styleAttributeAnnotation() {
-        AnnotationAttributes attributes = new AnnotationAttributes();
-        attributes.setCornerRadius(0);
-        attributes.setBackgroundColor(new Color(0, 0, 0, 0));
-        attributes.setTextColor(Color.WHITE);
-        attributes.setDrawOffset(new Point(0, 0));
-        attributes.setBorderWidth(0);
-        attributes.setInsets(new Insets(0, 0, 0, 0));
-        attributes.setLeader(AVKey.SHAPE_NONE);
-        attributes.setFont(Font.decode("Arial-BOLD-14"));
-        attributes.setDistanceMinScale(0.8);
-        attributes.setDistanceMaxScale(0.8);
-        attributes.setDistanceMinOpacity(1.0);
-        return attributes;
-    }
 
     public synchronized void init(Map<String, Ephemeris> ephemerisMap, AbsoluteDate startDate, AbsoluteDate endDate, AbsoluteDate closeApproach) {
         this.ephemerisMap = ephemerisMap != null ? ephemerisMap : new HashMap<>();
@@ -169,7 +132,7 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
             Position labelPos = new Position(sphere.getLocation(), labelHeight);
 
             GlobeAnnotation label = new GlobeAnnotation(entry.getKey(), labelPos);
-            attributeSatelliteNameLabel(label);
+            customGlobeAnnotation.attributeSatelliteNameLabel(label);
             sphereMap.put(entry.getKey(), new AbstractMap.SimpleEntry<>(sphere, label));
 
             satAirspaces.addAirspace(sphere);
@@ -182,19 +145,6 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
         wwd.redraw();
     }
 
-    private void attributeSatelliteNameLabel(GlobeAnnotation label) {
-        label.getAttributes().setCornerRadius(0);
-        label.getAttributes().setBackgroundColor(new Color(0, 0, 0, 0)); // Complet transparent
-        label.getAttributes().setTextColor(Color.pink);
-        label.getAttributes().setDrawOffset(new Point(0, 0));
-        label.getAttributes().setBorderWidth(0);
-        label.getAttributes().setInsets(new Insets(0, 0, 0, 0));
-        label.getAttributes().setLeader(AVKey.SHAPE_NONE);
-        label.getAttributes().setFont(Font.decode("Arial-BOLD-14"));
-        label.getAttributes().setDistanceMinScale(0.8);  // Menține dimensiunea textului constantă
-        label.getAttributes().setDistanceMaxScale(0.8);  // Opțional, limitează scalarea maximă
-        label.getAttributes().setDistanceMinOpacity(1.0);  // Menține opacitatea constantă
-    }
 
     public synchronized void setStartDate(AbsoluteDate startDate) {
         this.startDate = startDate;
@@ -231,7 +181,7 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
 
             targetDate = targetDate.shiftedBy(30);
             if (restart) {
-                targetDate = startDate; 
+                targetDate = startDate;
                 restart = false;
             }
         }
@@ -279,51 +229,59 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
 
         ephemerisMap.forEach((name, ephemeris) -> {
             try {
-                if (targetDate.compareTo(ephemeris.getMinDate()) >= 0 && targetDate.compareTo(ephemeris.getMaxDate()) <= 0) {
-                    SpacecraftState state = ephemeris.propagate(targetDate);
-                    Orbit orbit = state.getOrbit();
-                    PVCoordinates pvCoordinates = orbit.getPVCoordinates();
-
-                    GeodeticPoint gp = earth.transform(pvCoordinates.getPosition(), orbit.getFrame(), orbit.getDate());
-                    Map.Entry<SphereAirspace, GlobeAnnotation> entry = sphereMap.get(name);
-                    createSphere(name, entry);
-
-                    SphereAirspace sphere = entry.getKey();
-                    GlobeAnnotation label = entry.getValue();
-
-                    AirspaceAttributes attrs = new BasicAirspaceAttributes();
-                    attrs.setDrawOutline(true);
-                    attrs.setMaterial(new Material(Color.GREEN));
-
-                    if (targetDate.compareTo(threeMinutesAfter) >= 0 && targetDate.compareTo(threeMinutesBefore) <= 0) {
-                        changeSphereOnCloseApproach(name, attrs, sphere, positions, orbit);
-                    } else {
-                        sphere.setRadius(100000);
-                    }
-                    double speed = pvCoordinates.getVelocity().getNorm(); // m/s
-                    sphere.setAttributes(attrs);
-                    sphere.setLocation(LatLon.fromRadians(gp.getLatitude(), gp.getLongitude()));
-                    sphere.setAltitude(gp.getAltitude());
-
-                    // Update label position
-                    Position labelPos = new Position(LatLon.fromRadians(gp.getLatitude(), gp.getLongitude()), gp.getAltitude() + sphere.getRadius() * 1.2);
-                    label.setPosition(labelPos);
-                    if (updateSatellitesInformation != null) {
-                        if (isCollision) {
-                            updateSatellitesInformation.updateSatelliteInformation("", 0, 0, 0, 0);
-                        } else {
-                            updateSatellitesInformation.updateSatelliteInformation(name, FastMath.toDegrees(gp.getLatitude()), FastMath.toDegrees(gp.getLongitude()), FastMath.toDegrees(gp.getAltitude()), speed);
-                        }
-                    }
-                    if (isCollision) {
-                        labelLayer.removeAllAnnotations();
-                        shatterSphere(sphere, name);
-                    }
-                }
+                processUpdateSatellite(targetDate, name, ephemeris, threeMinutesAfter, threeMinutesBefore, positions);
             } catch (OrekitException e) {
                 logger.error(String.format("Error updating satellites for date: %s and satellite: %s", targetDate, name), e);
             }
         });
+    }
+
+    private void processUpdateSatellite(AbsoluteDate targetDate, String name, Ephemeris ephemeris, AbsoluteDate threeMinutesAfter, AbsoluteDate threeMinutesBefore, Map<String, Vector3D> positions) {
+        if (targetDate.compareTo(ephemeris.getMinDate()) >= 0 && targetDate.compareTo(ephemeris.getMaxDate()) <= 0) {
+            SpacecraftState state = ephemeris.propagate(targetDate);
+            Orbit orbit = state.getOrbit();
+            PVCoordinates pvCoordinates = orbit.getPVCoordinates();
+
+            GeodeticPoint gp = earth.transform(pvCoordinates.getPosition(), orbit.getFrame(), orbit.getDate());
+            Map.Entry<SphereAirspace, GlobeAnnotation> entry = sphereMap.get(name);
+            createSphere(name, entry);
+
+            SphereAirspace sphere = entry.getKey();
+            GlobeAnnotation label = entry.getValue();
+
+            AirspaceAttributes attrs = new BasicAirspaceAttributes();
+            attrs.setDrawOutline(true);
+            attrs.setMaterial(new Material(Color.GREEN));
+
+            if (targetDate.compareTo(threeMinutesAfter) >= 0 && targetDate.compareTo(threeMinutesBefore) <= 0) {
+                changeSphereOnCloseApproach(name, attrs, sphere, positions, orbit);
+            } else {
+                sphere.setRadius(100000);
+            }
+            double speed = pvCoordinates.getVelocity().getNorm(); // m/s
+            sphere.setAttributes(attrs);
+            sphere.setLocation(LatLon.fromRadians(gp.getLatitude(), gp.getLongitude()));
+            sphere.setAltitude(gp.getAltitude());
+            // Update label position
+            updatePositionAndSatteliteInformation(name, gp, sphere, label, speed);
+        }
+    }
+
+    private void updatePositionAndSatteliteInformation(String name, GeodeticPoint gp, SphereAirspace sphere, GlobeAnnotation label, double speed) {
+        Position labelPos = new Position(LatLon.fromRadians(gp.getLatitude(), gp.getLongitude()), gp.getAltitude() + sphere.getRadius() * 1.2);
+        label.setPosition(labelPos);
+        if (updateSatellitesInformation != null) {
+            if (isCollision) {
+                updateSatellitesInformation.updateSatelliteInformation("", 0, 0, 0, 0);
+            } else {
+                updateSatellitesInformation.updateSatelliteInformation(name, FastMath.toDegrees(gp.getLatitude()), FastMath.toDegrees(gp.getLongitude()), FastMath.toDegrees(gp.getAltitude()), speed);
+            }
+        }
+        if (isCollision) {
+            labelLayer.removeAllAnnotations();
+            SimulateCollision simulateCollision = new SimulateCollision(satAirspaces, sphereFragmentsMap);
+            simulateCollision.shatterSphere(sphere, name);
+        }
     }
 
     private void changeSphereOnCloseApproach(String name, AirspaceAttributes attrs, SphereAirspace sphere, Map<String, Vector3D> positions, Orbit orbit) {
@@ -351,49 +309,6 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
         isCollision = verdict;
     }
 
-    private void shatterSphere(SphereAirspace sphere, String sphereId) {
-        Random random = new Random();
-        int fragments = random.nextInt(15) + 3;
-        double fragmentRadius = 15000;
-
-        LatLon sphereLocation = sphere.getLocation();
-        double[] altitudes = sphere.getAltitudes();
-        clearPreviousFragments(sphereId);
-
-        List<Airspace> newFragments = new ArrayList<>();
-        for (int i = 0; i < fragments; i++) {
-            SphereAirspace fragment = new SphereAirspace();
-            fragment.setRadius(fragmentRadius);
-            BasicAirspaceAttributes attrs = new BasicAirspaceAttributes();
-            attrs.setMaterial(new Material(Color.GRAY));
-            fragment.setAttributes(attrs);
-
-            double angle = random.nextDouble() * 360;
-            double distance = random.nextDouble() * sphere.getRadius() * 2 + sphere.getRadius();
-            double latOffset = Math.sin(Math.toRadians(angle)) * distance / 6371000;
-            double lonOffset = Math.cos(Math.toRadians(angle)) * distance / (6371000 * Math.cos(Math.toRadians(sphereLocation.getLatitude().degrees)));
-
-            LatLon newPos = LatLon.fromRadians(sphereLocation.getLatitude().radians + latOffset, sphereLocation.getLongitude().radians + lonOffset);
-
-            fragment.setLocation(newPos);
-            fragment.setAltitudes(altitudes[0], altitudes[1]);
-
-            newFragments.add(fragment);
-            satAirspaces.addAirspace(fragment);
-        }
-        sphereFragmentsMap.put(sphereId, newFragments);
-        satAirspaces.removeAirspace(sphere);
-        Platform.runLater(wwd::redraw);
-    }
-
-    private void clearPreviousFragments(String sphereId) {
-        List<Airspace> fragments = sphereFragmentsMap.get(sphereId);
-        if (fragments != null) {
-            for (Airspace frag : fragments) {
-                satAirspaces.removeAirspace(frag);
-            }
-        }
-    }
 
     public synchronized void startSimulation() {
         if (simulationThread == null || !simulationThread.isAlive()) {

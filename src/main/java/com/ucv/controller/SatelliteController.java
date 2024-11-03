@@ -117,6 +117,8 @@ public class SatelliteController implements Initializable {
                 threadTLE.join();
             } catch (InterruptedException e) {
                 logger.error(String.format("Thread interrupted: %s", e.getMessage()));
+                // Re-interrupt the current thread to maintain the interrupted status
+                Thread.currentThread().interrupt();
             }
         }
         LoggerCustom.getInstance().logMessage("The process to save states in data base stopped.");

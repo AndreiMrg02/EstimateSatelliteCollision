@@ -1,6 +1,7 @@
 package com.ucv.controller;
 
 import com.ucv.datamodel.internet.InternetConnectionData;
+import com.ucv.util.UtilConstant;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
@@ -46,7 +47,7 @@ public class LoginController implements Initializable {
 
         try {
             String baseURL = "https://www.space-track.org";
-            String authPath = "/ajaxauth/login";
+            String authPath = UtilConstant.URL_SPACE_TRACK;
             authenticated = true;
             internetConnectionData = new InternetConnectionData(baseURL, authPath, userTextField.getText(), pwBox.getText());
             Stage stage = (Stage) userTextField.getScene().getWindow();
