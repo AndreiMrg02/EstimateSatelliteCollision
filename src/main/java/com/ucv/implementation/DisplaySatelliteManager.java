@@ -3,6 +3,7 @@ package com.ucv.implementation;
 import com.ucv.controller.EarthViewController;
 import com.ucv.controller.SatelliteController;
 import com.ucv.datamodel.satellite.DisplaySatelliteModel;
+import javafx.animation.AnimationTimer;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import org.orekit.propagation.analytical.Ephemeris;
@@ -45,5 +46,14 @@ public class DisplaySatelliteManager {
         }
         earthViewController.init(ephemerisMap, startDate, endDate, closeApproach);
         earthViewController.startSimulation();
+    }
+    public void drawEarthAfterInit() {
+        AnimationTimer timer = new AnimationTimer() {
+            @Override
+            public void handle(long now) {
+                EarthViewController.wwd.redraw();
+            }
+        };
+        timer.start();
     }
 }

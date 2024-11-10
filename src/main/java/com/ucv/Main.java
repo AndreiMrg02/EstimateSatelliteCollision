@@ -32,6 +32,7 @@ public class Main extends Application {
         File orekitData = new File("data/orekit-data");
         DataProvidersManager manager = DataContext.getDefault().getDataProvidersManager();
         manager.addProvider(new DirectoryCrawler(orekitData));
+        BasicConfigurator.configure();
         launch();
     }
 

@@ -1,5 +1,6 @@
 package com.ucv.implementation;
 
+import com.ucv.controller.EarthViewController;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.layers.AirspaceLayer;
 import gov.nasa.worldwind.layers.AnnotationLayer;
@@ -7,6 +8,7 @@ import gov.nasa.worldwind.render.GlobeAnnotation;
 import gov.nasa.worldwind.render.Material;
 import gov.nasa.worldwind.render.airspaces.BasicAirspaceAttributes;
 import gov.nasa.worldwind.render.airspaces.SphereAirspace;
+import javafx.animation.AnimationTimer;
 import org.orekit.propagation.analytical.Ephemeris;
 import org.orekit.time.AbsoluteDate;
 
@@ -57,4 +59,5 @@ public class EarthInitializer {
         wwd.getModel().getLayers().add(labelLayer);
         wwd.redraw();
     }
+
 }

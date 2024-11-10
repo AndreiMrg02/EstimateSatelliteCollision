@@ -20,7 +20,7 @@ import javafx.scene.layout.StackPane;
 
 import java.util.Map;
 
-public class TaskHandler {
+public class SatelliteTaskHandler {
 
     private final CustomAlert customAlert;
     private final TleService tleService;
@@ -31,9 +31,9 @@ public class TaskHandler {
     private final BorderPane mainPanel;
     private final String threshHoldValue;
 
-    public TaskHandler(TleService tleService, InternetConnectionData connectionData, SatelliteController satelliteController,
-                       SatelliteInformationController satelliteInformationController, ProgressIndicator progressBar,
-                       BorderPane mainPanel, String threshHoldValue) {
+    public SatelliteTaskHandler(TleService tleService, InternetConnectionData connectionData, SatelliteController satelliteController,
+                                SatelliteInformationController satelliteInformationController, ProgressIndicator progressBar,
+                                BorderPane mainPanel, String threshHoldValue) {
         this.tleService = tleService;
         this.connectionData = connectionData;
         this.satelliteController = satelliteController;
@@ -52,7 +52,7 @@ public class TaskHandler {
             protected Void call() {
                 LoggerCustom.getInstance().logMessage("INFO: The process for extracting the data is running...");
 
-                Platform.runLater(TaskHandler.this::displayProgressBar);
+                Platform.runLater(SatelliteTaskHandler.this::displayProgressBar);
                 CollectSatelliteData collectSatelliteData = new CollectSatelliteData(connectionData);
                 Map<String, Item> satelliteData = collectSatelliteData.extractSatelliteData("MIN_RNG", operator, valueField.getText());
 
