@@ -13,8 +13,8 @@ import java.util.List;
 import java.util.Map;
 
 public class DisplaySatelliteManager {
-    private SatelliteController satelliteController;
-    private EarthViewController earthViewController;
+    private final SatelliteController satelliteController;
+    private final EarthViewController earthViewController;
 
     public DisplaySatelliteManager(SatelliteController satelliteController, EarthViewController earthViewController){
         this.satelliteController = satelliteController;

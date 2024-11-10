@@ -1,19 +1,17 @@
 package com.ucv.controller;
 
 import com.ucv.implementation.CustomGlobeAnnotation;
+import com.ucv.implementation.EarthInitializer;
 import com.ucv.implementation.SatelliteUpdaterOnEarth;
 import com.ucv.util.LoggerCustom;
 import gov.nasa.worldwind.BasicModel;
 import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.WorldWindow;
 import gov.nasa.worldwind.awt.WorldWindowGLJPanel;
-import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.layers.AirspaceLayer;
 import gov.nasa.worldwind.layers.AnnotationLayer;
 import gov.nasa.worldwind.render.GlobeAnnotation;
-import gov.nasa.worldwind.render.Material;
 import gov.nasa.worldwind.render.airspaces.Airspace;
-import gov.nasa.worldwind.render.airspaces.BasicAirspaceAttributes;
 import gov.nasa.worldwind.render.airspaces.SphereAirspace;
 import gov.nasa.worldwindx.examples.ApplicationTemplate;
 import javafx.application.Platform;
@@ -35,11 +33,12 @@ import org.orekit.time.AbsoluteDate;
 import org.orekit.utils.Constants;
 import org.orekit.utils.IERSConventions;
 
-import java.awt.*;
 import java.io.File;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
+import java.util.ResourceBundle;
 
 public class EarthViewController extends ApplicationTemplate implements Initializable, Runnable {
     public static final WorldWindow wwd = new WorldWindowGLJPanel();
@@ -63,6 +62,7 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
     private Map<String, List<Airspace>> sphereFragmentsMap;
     private SatelliteInformationUpdate updateSatellitesInformation;
     private CustomGlobeAnnotation customGlobeAnnotation;
+    private EarthInitializer earthInitializer;
 
     public EarthViewController() {
         try {
@@ -103,7 +103,6 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
         }
     }
 
-
     public synchronized void init(Map<String, Ephemeris> ephemerisMap, AbsoluteDate startDate, AbsoluteDate endDate, AbsoluteDate closeApproach) {
         this.ephemerisMap = ephemerisMap != null ? ephemerisMap : new HashMap<>();
         this.startDate = startDate;
@@ -112,32 +111,9 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
         this.sphereMap = new HashMap<>();
         this.closeApproachDate = closeApproach;
         this.labelLayer = new AnnotationLayer();
-
-        if (ephemerisMap == null) {
-            return;
-        }
-        for (Map.Entry<String, Ephemeris> entry : ephemerisMap.entrySet()) {
-            SphereAirspace sphere = new SphereAirspace();
-            sphere.setRadius(100000);
-            sphere.setAttributes(new BasicAirspaceAttributes(new Material(Color.GREEN), 1.0));
-
-            double labelHeight = sphere.getRadius() * 1.2;
-            Position labelPos = new Position(sphere.getLocation(), labelHeight);
-
-            GlobeAnnotation label = new GlobeAnnotation(entry.getKey(), labelPos);
-            customGlobeAnnotation.attributeSatelliteNameLabel(label);
-            sphereMap.put(entry.getKey(), new AbstractMap.SimpleEntry<>(sphere, label));
-
-            satAirspaces.addAirspace(sphere);
-            labelLayer.addAnnotation(label);
-
-        }
-
-        wwd.getModel().getLayers().add(satAirspaces);
-        wwd.getModel().getLayers().add(labelLayer);
-        wwd.redraw();
+        earthInitializer = new EarthInitializer(customGlobeAnnotation, sphereMap, satAirspaces, labelLayer);
+        earthInitializer.init(ephemerisMap, startDate, endDate, closeApproach);
     }
-
 
     public synchronized void setStartDate(AbsoluteDate startDate) {
         this.startDate = startDate;
@@ -236,17 +212,19 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
 
     public void updateSatellites(AbsoluteDate targetDate) {
         Map<String, Vector3D> positions = new HashMap<>();
-        AbsoluteDate threeMinutesAfter = closeApproachDate.shiftedBy(-180);
-        AbsoluteDate threeMinutesBefore = closeApproachDate.shiftedBy(180);
+        if (closeApproachDate != null) {
+            AbsoluteDate threeMinutesAfter = closeApproachDate.shiftedBy(-180);
+            AbsoluteDate threeMinutesBefore = closeApproachDate.shiftedBy(180);
 
-        ephemerisMap.forEach((name, ephemeris) -> {
-            try {
-                SatelliteUpdaterOnEarth satelliteUpdaterOnEarth = new SatelliteUpdaterOnEarth(earth, sphereMap, satAirspaces, updateSatellitesInformation, labelLayer, sphereFragmentsMap);
-                satelliteUpdaterOnEarth.processUpdateSatellite(targetDate, name, ephemeris, threeMinutesAfter, threeMinutesBefore, positions, isCollision);
-            } catch (OrekitException e) {
-                logger.error(String.format("Error updating satellites for date: %s and satellite: %s", targetDate, name), e);
-            }
-        });
+            ephemerisMap.forEach((name, ephemeris) -> {
+                try {
+                    SatelliteUpdaterOnEarth satelliteUpdaterOnEarth = new SatelliteUpdaterOnEarth(earth, sphereMap, satAirspaces, updateSatellitesInformation, labelLayer, sphereFragmentsMap);
+                    satelliteUpdaterOnEarth.processUpdateSatellite(targetDate, name, ephemeris, threeMinutesAfter, threeMinutesBefore, positions, isCollision);
+                } catch (OrekitException e) {
+                    logger.error(String.format("Error updating satellites for date: %s and satellite: %s", targetDate, name), e);
+                }
+            });
+        }
     }
 
     public void triggerCollision(boolean verdict) {

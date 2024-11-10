@@ -2,8 +2,7 @@ package com.ucv.controller;
 
 import com.ucv.Main;
 import com.ucv.datamodel.internet.InternetConnectionData;
-import com.ucv.datamodel.xml.Item;
-import com.ucv.implementation.CollectSatelliteData;
+import com.ucv.handler.TaskHandler;
 import com.ucv.implementation.ConnectionService;
 import com.ucv.implementation.DisplaySatelliteManager;
 import com.ucv.tle.TleService;
@@ -17,7 +16,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -94,7 +92,6 @@ public class MainController implements Initializable {
     private double yOffset = 0;
     private Task<Void> currentTask;
     private FieldValidator fieldValidator;
-    private CustomAlert customAlert;
     private DisplaySatelliteManager displaySatelliteManager;
 
     @Override
@@ -108,7 +105,6 @@ public class MainController implements Initializable {
         manageRadioButtons();
         loadTableSatellite();
         closeSession();
-        this.customAlert = new CustomAlert();
         buttonSettings();
         roundedPane();
         loadEarth();
@@ -316,62 +312,13 @@ public class MainController implements Initializable {
             }
             String operator = setOperator(operatorBox.getValue());
             resetDataForNewExtraction();
-
-            currentTask = createSatelliteDataTask(tleData, operator, event);
+            TaskHandler taskHandler = new TaskHandler(tleService, connectionData, satelliteController, satelliteInformationController, progressBar, mainPanel,thresholdBox.getText());
+            currentTask = taskHandler.createSatelliteDataTask(tleData, operator, event, valueField, spaceTrackTleRadio, informationPane, showSatellitesButton);
             setTaskOnFailed(currentTask);
             new Thread(currentTask).start();
         });
     }
 
-
-    private Task<Void> createSatelliteDataTask(Map<String, String[]> tleData, String operator, MouseEvent event) {
-        return new Task<>() {
-            @Override
-            protected Void call() {
-                LoggerCustom.getInstance().logMessage("INFO: The process for extracting the data is running...");
-
-                Platform.runLater(() -> displayProgressBar());
-                CollectSatelliteData collectSatelliteData = new CollectSatelliteData(connectionData);
-                Map<String, Item> satelliteData = collectSatelliteData.extractSatelliteData("MIN_RNG", operator, valueField.getText());
-
-                if (satelliteData.get("InvalidCredentials") != null) {
-                    Platform.runLater(() -> {
-                        customAlert.alertInvalidCredentials();
-                        event.consume();
-                    });
-                    return null;
-                }
-                satelliteController.setListOfUniqueSatellite(satelliteData);
-                if (!tleService.downloadTLEs(satelliteData, tleData, collectSatelliteData, spaceTrackTleRadio, informationPane)) {
-                    cancelTask();
-                    return null;
-                }
-                Platform.runLater(() -> {
-                    progressBar.setVisible(false);
-                    if (satelliteData.isEmpty()) {
-                        customAlert.alertNoResults(satelliteController, mainPanel);
-                        event.consume();
-                    }
-                    setTaskOnSuccess();
-                });
-
-                return null;
-            }
-        };
-    }
-
-
-    private void cancelTask() {
-        if (currentTask != null && currentTask.isRunning()) {
-            currentTask.cancel(true);
-            LoggerCustom.getInstance().logMessage("INFO: Task was cancelled.");
-            Platform.runLater(() -> {
-                progressBar.setVisible(false);
-                mainPanel.setDisable(false);
-                showSatellitesButton.setDisable(true);
-            });
-        }
-    }
 
     private void setTaskOnFailed(Task<Void> task) {
         task.setOnFailed(e -> Platform.runLater(() -> {
@@ -381,17 +328,6 @@ public class MainController implements Initializable {
         }));
     }
 
-
-    private void displayProgressBar() {
-        mainPanel.setDisable(true);
-        menuPanel.setDisable(false);
-        progressBar.toFront();
-        progressBar.setVisible(true);
-        progressBar.setStyle("-fx-accent: #ff0000;"); // Change the color to red for better visibility
-        progressBar.setScaleX(1.5);
-        progressBar.setOpacity(1.0);
-        progressBar.setScaleY(1.5);
-    }
 
     public void resetDataForNewExtraction() {
         clearAllStates();
@@ -403,29 +339,12 @@ public class MainController implements Initializable {
     }
 
 
-    public void setTaskOnSuccess() {
-        mainPanel.setDisable(false);
-        satelliteController.getSatelliteTable().refresh();
-        informationPane.setVisible(true);
-        updateCollisionInformation();
-        LoggerCustom.getInstance().logMessage("INFO: Satellite's data were downloaded.");
-    }
-
     private void successExtractList(BorderPane tableViewLayout) {
         progressBar.setVisible(false);
         tableViewPane.setVisible(true);
         tableViewPane.setCenter(tableViewLayout);
     }
 
-
-    private void updateCollisionInformation() {
-        satelliteController.getSatelliteTable().getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                showSatellitesButton.setDisable(false);
-                satelliteInformationController.setCollisionInformation(newValue, thresholdBox.getText());
-            }
-        });
-    }
 
     private String setOperator(String operator) {
         switch (operator) {
