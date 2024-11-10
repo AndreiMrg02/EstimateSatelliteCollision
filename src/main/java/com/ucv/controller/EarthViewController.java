@@ -126,12 +126,23 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
 
         while (!stop) {
             handlePause();
+            AbsoluteDate finalTargetDate = targetDate;
+            Platform.runLater(() -> {
+                updateSatellites(finalTargetDate);
+                wwd.redraw();
+            });
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
 
-            updateUI(targetDate);
-
-            if (sleepAndCheckInterrupted()) break;
-
-            advanceDate();
+            targetDate = targetDate.shiftedBy(30);
+            if (restart) {
+                targetDate = startDate;
+                restart = false;
+            }
         }
     }
 
@@ -147,33 +158,6 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
             }
         }
     }
-
-    public void updateUI(AbsoluteDate date) {
-        AbsoluteDate finalTargetDate = date;
-        Platform.runLater(() -> {
-            updateSatellites(finalTargetDate);
-            wwd.redraw();
-        });
-    }
-
-    private boolean sleepAndCheckInterrupted() {
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            return true;
-        }
-        return false;
-    }
-
-    private void advanceDate() {
-        targetDate = targetDate.shiftedBy(30);
-        if (restart) {
-            targetDate = startDate;
-            restart = false;
-        }
-    }
-
 
     private boolean setAbsoluteDateOnThread() {
         stop = false;
@@ -243,15 +227,6 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
         return closeApproachDate;
     }
 
-    public synchronized void stopSimulation() {
-        stop = true;
-        pause = false;
-        restart = false;
-        if (simulationThread != null && simulationThread.isAlive()) {
-            simulationThread.interrupt();
-        }
-    }
-
     public synchronized void pauseSimulation() {
         pause = true;
     }
@@ -260,9 +235,13 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
         pause = false;
         notifyAll();
     }
-
     public synchronized void resetState() {
-        stopSimulation();
+        stop = true;
+        pause = false;
+        restart = false;
+        if (simulationThread != null && simulationThread.isAlive()) {
+            simulationThread.interrupt();
+        }
         if (satAirspaces != null) {
             satAirspaces.removeAllAirspaces();
         }
@@ -277,16 +256,6 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
         endDate = null;
         closeApproachDate = null;
         Platform.runLater(wwd::redraw);
-    }
-
-
-    public synchronized void delete() {
-        resetState();
-        LoggerCustom.getInstance().logMessage("Spheres have been removed and simulation stopped!");
-    }
-
-    public OneAxisEllipsoid getEarth() {
-        return earth;
     }
 
 }

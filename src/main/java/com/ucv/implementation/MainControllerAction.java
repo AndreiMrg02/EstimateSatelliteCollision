@@ -80,7 +80,7 @@ public class MainControllerAction {
         stopSimulationButton.setOnAction(event -> {
             closeButton.setDisable(false);
             LoggerCustom.getInstance().logMessage("INFO: The simulation was stopped");
-            earthViewController.delete();
+            earthViewController.resetState();
             showSatellitesButton.setDisable(false);
             simulateCollision.setDisable(true);
             pauseButton.setDisable(true);
