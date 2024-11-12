@@ -1,4 +1,4 @@
-package com.ucv.implementation;
+package com.ucv.helper;
 
 import com.ucv.Main;
 import com.ucv.controller.EarthViewController;

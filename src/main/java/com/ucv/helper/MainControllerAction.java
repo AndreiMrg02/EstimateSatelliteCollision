@@ -1,8 +1,9 @@
-package com.ucv.implementation;
+package com.ucv.helper;
 
 import com.ucv.controller.EarthViewController;
 import com.ucv.controller.SatelliteController;
 import com.ucv.controller.SatelliteInformationController;
+import com.ucv.implementation.DisplaySatelliteManager;
 import com.ucv.util.LoggerCustom;
 import javafx.scene.control.Button;
 import org.orekit.time.AbsoluteDate;
@@ -99,6 +100,7 @@ public class MainControllerAction {
         earthViewController.pauseSimulation();
         AbsoluteDate closeApproach = earthViewController.getCloseApproachDate();
         earthViewController.setStartDate(closeApproach);
+
         earthViewController.updateSatellites(closeApproach);
         EarthViewController.wwd.redraw();
         extractDataButton.setDisable(true);

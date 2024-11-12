@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.CookieHandler;
@@ -35,21 +36,16 @@ public class CollectSatelliteData {
             HttpsURLConnection conn = getHttpsURLConnection();
             URL url;
 
-            String output;
             if (verifyConnectionResponse(conn)) {
                 return null;
             }
             assert conn != null;
             new InputStreamReader((conn.getInputStream()));
-            BufferedReader br;
-            url = new URL(connectionData.getBaseURL() + query);
-            br = new BufferedReader(new InputStreamReader((url.openStream())));
             StringBuilder xmlData = new StringBuilder();
-            while ((output = br.readLine()) != null) {
-                xmlData.append(output);
-            }
+            url = new URL(connectionData.getBaseURL() + query);
+            extractDataFromURL(url, xmlData);
             url = new URL(connectionData.getBaseURL() + "/ajaxauth/logout");
-            br = new BufferedReader(new InputStreamReader((url.openStream())));
+            executeLogout(url);
             conn.disconnect();
             XmlParser parser = new XmlParser();
             return parser.parseItems(xmlData.toString());
@@ -58,6 +54,25 @@ public class CollectSatelliteData {
             logger.error("Error extracting satellite data", e);
         }
         return new HashMap<>();
+    }
+
+    private void executeLogout(URL url) {
+        try (BufferedReader ignored = new BufferedReader(new InputStreamReader(url.openStream()))) {
+            logger.info("Execute logout");
+        } catch (IOException e) {
+            logger.error("Unexpected error occurred due to reader");
+        }
+    }
+
+    private void extractDataFromURL(URL url, StringBuilder xmlData) {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()))) {
+            String output;
+            while ((output = br.readLine()) != null) {
+                xmlData.append(output);
+            }
+        } catch (IOException e) {
+            logger.error("Unexpected error occurred due to reader");
+        }
     }
 
     private boolean verifyConnectionResponse(HttpsURLConnection connection) {
@@ -87,7 +102,7 @@ public class CollectSatelliteData {
             br = new BufferedReader(new InputStreamReader((url.openStream())));
             appendReadLine(br, stringBuilder);
             url = new URL(connectionData.getBaseURL() + "/ajaxauth/logout");
-            br = new BufferedReader(new InputStreamReader((url.openStream())));
+            executeLogout(url);
             assert conn != null;
             conn.disconnect();
 

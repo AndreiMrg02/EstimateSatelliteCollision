@@ -1,14 +1,12 @@
 package com.ucv.tle;
 
 
-
 import com.ucv.controller.SatelliteController;
 import com.ucv.database.DBOperation;
 import com.ucv.datamodel.database.ConnectionInformation;
 import com.ucv.datamodel.xml.Item;
 import com.ucv.implementation.CollectSatelliteData;
 import com.ucv.implementation.ConnectionService;
-import org.apache.log4j.Logger;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

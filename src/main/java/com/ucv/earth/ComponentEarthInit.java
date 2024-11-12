@@ -1,6 +1,6 @@
-package com.ucv.implementation;
+package com.ucv.earth;
 
-import com.ucv.controller.EarthViewController;
+import com.ucv.implementation.CustomGlobeAnnotation;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.layers.AirspaceLayer;
 import gov.nasa.worldwind.layers.AnnotationLayer;
@@ -8,9 +8,7 @@ import gov.nasa.worldwind.render.GlobeAnnotation;
 import gov.nasa.worldwind.render.Material;
 import gov.nasa.worldwind.render.airspaces.BasicAirspaceAttributes;
 import gov.nasa.worldwind.render.airspaces.SphereAirspace;
-import javafx.animation.AnimationTimer;
 import org.orekit.propagation.analytical.Ephemeris;
-import org.orekit.time.AbsoluteDate;
 
 import java.awt.*;
 import java.util.AbstractMap;
@@ -18,14 +16,14 @@ import java.util.Map;
 
 import static com.ucv.controller.EarthViewController.wwd;
 
-public class EarthInitializer {
+public class ComponentEarthInit {
 
     private final CustomGlobeAnnotation customGlobeAnnotation;
     private final Map<String, Map.Entry<SphereAirspace, GlobeAnnotation>> sphereMap;
     private final AirspaceLayer satAirspaces;
     private final AnnotationLayer labelLayer;
 
-    public EarthInitializer(CustomGlobeAnnotation customGlobeAnnotation, Map<String, Map.Entry<SphereAirspace, GlobeAnnotation>> sphereMap, AirspaceLayer satAirspaces, AnnotationLayer labelLayer) {
+    public ComponentEarthInit(CustomGlobeAnnotation customGlobeAnnotation, Map<String, Map.Entry<SphereAirspace, GlobeAnnotation>> sphereMap, AirspaceLayer satAirspaces, AnnotationLayer labelLayer) {
         this.customGlobeAnnotation = customGlobeAnnotation;
         this.sphereMap = sphereMap;
         this.satAirspaces = satAirspaces;
@@ -33,7 +31,7 @@ public class EarthInitializer {
     }
 
 
-    public synchronized void init(Map<String, Ephemeris> ephemerisMap, AbsoluteDate startDate, AbsoluteDate endDate, AbsoluteDate closeApproach) {
+    public synchronized void init(Map<String, Ephemeris> ephemerisMap) {
 
         if (ephemerisMap == null) {
             return;

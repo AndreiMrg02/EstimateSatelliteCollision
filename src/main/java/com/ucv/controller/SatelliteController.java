@@ -7,6 +7,7 @@ import com.ucv.datamodel.xml.Item;
 import com.ucv.implementation.CollisionTask;
 import com.ucv.implementation.TlePropagator;
 import com.ucv.util.LoggerCustom;
+import com.ucv.util.SatelliteFileHandler;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -15,21 +16,15 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.stage.FileChooser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.orekit.propagation.SpacecraftState;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.ucv.database.DBOperation.getSatellitesName;
 import static com.ucv.database.DBOperation.getStatesBySatelliteName;
@@ -44,47 +39,29 @@ public class SatelliteController implements Initializable {
     private TableColumn<CollisionData, String> satOneNameColumn = new TableColumn<>("Satellite One Name");
     @FXML
     private TableColumn<CollisionData, String> satTwoNameColumn = new TableColumn<>("Satellite Two Name");
-    private ArrayList<String> listOfTle;
     private Map<String, SpatialObject> spatialObjectList;
     private Set<DisplaySatelliteModel> displaySatelliteModels;
     private List<DisplaySatelliteModel> selectedSatellites;
     private List<CollisionData> collisionDataList;
     private List<TlePropagator> tleThreads;
     private int threshold;
+    private SatelliteFileHandler satelliteFileHandler;
 
     public void setDisplaySatelliteModels(Set<DisplaySatelliteModel> displaySatelliteModels) {
         this.displaySatelliteModels = displaySatelliteModels;
     }
 
-    /*
-     * Write Tle in a file
-     */
-    private void writeToFile(String directoryPath, String fileName) {
-        File file = new File(directoryPath, fileName);
-
-        try (FileWriter writer = new FileWriter(file)) {
-            for (String tle : listOfTle) {
-                writer.write(tle + System.lineSeparator());
-            }
-        } catch (IOException e) {
-            logger.error(String.format("Failed to write to file: %s", file.getAbsolutePath()), e);
-        }
-    }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         spatialObjectList = new HashMap<>();
-        listOfTle = new ArrayList<>();
+        ArrayList<String> listOfTle = new ArrayList<>();
         displaySatelliteModels = new LinkedHashSet<>();
         collisionDataList = new ArrayList<>();
         satOneNameColumn.setCellValueFactory(new PropertyValueFactory<>("sat1Name"));
         satTwoNameColumn.setCellValueFactory(new PropertyValueFactory<>("sat2Name"));
         selectedSatellites = new ArrayList<>();
         tleThreads = new ArrayList<>();
-        getSelectedSatellites();
-    }
-
-    private void getSelectedSatellites() {
         satelliteTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 String satellite1Name = newValue.getSat1Name();
@@ -98,14 +75,11 @@ public class SatelliteController implements Initializable {
                 }
             }
         });
+        satelliteFileHandler = new SatelliteFileHandler(satelliteTable, listOfTle, spatialObjectList);
     }
-    /*
-     * This function load all tle's from the space track website.
-     *  For each satellite will be executed a query.
-     */
 
     public void manageSatellites() {
-        addTLEsToTextFile();
+        satelliteFileHandler.addTLEsToTextFile();
         LoggerCustom.getInstance().logMessage("The process to save states in data has started...");
         for (SpatialObject spatialObject : spatialObjectList.values()) {
             TlePropagator object = new TlePropagator(spatialObject);
@@ -125,16 +99,6 @@ public class SatelliteController implements Initializable {
         estimateCollisionBetweenSatellites();
     }
 
-    private void addTLEsToTextFile() {
-        listOfTle.addAll(spatialObjectList.values().stream().flatMap(spatialObject -> {
-            String tle = spatialObject.getTle();
-            if (tle != null) {
-                return Stream.of(tle);
-            } else {
-                return Stream.of();
-            }
-        }).collect(Collectors.toList()));
-    }
 
     private void estimateCollisionBetweenSatellites() {
         LoggerCustom.getInstance().logMessage("The collision risk estimation process has started...");
@@ -193,24 +157,6 @@ public class SatelliteController implements Initializable {
         spatialObjectList.put(satName, spatialObject);
     }
 
-    /*
-     * That function is used to add the tle list in the list view.
-     */
-
-    public void extractTleToFile() {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Select the location to save TLEs");
-        fileChooser.setInitialFileName("ExtractedTLE.txt");
-        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Text files (*.txt)", "*.txt");
-        fileChooser.getExtensionFilters().add(extFilter);
-
-        File file = fileChooser.showSaveDialog(satelliteTable.getScene().getWindow());
-
-        if (file != null) {
-            writeToFile(file.getParent(), file.getName());
-        }
-    }
-
     public TableView<CollisionData> getSatelliteTable() {
         return satelliteTable;
     }
@@ -225,5 +171,9 @@ public class SatelliteController implements Initializable {
 
     public void setThreshold(int threshold) {
         this.threshold = threshold;
+    }
+
+    public void extractTleToFile() {
+        satelliteFileHandler.extractTleToFile();
     }
 }

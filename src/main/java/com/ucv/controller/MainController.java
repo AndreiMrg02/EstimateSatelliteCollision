@@ -2,10 +2,10 @@ package com.ucv.controller;
 
 import com.ucv.datamodel.internet.InternetConnectionData;
 import com.ucv.handler.SatelliteTaskHandler;
+import com.ucv.helper.LoaderFXML;
+import com.ucv.helper.MainControllerAction;
 import com.ucv.implementation.ConnectionService;
 import com.ucv.implementation.DisplaySatelliteManager;
-import com.ucv.implementation.LoaderFXML;
-import com.ucv.implementation.MainControllerAction;
 import com.ucv.tle.TleService;
 import com.ucv.util.ButtonCustomStyle;
 import com.ucv.util.FieldValidator;
@@ -23,7 +23,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextFlow;
-import org.apache.log4j.Logger;
 
 import java.net.URL;
 import java.util.*;
@@ -32,8 +31,6 @@ import static com.ucv.database.DBOperation.clearAllStates;
 import static com.ucv.database.HibernateUtil.closeSession;
 
 public class MainController implements Initializable {
-
-    private static final Logger logger = Logger.getLogger(MainController.class);
 
     @FXML
     private RadioButton spaceTrackTleRadio;
@@ -81,7 +78,7 @@ public class MainController implements Initializable {
     private ChoiceBox<String> operatorBox;
     @FXML
     private TextArea valueField;
-    private ObservableList<String> operatorList;
+
     private EarthViewController earthViewController;
     private SatelliteController satelliteController;
     private SatelliteInformationController satelliteInformationController;
@@ -96,6 +93,7 @@ public class MainController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        ObservableList<String> operatorList;
         LoaderFXML fxmlLoader = new LoaderFXML(tableViewPane);
         operatorList = FXCollections.observableArrayList("=", "<", ">");
         operatorBox.setItems(operatorList);

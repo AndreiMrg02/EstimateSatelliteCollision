@@ -3,6 +3,7 @@ package com.ucv.implementation;
 import com.ucv.datamodel.satellite.CollisionData;
 import com.ucv.datamodel.satellite.DisplaySatelliteModel;
 import com.ucv.datamodel.satellite.PositionDifference;
+import com.ucv.helper.DateExtractor;
 import com.ucv.util.LoggerCustom;
 import org.apache.log4j.Logger;
 import org.hipparchus.geometry.euclidean.threed.Vector3D;
@@ -56,8 +57,9 @@ public class CollisionTask implements Runnable {
 
     private void estimateCollision() {
         try {
-            AbsoluteDate startDate = extractStartDate();
-            AbsoluteDate endDate = extractEndDate();
+            DateExtractor dateExtractor = new DateExtractor(spacecraftStatesOne,spacecraftStatesTwo);
+            AbsoluteDate startDate = dateExtractor.extractStartDate();
+            AbsoluteDate endDate = dateExtractor.extractEndDate();
             if (verifySatellitesDate(startDate, endDate)) return;
 
             Ephemeris ephemerisSatelliteOne = new Ephemeris(spacecraftStatesOne, 4);
@@ -115,34 +117,6 @@ public class CollisionTask implements Runnable {
                 closestApproach.setDate(currentState.getDate());
             }
         });
-    }
-    private AbsoluteDate extractStartDate() {
-        if (spacecraftStatesOne.isEmpty() || spacecraftStatesTwo.isEmpty()) {
-            return null;
-        }
-        for (SpacecraftState stateOne : spacecraftStatesOne) {
-            for (SpacecraftState stateTwo : spacecraftStatesTwo) {
-                if (stateOne.getDate().equals(stateTwo.getDate())) {
-                    return stateOne.getDate();
-                }
-            }
-        }
-
-        return null;
-    }
-
-    private AbsoluteDate extractEndDate() {
-        if (spacecraftStatesOne.isEmpty() || spacecraftStatesTwo.isEmpty()) {
-            return null;
-        }
-        for (int i = spacecraftStatesOne.size() - 1; i >= 0; i--) {
-            for (int j = spacecraftStatesTwo.size() - 1; j >= 0; j--) {
-                if (spacecraftStatesOne.get(i).getDate().equals(spacecraftStatesTwo.get(j).getDate())) {
-                    return spacecraftStatesOne.get(i).getDate();
-                }
-            }
-        }
-        return null;
     }
 
 }

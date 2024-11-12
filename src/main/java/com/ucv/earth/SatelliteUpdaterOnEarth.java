@@ -1,4 +1,4 @@
-package com.ucv.implementation;
+package com.ucv.earth;
 
 import com.ucv.controller.SatelliteInformationUpdate;
 import com.ucv.util.LoggerCustom;

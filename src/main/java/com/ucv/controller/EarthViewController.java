@@ -1,9 +1,10 @@
 package com.ucv.controller;
 
+import com.ucv.earth.AbsoluteDateHandler;
+import com.ucv.earth.ComponentEarthInit;
+import com.ucv.earth.SatelliteUpdaterOnEarth;
+import com.ucv.helper.SatelliteUpdaterHelper;
 import com.ucv.implementation.CustomGlobeAnnotation;
-import com.ucv.implementation.EarthInitializer;
-import com.ucv.implementation.SatelliteUpdaterOnEarth;
-import com.ucv.util.LoggerCustom;
 import gov.nasa.worldwind.BasicModel;
 import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.WorldWindow;
@@ -62,7 +63,6 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
     private Map<String, List<Airspace>> sphereFragmentsMap;
     private SatelliteInformationUpdate updateSatellitesInformation;
     private CustomGlobeAnnotation customGlobeAnnotation;
-    private EarthInitializer earthInitializer;
 
     public EarthViewController() {
         try {
@@ -111,8 +111,8 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
         this.sphereMap = new HashMap<>();
         this.closeApproachDate = closeApproach;
         this.labelLayer = new AnnotationLayer();
-        earthInitializer = new EarthInitializer(customGlobeAnnotation, sphereMap, satAirspaces, labelLayer);
-        earthInitializer.init(ephemerisMap, startDate, endDate, closeApproach);
+        ComponentEarthInit earthInitializer = new ComponentEarthInit(customGlobeAnnotation, sphereMap, satAirspaces, labelLayer);
+        earthInitializer.init(ephemerisMap);
     }
 
     public synchronized void setStartDate(AbsoluteDate startDate) {
@@ -122,8 +122,13 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
 
     @Override
     public void run() {
-        if (setAbsoluteDateOnThread()) return;
-
+        stop = false;
+        restart = false;
+        AbsoluteDateHandler absoluteDateHandler = new AbsoluteDateHandler(this.earth, ephemerisMap, startDate, endDate);
+        targetDate = absoluteDateHandler.setAbsoluteDateOnThread();
+        if (targetDate == null) {
+            return;
+        }
         while (!stop) {
             handlePause();
             AbsoluteDate finalTargetDate = targetDate;
@@ -159,56 +164,9 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
         }
     }
 
-    private boolean setAbsoluteDateOnThread() {
-        stop = false;
-        restart = false;
-
-        if (this.earth == null) {
-            return true;
-        }
-
-        AbsoluteDate minDate = null;
-        AbsoluteDate maxDate = null;
-
-        for (Ephemeris ephemeris : ephemerisMap.values()) {
-            if (minDate == null || ephemeris.getMinDate().compareTo(minDate) < 0) {
-                minDate = ephemeris.getMinDate();
-            }
-            if (maxDate == null || ephemeris.getMaxDate().compareTo(maxDate) > 0) {
-                maxDate = ephemeris.getMaxDate();
-            }
-        }
-
-        if (minDate == null || maxDate == null) {
-            LoggerCustom.getInstance().logMessage("No available data for propagation");
-            return true;
-        }
-
-        if (startDate.compareTo(minDate) < 0) {
-            startDate = minDate;
-        }
-        if (endDate.compareTo(maxDate) > 0) {
-            endDate = maxDate;
-        }
-        targetDate = startDate;
-        return false;
-    }
-
     public void updateSatellites(AbsoluteDate targetDate) {
-        Map<String, Vector3D> positions = new HashMap<>();
-        if (closeApproachDate != null) {
-            AbsoluteDate threeMinutesAfter = closeApproachDate.shiftedBy(-180);
-            AbsoluteDate threeMinutesBefore = closeApproachDate.shiftedBy(180);
-
-            ephemerisMap.forEach((name, ephemeris) -> {
-                try {
-                    SatelliteUpdaterOnEarth satelliteUpdaterOnEarth = new SatelliteUpdaterOnEarth(earth, sphereMap, satAirspaces, updateSatellitesInformation, labelLayer, sphereFragmentsMap);
-                    satelliteUpdaterOnEarth.processUpdateSatellite(targetDate, name, ephemeris, threeMinutesAfter, threeMinutesBefore, positions, isCollision);
-                } catch (OrekitException e) {
-                    logger.error(String.format("Error updating satellites for date: %s and satellite: %s", targetDate, name), e);
-                }
-            });
-        }
+        SatelliteUpdaterHelper satelliteUpdaterHelper = new SatelliteUpdaterHelper(earth,ephemerisMap,sphereMap,satAirspaces,labelLayer,sphereFragmentsMap);
+        satelliteUpdaterHelper.updateSatellites(targetDate,closeApproachDate,updateSatellitesInformation,isCollision);
     }
 
     public void triggerCollision(boolean verdict) {
@@ -235,6 +193,7 @@ public class EarthViewController extends ApplicationTemplate implements Initiali
         pause = false;
         notifyAll();
     }
+
     public synchronized void resetState() {
         stop = true;
         pause = false;

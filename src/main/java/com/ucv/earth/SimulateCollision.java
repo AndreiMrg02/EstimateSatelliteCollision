@@ -1,4 +1,4 @@
-package com.ucv.implementation;
+package com.ucv.earth;
 
 import gov.nasa.worldwind.geom.LatLon;
 import gov.nasa.worldwind.layers.AirspaceLayer;
@@ -9,17 +9,17 @@ import gov.nasa.worldwind.render.airspaces.SphereAirspace;
 import javafx.application.Platform;
 
 import java.awt.*;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import static com.ucv.controller.EarthViewController.wwd;
 
 public class SimulateCollision {
-    private AirspaceLayer satAirspaces;
-    private Map<String, List<Airspace>> sphereFragmentsMap;
-    private static final Random random = new Random(); // Shared Random instance
+    private final AirspaceLayer satAirspaces;
+    private final Map<String, List<Airspace>> sphereFragmentsMap;
+    private static final SecureRandom random = new SecureRandom (); // Shared Random instance
 
     public SimulateCollision(AirspaceLayer satAirspaces,Map<String, List<Airspace>> sphereFragmentsMap){
         this.satAirspaces = satAirspaces;
