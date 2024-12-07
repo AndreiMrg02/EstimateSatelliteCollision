@@ -78,11 +78,11 @@ public class SatelliteController implements Initializable {
         satelliteFileHandler = new SatelliteFileHandler(satelliteTable, listOfTle, spatialObjectList);
     }
 
-    public void manageSatellites() {
+    public void manageSatellites(int days) {
         satelliteFileHandler.addTLEsToTextFile();
         LoggerCustom.getInstance().logMessage("The process to save states in data has started...");
         for (SpatialObject spatialObject : spatialObjectList.values()) {
-            TlePropagator object = new TlePropagator(spatialObject);
+            TlePropagator object = new TlePropagator(spatialObject, days);
             object.start();
             tleThreads.add(object);
         }
@@ -110,7 +110,7 @@ public class SatelliteController implements Initializable {
         } finally {
             executor.shutdown();
             try {
-                if (!executor.awaitTermination(120, TimeUnit.SECONDS)) {
+                if (!executor.awaitTermination(9200, TimeUnit.SECONDS)) {
                     executor.shutdownNow();
                 }
             } catch (InterruptedException ie) {

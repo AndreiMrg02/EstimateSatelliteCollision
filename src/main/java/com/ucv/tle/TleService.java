@@ -22,13 +22,15 @@ public class TleService {
     private final TleFileHandler tleFileHandler;
     private final TleDownloader tleDownloader;
     private final TleDataProcessor tleDataProcessor;
+    private final int days;
 
-    public TleService(ConnectionService connectionService, SatelliteController satelliteController, RadioButton localTleRadio) {
+    public TleService(ConnectionService connectionService, SatelliteController satelliteController, RadioButton localTleRadio, int days) {
         this.connectionService = connectionService;
         this.localTleRadio = localTleRadio;
         this.tleFileHandler = new TleFileHandler();
-        this.tleDownloader = new TleDownloader(connectionService, satelliteController);
-        this.tleDataProcessor = new TleDataProcessor(satelliteController);
+        this.tleDownloader = new TleDownloader(connectionService, satelliteController, days);
+        this.days= days;
+        this.tleDataProcessor = new TleDataProcessor(satelliteController,days);
     }
 
     public boolean downloadTLEs(Map<String, Item> listOfUniqueSatellite, Map<String, String[]> tleData, CollectSatelliteData collectSatelliteData,

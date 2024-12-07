@@ -15,10 +15,12 @@ public class TleDownloader {
 
     private final ConnectionService connectionService;
     private final SatelliteController satelliteController;
+    private final int days;
 
-    public TleDownloader(ConnectionService connectionService, SatelliteController satelliteController) {
+    public TleDownloader(ConnectionService connectionService, SatelliteController satelliteController, int days) {
         this.connectionService = connectionService;
         this.satelliteController = satelliteController;
+        this.days =days;
     }
 
     public void extractTLEsUsingSpaceTrack(Map<String, Item> listOfUniqueSatellite, CollectSatelliteData collectSatelliteData) {
@@ -41,7 +43,7 @@ public class TleDownloader {
         }
         TleFileHandler tleFileHandler = new TleFileHandler();
         tleFileHandler.generateTleFile(satelliteTLEs);
-        satelliteController.manageSatellites();
+        satelliteController.manageSatellites(days);
     }
 
     private void collectTleLineByLine(String[] lines, Map<String, String> satelliteTLEs) {

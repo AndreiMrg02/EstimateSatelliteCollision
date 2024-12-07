@@ -8,9 +8,11 @@ import java.util.Map;
 public class TleDataProcessor {
 
     private final SatelliteController satelliteController;
+    private final int days;
 
-    public TleDataProcessor(SatelliteController satelliteController) {
+    public TleDataProcessor(SatelliteController satelliteController, int days) {
         this.satelliteController = satelliteController;
+        this.days = days;
     }
 
     public void extractTLEsUsingLocalFile(Map<String, Item> listOfUniqueSatellite, Map<String, String[]> tleData) {
@@ -26,6 +28,6 @@ public class TleDataProcessor {
                 satelliteController.addSpatialObject(item.getTca(), item.getSat2Name(), tleString);
             }
         }
-        satelliteController.manageSatellites();
+        satelliteController.manageSatellites(days);
     }
 }

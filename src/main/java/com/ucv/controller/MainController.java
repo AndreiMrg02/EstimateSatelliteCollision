@@ -33,6 +33,8 @@ import static com.ucv.database.HibernateUtil.closeSession;
 public class MainController implements Initializable {
 
     @FXML
+    private TextArea noOfDaysBox;
+    @FXML
     private RadioButton spaceTrackTleRadio;
     @FXML
     private RadioButton localTleRadio;
@@ -169,7 +171,8 @@ public class MainController implements Initializable {
                 return;
             }
             connectionService = new ConnectionService(connectionData);
-            tleService = new TleService(connectionService, satelliteController, localTleRadio);
+            int days = Integer.parseInt(noOfDaysBox.getText());
+            tleService = new TleService(connectionService, satelliteController, localTleRadio,days);
             Map<String, String[]> tleData = new HashMap<>();
             if (localTleRadio.isSelected()) {
                 tleData = tleService.getTleData(mainPanel);
