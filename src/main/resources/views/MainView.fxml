@@ -20,12 +20,12 @@
 <BorderPane fx:id="mainPanel" prefHeight="913.0" prefWidth="1457.0" styleClass="main-panel" stylesheets="@css/panel.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ucv.controller.MainController">
     <left>
         <AnchorPane id="dataPanel" fx:id="dataPanel" cache="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="732.0" prefWidth="378.0" styleClass="dataPanel" stylesheets="@css/panel.css" BorderPane.alignment="CENTER">
-            <BorderPane fx:id="tableViewPane" layoutX="8.0" layoutY="363.0" prefHeight="381.0" prefWidth="369.0" AnchorPane.leftAnchor="8.0">
+            <BorderPane fx:id="tableViewPane" layoutX="8.0" layoutY="397.0" prefHeight="347.0" prefWidth="369.0" AnchorPane.leftAnchor="8.0">
                 <opaqueInsets>
                     <Insets />
                 </opaqueInsets>
             </BorderPane>
-            <VBox fx:id="configurationPane" alignment="CENTER" layoutX="14.0" layoutY="17.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" prefHeight="352.0" prefWidth="358.0" spacing="4.0" styleClass="v-box" stylesheets="@css/panel.css" AnchorPane.topAnchor="10.0">
+            <VBox fx:id="configurationPane" alignment="CENTER" layoutX="14.0" layoutY="17.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" prefHeight="385.0" prefWidth="358.0" spacing="4.0" styleClass="v-box" stylesheets="@css/panel.css" AnchorPane.topAnchor="10.0">
                 <Label alignment="TOP_CENTER" contentDisplay="CENTER" prefHeight="20.0" prefWidth="284.0" text="Configuration" textAlignment="CENTER" textFill="#44a8d0" textOverrun="LEADING_ELLIPSIS" VBox.vgrow="ALWAYS">
                     <font>
                         <Font name="Britannic Bold" size="27.0" />
@@ -35,7 +35,7 @@
                     </VBox.margin>
                 </Label>
                 <HBox alignment="CENTER" layoutX="10.0" layoutY="10.0" prefHeight="48.0" prefWidth="354.0" spacing="40.0">
-                    <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="30.0" prefWidth="95.0" text="Operator" textFill="WHITE" textOverrun="LEADING_ELLIPSIS" HBox.hgrow="ALWAYS">
+                    <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="30.0" prefWidth="88.0" text="Operator" textFill="WHITE" textOverrun="LEADING_ELLIPSIS" HBox.hgrow="ALWAYS">
                         <font>
                             <Font name="Copperplate Gothic Bold" size="14.0" />
                         </font>
@@ -45,19 +45,21 @@
                     </Label>
                     <ChoiceBox fx:id="operatorBox" minHeight="-Infinity" prefHeight="35.0" prefWidth="135.0" stylesheets="@css/choiceBox.css" HBox.hgrow="ALWAYS" />
                 </HBox>
+            <HBox alignment="CENTER" layoutX="11.0" layoutY="100.0" prefHeight="48.0" prefWidth="299.0" spacing="40.0">
+               <children>
+                       <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="30.0" prefWidth="95.0" text="range(km)" textFill="WHITE" textOverrun="LEADING_ELLIPSIS" HBox.hgrow="ALWAYS">
+                           <font>
+                               <Font name="Copperplate Gothic Bold" size="14.0" />
+                           </font>
+                           <HBox.margin>
+                               <Insets left="5.0" />
+                           </HBox.margin>
+                       </Label>
+                       <TextArea fx:id="valueField" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="35.0" prefWidth="135.0" styleClass="text-area" wrapText="true" HBox.hgrow="ALWAYS" />
+               </children>
+            </HBox>
                 <HBox alignment="CENTER" layoutX="10.0" layoutY="52.0" prefHeight="48.0" prefWidth="299.0" spacing="40.0">
-                    <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="30.0" prefWidth="95.0" text="range(km)" textFill="WHITE" textOverrun="LEADING_ELLIPSIS" HBox.hgrow="ALWAYS">
-                        <font>
-                            <Font name="Copperplate Gothic Bold" size="14.0" />
-                        </font>
-                        <HBox.margin>
-                            <Insets left="5.0" />
-                        </HBox.margin>
-                    </Label>
-                    <TextArea fx:id="valueField" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="35.0" prefWidth="135.0" styleClass="text-area" wrapText="true" HBox.hgrow="ALWAYS" />
-                </HBox>
-                <HBox alignment="CENTER" layoutX="11.0" layoutY="178.0" prefHeight="48.0" prefWidth="299.0" spacing="40.0">
-                    <children>
+               <children>
                         <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="30.0" prefWidth="95.0" text="Threshold" textFill="WHITE" textOverrun="LEADING_ELLIPSIS" HBox.hgrow="ALWAYS">
                             <font>
                                 <Font name="Copperplate Gothic Bold" size="14.0" />
@@ -67,7 +69,17 @@
                             </HBox.margin>
                         </Label>
                         <TextArea fx:id="thresholdBox" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="35.0" prefWidth="135.0" styleClass="text-area" wrapText="true" HBox.hgrow="ALWAYS" />
-                    </children>
+               </children>
+                </HBox>
+                <HBox alignment="CENTER" layoutX="11.0" layoutY="178.0" prefHeight="48.0" prefWidth="299.0" spacing="40.0">
+               <children>
+                  <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="30.0" prefWidth="162.0" text="Calculate Method:" textFill="WHITE" textOverrun="LEADING_ELLIPSIS">
+                     <font>
+                        <Font name="Copperplate Gothic Bold" size="14.0" />
+                     </font>
+                  </Label>
+                  <ChoiceBox fx:id="calculateMethodBox" minHeight="-Infinity" prefHeight="35.0" prefWidth="135.0" stylesheets="@css/choiceBox.css" />
+               </children>
                 </HBox>
             <HBox alignment="CENTER" layoutX="11.0" layoutY="190.0" prefHeight="48.0" prefWidth="299.0" spacing="40.0">
                <children>

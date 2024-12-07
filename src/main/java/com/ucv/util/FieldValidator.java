@@ -17,7 +17,8 @@ public class FieldValidator {
     private final TextArea thresholdBox;
     private final SatelliteController satelliteController;
 
-    public FieldValidator(RadioButton spaceTrackTleRadio, RadioButton localTleRadio, TextArea valueField, TextArea thresholdBox, SatelliteController satelliteController) {
+    public FieldValidator(RadioButton spaceTrackTleRadio, RadioButton localTleRadio, TextArea valueField,
+                          TextArea thresholdBox, SatelliteController satelliteController) {
         this.spaceTrackTleRadio = spaceTrackTleRadio;
         this.localTleRadio = localTleRadio;
         this.valueField = valueField;

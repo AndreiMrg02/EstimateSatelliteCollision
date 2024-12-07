@@ -30,6 +30,7 @@ import org.orekit.utils.Constants;
 import org.orekit.utils.IERSConventions;
 import org.orekit.utils.ParameterDriver;
 
+import java.time.LocalDate;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -41,11 +42,16 @@ public class TlePropagator extends Thread {
     private final Propagator propagator;
     private final Logger logger = Logger.getLogger(TlePropagator.class);
     private final int days;
+    private final LocalDate startDate;
+    private final LocalDate endDate;
 
-    public TlePropagator(SpatialObject spatialObject, int days) {
+
+    public TlePropagator(SpatialObject spatialObject, int days, LocalDate startDate, LocalDate endDate) {
         this.spatialObject = spatialObject;
         propagator = initPropagator(spatialObject);
         this.days = days;
+        this.startDate = startDate;
+        this.endDate = endDate;
     }
 
     private Propagator initPropagator(SpatialObject spatialObject) {
@@ -93,14 +99,28 @@ public class TlePropagator extends Thread {
     public void run() {
         final List<SpacecraftState> states = new LinkedList<>();
         propagator.setStepHandler(60, states::add);
-        AbsoluteDate startDate = new AbsoluteDate(spatialObject.getTca(), TimeScalesFactory.getUTC()).shiftedBy(Constants.JULIAN_DAY * (-days));
-        AbsoluteDate endDate = new AbsoluteDate(spatialObject.getTca(), TimeScalesFactory.getUTC()).shiftedBy(Constants.JULIAN_DAY * days);
-        propagator.propagate(startDate, endDate);
+        AbsoluteDate startDateAbsolute;
+        AbsoluteDate endDateAbsolute;
+        if (days != 0) {
+            startDateAbsolute = new AbsoluteDate(spatialObject.getTca(), TimeScalesFactory.getUTC()).shiftedBy(Constants.JULIAN_DAY * (-days));
+            endDateAbsolute = new AbsoluteDate(spatialObject.getTca(), TimeScalesFactory.getUTC()).shiftedBy(Constants.JULIAN_DAY * days);
+        } else {
+            startDateAbsolute = convertLocalDateToAbsoluteDate(startDate);
+            endDateAbsolute = convertLocalDateToAbsoluteDate(endDate);
+        }
+        propagator.propagate(startDateAbsolute, endDateAbsolute);
         for (SpacecraftState state : states) {
             DBOperation.addStateDB(state, spatialObject.getName());
         }
-        LoggerCustom.getInstance().logMessage(String.format("INFO: Spatial object detected: %s",spatialObject.getName()));
+        LoggerCustom.getInstance().logMessage(String.format("INFO: Spatial object detected: %s", spatialObject.getName()));
         logger.info(String.format("Data extraction for satellite finished: %s", spatialObject.getName()));
+    }
+
+    private AbsoluteDate convertLocalDateToAbsoluteDate(LocalDate localDate) {
+        int year = localDate.getYear();
+        int month = localDate.getMonthValue();
+        int day = localDate.getDayOfMonth();
+        return new AbsoluteDate(year, month, day, 6, 0, 0.0, TimeScalesFactory.getUTC());
     }
 
 }

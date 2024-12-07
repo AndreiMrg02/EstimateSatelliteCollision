@@ -11,6 +11,7 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 
+import java.time.LocalDate;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -22,15 +23,13 @@ public class TleService {
     private final TleFileHandler tleFileHandler;
     private final TleDownloader tleDownloader;
     private final TleDataProcessor tleDataProcessor;
-    private final int days;
 
-    public TleService(ConnectionService connectionService, SatelliteController satelliteController, RadioButton localTleRadio, int days) {
+    public TleService(ConnectionService connectionService, SatelliteController satelliteController, RadioButton localTleRadio, int days, LocalDate startDate, LocalDate endDate) {
         this.connectionService = connectionService;
         this.localTleRadio = localTleRadio;
         this.tleFileHandler = new TleFileHandler();
-        this.tleDownloader = new TleDownloader(connectionService, satelliteController, days);
-        this.days= days;
-        this.tleDataProcessor = new TleDataProcessor(satelliteController,days);
+        this.tleDownloader = new TleDownloader(connectionService, satelliteController, days,startDate,endDate);
+        this.tleDataProcessor = new TleDataProcessor(satelliteController,days,startDate,endDate);
     }
 
     public boolean downloadTLEs(Map<String, Item> listOfUniqueSatellite, Map<String, String[]> tleData, CollectSatelliteData collectSatelliteData,

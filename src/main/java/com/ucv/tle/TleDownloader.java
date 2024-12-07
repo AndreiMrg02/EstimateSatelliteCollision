@@ -8,6 +8,7 @@ import com.ucv.datamodel.xml.Item;
 import com.ucv.implementation.CollectSatelliteData;
 import com.ucv.implementation.ConnectionService;
 
+import java.time.LocalDate;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -16,11 +17,15 @@ public class TleDownloader {
     private final ConnectionService connectionService;
     private final SatelliteController satelliteController;
     private final int days;
+    private final LocalDate startDate;
+    private final LocalDate endDate;
 
-    public TleDownloader(ConnectionService connectionService, SatelliteController satelliteController, int days) {
+    public TleDownloader(ConnectionService connectionService, SatelliteController satelliteController, int days, LocalDate startDate,LocalDate endDate) {
         this.connectionService = connectionService;
         this.satelliteController = satelliteController;
         this.days =days;
+        this.startDate = startDate;
+        this.endDate = endDate;
     }
 
     public void extractTLEsUsingSpaceTrack(Map<String, Item> listOfUniqueSatellite, CollectSatelliteData collectSatelliteData) {
@@ -43,7 +48,7 @@ public class TleDownloader {
         }
         TleFileHandler tleFileHandler = new TleFileHandler();
         tleFileHandler.generateTleFile(satelliteTLEs);
-        satelliteController.manageSatellites(days);
+        satelliteController.manageSatellites(days,startDate,endDate);
     }
 
     private void collectTleLineByLine(String[] lines, Map<String, String> satelliteTLEs) {

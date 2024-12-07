@@ -21,6 +21,7 @@ import org.apache.logging.log4j.Logger;
 import org.orekit.propagation.SpacecraftState;
 
 import java.net.URL;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -78,11 +79,11 @@ public class SatelliteController implements Initializable {
         satelliteFileHandler = new SatelliteFileHandler(satelliteTable, listOfTle, spatialObjectList);
     }
 
-    public void manageSatellites(int days) {
+    public void manageSatellites(int days, LocalDate startDate, LocalDate endDate) {
         satelliteFileHandler.addTLEsToTextFile();
         LoggerCustom.getInstance().logMessage("The process to save states in data has started...");
         for (SpatialObject spatialObject : spatialObjectList.values()) {
-            TlePropagator object = new TlePropagator(spatialObject, days);
+            TlePropagator object = new TlePropagator(spatialObject, days, startDate, endDate);
             object.start();
             tleThreads.add(object);
         }

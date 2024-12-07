@@ -33,6 +33,12 @@ import static com.ucv.database.HibernateUtil.closeSession;
 public class MainController implements Initializable {
 
     @FXML
+    private ChoiceBox<String> calculateMethodBox;
+    @FXML
+    private DatePicker startDatePicker;
+    @FXML
+    private DatePicker endDatePicker;
+    @FXML
     private TextArea noOfDaysBox;
     @FXML
     private RadioButton spaceTrackTleRadio;
@@ -96,9 +102,15 @@ public class MainController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         ObservableList<String> operatorList;
+        ObservableList<String> methodList;
+        startDatePicker.setDisable(true);
+        endDatePicker.setDisable(true);
+        noOfDaysBox.setDisable(true);
         LoaderFXML fxmlLoader = new LoaderFXML(tableViewPane);
+        methodList = FXCollections.observableArrayList("No. days", "Date");
         operatorList = FXCollections.observableArrayList("=", "<", ">");
         operatorBox.setItems(operatorList);
+        calculateMethodBox.setItems(methodList);
         progressBar.setProgress(-1.0);
         progressBar.setVisible(false);
         setButtonStyle();
@@ -125,7 +137,18 @@ public class MainController implements Initializable {
             mainPanel.getScene().getWindow().setX(event.getScreenX() - xOffset);
             mainPanel.getScene().getWindow().setY(event.getScreenY() - yOffset);
         });
-
+        calculateMethodBox.valueProperty().addListener((observableValue, s, t1) -> {
+            if (calculateMethodBox.getSelectionModel().getSelectedItem().equals("No. days")) {
+                startDatePicker.setDisable(true);
+                endDatePicker.setDisable(true);
+                noOfDaysBox.setDisable(false);
+            } else {
+                startDatePicker.setDisable(false);
+                endDatePicker.setDisable(false);
+                noOfDaysBox.setDisable(true);
+                noOfDaysBox.setText("0");
+            }
+        });
     }
 
     public void manageRadioButtons() {
@@ -172,7 +195,7 @@ public class MainController implements Initializable {
             }
             connectionService = new ConnectionService(connectionData);
             int days = Integer.parseInt(noOfDaysBox.getText());
-            tleService = new TleService(connectionService, satelliteController, localTleRadio,days);
+            tleService = new TleService(connectionService, satelliteController, localTleRadio, days, startDatePicker.getValue(), endDatePicker.getValue());
             Map<String, String[]> tleData = new HashMap<>();
             if (localTleRadio.isSelected()) {
                 tleData = tleService.getTleData(mainPanel);
