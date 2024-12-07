@@ -36,8 +36,8 @@ public class SatelliteUpdaterOnEarth {
     private final AnnotationLayer labelLayer;
     private final Map<String, List<Airspace>> sphereFragmentsMap;
 
-    public SatelliteUpdaterOnEarth(OneAxisEllipsoid earth,Map<String, Map.Entry<SphereAirspace, GlobeAnnotation>> sphereMap,AirspaceLayer satAirspaces,
-                                   SatelliteInformationUpdate updateSatellitesInformation,AnnotationLayer labelLayer,Map<String, List<Airspace>> sphereFragmentsMap){
+    public SatelliteUpdaterOnEarth(OneAxisEllipsoid earth, Map<String, Map.Entry<SphereAirspace, GlobeAnnotation>> sphereMap, AirspaceLayer satAirspaces,
+                                   SatelliteInformationUpdate updateSatellitesInformation, AnnotationLayer labelLayer, Map<String, List<Airspace>> sphereFragmentsMap) {
         this.earth = earth;
         this.sphereMap = sphereMap;
         this.satAirspaces = satAirspaces;
@@ -67,18 +67,29 @@ public class SatelliteUpdaterOnEarth {
             if (targetDate.compareTo(threeMinutesAfter) >= 0 && targetDate.compareTo(threeMinutesBefore) <= 0) {
                 changeSphereOnCloseApproach(name, attrs, sphere, positions, orbit);
             } else {
+                displayDistanceBetweenSatellites(name, positions, orbit);
                 sphere.setRadius(100000);
             }
             double speed = pvCoordinates.getVelocity().getNorm(); // m/s
             sphere.setAttributes(attrs);
             sphere.setLocation(LatLon.fromRadians(gp.getLatitude(), gp.getLongitude()));
             sphere.setAltitude(gp.getAltitude());
-            // Update label position
-            updatePositionAndSatelliteInformation(name, gp, sphere, label, speed,isCollision);
+            updatePositionAndSatelliteInformation(name, gp, sphere, label, speed, isCollision);
         }
     }
 
-    private void updatePositionAndSatelliteInformation(String name, GeodeticPoint gp, SphereAirspace sphere, GlobeAnnotation label, double speed,boolean isCollision ) {
+    private void displayDistanceBetweenSatellites(String name, Map<String, Vector3D> positions, Orbit orbit) {
+        positions.put(name, orbit.getPVCoordinates().getPosition());
+        if (positions.size() == 2) {
+            List<Vector3D> posList = new ArrayList<>(positions.values());
+            double distance = posList.get(0).distance(posList.get(1));
+            double distanceKm = distance / 1000.0;
+            LoggerCustom.getInstance().logMessage(String.format("Distance between satellites: %.2f km", distanceKm));
+
+        }
+    }
+
+    private void updatePositionAndSatelliteInformation(String name, GeodeticPoint gp, SphereAirspace sphere, GlobeAnnotation label, double speed, boolean isCollision) {
         Position labelPos = new Position(LatLon.fromRadians(gp.getLatitude(), gp.getLongitude()), gp.getAltitude() + sphere.getRadius() * 1.2);
         label.setPosition(labelPos);
         if (updateSatellitesInformation != null) {
@@ -104,15 +115,11 @@ public class SatelliteUpdaterOnEarth {
             satAirspaces.addAirspace(sphere);
         }
     }
+
     private void changeSphereOnCloseApproach(String name, AirspaceAttributes attrs, SphereAirspace sphere, Map<String, Vector3D> positions, Orbit orbit) {
         attrs.setMaterial(new Material(Color.RED));
         sphere.setRadius(10000);
-        positions.put(name, orbit.getPVCoordinates().getPosition());
-        if (positions.size() == 2) {
-            List<Vector3D> posList = new ArrayList<>(positions.values());
-            double distance = posList.get(0).distance(posList.get(1));
-            LoggerCustom.getInstance().logMessage(String.format("Distance between satellites: %f meters", distance));
-        }
+        displayDistanceBetweenSatellites(name, positions, orbit);
     }
 
 }
