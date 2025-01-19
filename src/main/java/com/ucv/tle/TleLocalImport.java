@@ -6,21 +6,17 @@ import com.ucv.datamodel.xml.Item;
 import java.time.LocalDate;
 import java.util.Map;
 
-public class TleDataProcessor {
+public class TleLocalImport extends ImportTle {
 
-    private final SatelliteController satelliteController;
-    private final int days;
-    private final LocalDate startDate;
-    private final LocalDate endDate;
+    private final Map<String, String[]> tleData;
 
-    public TleDataProcessor(SatelliteController satelliteController, int days, LocalDate startDate, LocalDate endDate) {
-        this.satelliteController = satelliteController;
-        this.days = days;
-        this.startDate = startDate;
-        this.endDate = endDate;
+    public TleLocalImport(SatelliteController satelliteController, int days, LocalDate startDate, LocalDate endDate, Map<String,String[]> tleData) {
+        super(satelliteController, days, startDate, endDate);
+        this.tleData = tleData;
     }
 
-    public void extractTLEsUsingLocalFile(Map<String, Item> listOfUniqueSatellite, Map<String, String[]> tleData) {
+    @Override
+    protected void importTle(Map<String, Item> listOfUniqueSatellite) {
         for (Item item : listOfUniqueSatellite.values()) {
             if (tleData.containsKey(item.getSat1Id())) {
                 String[] tle = tleData.get(item.getSat1Id());

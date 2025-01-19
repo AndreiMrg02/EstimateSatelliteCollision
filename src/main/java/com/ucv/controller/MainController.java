@@ -195,7 +195,8 @@ public class MainController implements Initializable {
             }
             connectionService = new ConnectionService(connectionData);
             int days = Integer.parseInt(noOfDaysBox.getText());
-            tleService = new TleService(connectionService, satelliteController, localTleRadio, days, startDatePicker.getValue(), endDatePicker.getValue());
+            boolean online = spaceTrackTleRadio.isSelected();
+            tleService = new TleService(connectionService, satelliteController,online, days, startDatePicker.getValue(), endDatePicker.getValue());
             Map<String, String[]> tleData = new HashMap<>();
             if (localTleRadio.isSelected()) {
                 tleData = tleService.getTleData(mainPanel);
@@ -206,7 +207,7 @@ public class MainController implements Initializable {
             String operator = setOperator(operatorBox.getValue());
             resetDataForNewExtraction();
             SatelliteTaskHandler satelliteTaskHandler = new SatelliteTaskHandler(tleService, connectionData, satelliteController, satelliteInformationController, progressBar, mainPanel, thresholdBox.getText());
-            currentTask = satelliteTaskHandler.createSatelliteDataTask(tleData, operator, event, valueField, spaceTrackTleRadio, informationPane, showSatellitesButton);
+            currentTask = satelliteTaskHandler.createSatelliteDataTask(tleData, operator, event, valueField, informationPane, showSatellitesButton);
             setTaskOnFailed(currentTask);
             new Thread(currentTask).start();
         });

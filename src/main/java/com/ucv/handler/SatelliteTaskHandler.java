@@ -12,7 +12,6 @@ import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.scene.control.Button;
 import javafx.scene.control.ProgressIndicator;
-import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
@@ -45,7 +44,7 @@ public class SatelliteTaskHandler {
     }
 
     public Task<Void> createSatelliteDataTask(Map<String, String[]> tleData, String operator, MouseEvent event,
-                                              TextArea valueField, RadioButton spaceTrackTleRadio,
+                                              TextArea valueField,
                                               StackPane informationPane, Button showSatellitesButton) {
         return new Task<>() {
             @Override
@@ -64,7 +63,7 @@ public class SatelliteTaskHandler {
                     return null;
                 }
                 satelliteController.setListOfUniqueSatellite(satelliteData);
-                if (!tleService.downloadTLEs(satelliteData, tleData, collectSatelliteData, spaceTrackTleRadio, informationPane)) {
+                if (!tleService.downloadTLEs(satelliteData, tleData, collectSatelliteData, informationPane)) {
                     cancelTask(showSatellitesButton);
                     return null;
                 }

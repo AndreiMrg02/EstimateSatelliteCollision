@@ -1,6 +1,5 @@
 package com.ucv.tle;
 
-
 import com.ucv.util.LoggerCustom;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
@@ -14,7 +13,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class TleFileHandler {
-
     private static final Logger logger = Logger.getLogger(TleFileHandler.class);
 
     public Map<String, String[]> readTLEFile(String filePath) {

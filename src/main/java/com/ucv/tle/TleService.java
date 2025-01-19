@@ -7,7 +7,6 @@ import com.ucv.implementation.ConnectionService;
 import com.ucv.util.CustomAlert;
 import com.ucv.util.LoggerCustom;
 import javafx.application.Platform;
-import javafx.scene.control.RadioButton;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 
@@ -18,51 +17,46 @@ import java.util.Map;
 public class TleService {
     private final CustomAlert customAlert = new CustomAlert();
     private final ConnectionService connectionService;
-    private final RadioButton localTleRadio;
-
+    private final boolean isOnline;
     private final TleFileHandler tleFileHandler;
-    private final TleDownloader tleDownloader;
-    private final TleDataProcessor tleDataProcessor;
+    private final SatelliteController satelliteController;
+    private final int days;
+    private final LocalDate startDate;
+    private final LocalDate endDate;
 
-    public TleService(ConnectionService connectionService, SatelliteController satelliteController, RadioButton localTleRadio, int days, LocalDate startDate, LocalDate endDate) {
+    public TleService(ConnectionService connectionService,
+                      SatelliteController satelliteController,
+                      boolean isOnline,
+                      int days,
+                      LocalDate startDate,
+                      LocalDate endDate) {
         this.connectionService = connectionService;
-        this.localTleRadio = localTleRadio;
+        this.isOnline = isOnline;
+        this.satelliteController = satelliteController;
+        this.days = days;
+        this.startDate = startDate;
+        this.endDate = endDate;
         this.tleFileHandler = new TleFileHandler();
-        this.tleDownloader = new TleDownloader(connectionService, satelliteController, days,startDate,endDate);
-        this.tleDataProcessor = new TleDataProcessor(satelliteController,days,startDate,endDate);
     }
 
-    public boolean downloadTLEs(Map<String, Item> listOfUniqueSatellite, Map<String, String[]> tleData, CollectSatelliteData collectSatelliteData,
-                                RadioButton spaceTrackTleRadio, StackPane informationPane) {
-        if (isLocalTleSelected()) {
-            handleLocalTleSelection(listOfUniqueSatellite, tleData);
+    public boolean downloadTLEs(Map<String, Item> listOfUniqueSatellite,
+                                Map<String, String[]> tleData,
+                                CollectSatelliteData collectSatelliteData,
+                                StackPane informationPane) {
+        ImportTle importTle;
+        if (!isOnline) {
+            importTle = new TleLocalImport(satelliteController, days, startDate, endDate, tleData);
+            importTle.importTle(listOfUniqueSatellite);
             return true;
+        } else {
+            if (connectionService.hasOneHourPassedSinceLastConnection(connectionService.getConnectionData().getUserName())) {
+                importTle = new TleSpaceTrackImport(connectionService, satelliteController, days, startDate, endDate, collectSatelliteData);
+                importTle.importTle(listOfUniqueSatellite);
+                return true;
+            }
+            Platform.runLater(() -> customAlert.alertWaitSpaceTrackTle(informationPane));
+            return false;
         }
-        if (isSpaceTrackTleSelected(spaceTrackTleRadio)) {
-            return handleSpaceTrackTleSelection(listOfUniqueSatellite, collectSatelliteData, informationPane);
-        }
-        return false;
-    }
-
-    private boolean isLocalTleSelected() {
-        return localTleRadio.isSelected();
-    }
-
-    private boolean isSpaceTrackTleSelected(RadioButton spaceTrackTleRadio) {
-        return spaceTrackTleRadio.isSelected();
-    }
-
-    private void handleLocalTleSelection(Map<String, Item> listOfUniqueSatellite, Map<String, String[]> tleData) {
-        tleDataProcessor.extractTLEsUsingLocalFile(listOfUniqueSatellite, tleData);
-    }
-
-    private boolean handleSpaceTrackTleSelection(Map<String, Item> listOfUniqueSatellite, CollectSatelliteData collectSatelliteData, StackPane informationPane) {
-        if (connectionService.hasOneHourPassedSinceLastConnection(connectionService.getConnectionData().getUserName())) {
-            tleDownloader.extractTLEsUsingSpaceTrack(listOfUniqueSatellite, collectSatelliteData);
-            return true;
-        }
-        Platform.runLater(() -> customAlert.alertWaitSpaceTrackTle(informationPane));
-        return false;
     }
 
     public Map<String, String[]> getTleData(BorderPane mainPanel) {

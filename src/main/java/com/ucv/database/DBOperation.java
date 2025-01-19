@@ -27,7 +27,7 @@ public class DBOperation {
     private static final Logger logger = LogManager.getLogger(DBOperation.class);
 
     private DBOperation() {
-
+        // empty constructor
     }
 
     public static void saveLastConnectionToDB(ConnectionInformation connectionInformation) {

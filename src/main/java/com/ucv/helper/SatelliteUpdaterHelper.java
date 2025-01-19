@@ -11,10 +11,10 @@ import gov.nasa.worldwind.render.airspaces.SphereAirspace;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hipparchus.geometry.euclidean.threed.Vector3D;
+import org.orekit.bodies.OneAxisEllipsoid;
 import org.orekit.errors.OrekitException;
 import org.orekit.propagation.analytical.Ephemeris;
 import org.orekit.time.AbsoluteDate;
-import org.orekit.bodies.OneAxisEllipsoid;
 
 import java.util.HashMap;
 import java.util.List;

@@ -1,6 +1,5 @@
 package com.ucv.tle;
 
-
 import com.ucv.controller.SatelliteController;
 import com.ucv.database.DBOperation;
 import com.ucv.datamodel.database.ConnectionInformation;
@@ -12,23 +11,33 @@ import java.time.LocalDate;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class TleDownloader {
+public class TleSpaceTrackImport extends ImportTle {
 
     private final ConnectionService connectionService;
-    private final SatelliteController satelliteController;
-    private final int days;
-    private final LocalDate startDate;
-    private final LocalDate endDate;
+    private final CollectSatelliteData collectSatelliteData;
 
-    public TleDownloader(ConnectionService connectionService, SatelliteController satelliteController, int days, LocalDate startDate,LocalDate endDate) {
+    public TleSpaceTrackImport(ConnectionService connectionService, SatelliteController satelliteController,
+                               int days, LocalDate startDate, LocalDate endDate,
+                               CollectSatelliteData collectSatelliteData) {
+        super(satelliteController, days, startDate, endDate);
         this.connectionService = connectionService;
-        this.satelliteController = satelliteController;
-        this.days =days;
-        this.startDate = startDate;
-        this.endDate = endDate;
+        this.collectSatelliteData = collectSatelliteData;
     }
 
-    public void extractTLEsUsingSpaceTrack(Map<String, Item> listOfUniqueSatellite, CollectSatelliteData collectSatelliteData) {
+    private void collectTleLineByLine(String[] lines, Map<String, String> satelliteTLEs) {
+        for (int i = 0; i < lines.length; i += 2) {
+            if (i + 1 < lines.length) {
+                String line1 = lines[i];
+                String line2 = lines[i + 1];
+                String satelliteId = line1.substring(2, 7).trim();
+                String tle = line1 + "\n" + line2;
+                satelliteTLEs.put(satelliteId, tle);
+            }
+        }
+    }
+
+    @Override
+    protected void importTle(Map<String, Item> listOfUniqueSatellite) {
         ConnectionInformation connectionInformation = connectionService.generateConnectionInfo();
         DBOperation.saveLastConnectionToDB(connectionInformation);
         String queryToDownloadAllTLEs = "/basicspacedata/query/class/gp/decay_date/null-val/epoch/%3Enow-30/orderby/norad_cat_id/format/tle";
@@ -48,18 +57,6 @@ public class TleDownloader {
         }
         TleFileHandler tleFileHandler = new TleFileHandler();
         tleFileHandler.generateTleFile(satelliteTLEs);
-        satelliteController.manageSatellites(days,startDate,endDate);
-    }
-
-    private void collectTleLineByLine(String[] lines, Map<String, String> satelliteTLEs) {
-        for (int i = 0; i < lines.length; i += 2) {
-            if (i + 1 < lines.length) {
-                String line1 = lines[i];
-                String line2 = lines[i + 1];
-                String satelliteId = line1.substring(2, 7).trim();
-                String tle = line1 + "\n" + line2;
-                satelliteTLEs.put(satelliteId, tle);
-            }
-        }
+        satelliteController.manageSatellites(days, startDate, endDate);
     }
 }
