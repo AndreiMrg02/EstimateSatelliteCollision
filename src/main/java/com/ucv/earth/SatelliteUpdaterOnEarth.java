@@ -28,19 +28,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class SatelliteUpdaterOnEarth {
+public class SatelliteUpdaterOnEarth  {
     private final OneAxisEllipsoid earth;
     private final Map<String, Map.Entry<SphereAirspace, GlobeAnnotation>> sphereMap;
-    private final AirspaceLayer satAirspaces;
+    private final AirspaceLayer satAirspace;
     private final SatelliteInformationUpdate updateSatellitesInformation;
     private final AnnotationLayer labelLayer;
     private final Map<String, List<Airspace>> sphereFragmentsMap;
 
-    public SatelliteUpdaterOnEarth(OneAxisEllipsoid earth, Map<String, Map.Entry<SphereAirspace, GlobeAnnotation>> sphereMap, AirspaceLayer satAirspaces,
+    public SatelliteUpdaterOnEarth(OneAxisEllipsoid earth, Map<String, Map.Entry<SphereAirspace, GlobeAnnotation>> sphereMap, AirspaceLayer satAirspace,
                                    SatelliteInformationUpdate updateSatellitesInformation, AnnotationLayer labelLayer, Map<String, List<Airspace>> sphereFragmentsMap) {
         this.earth = earth;
         this.sphereMap = sphereMap;
-        this.satAirspaces = satAirspaces;
+        this.satAirspace = satAirspace;
         this.updateSatellitesInformation = updateSatellitesInformation;
         this.labelLayer = labelLayer;
         this.sphereFragmentsMap = sphereFragmentsMap;
@@ -101,7 +101,7 @@ public class SatelliteUpdaterOnEarth {
         }
         if (isCollision) {
             labelLayer.removeAllAnnotations();
-            SimulateCollision simulateCollision = new SimulateCollision(satAirspaces, sphereFragmentsMap);
+            SimulateCollision simulateCollision = new SimulateCollision(satAirspace, sphereFragmentsMap);
             simulateCollision.shatterSphere(sphere, name);
         }
     }
@@ -112,7 +112,7 @@ public class SatelliteUpdaterOnEarth {
             sphere.setRadius(100000);
             GlobeAnnotation label = new GlobeAnnotation(name, new Position(sphere.getLocation(), sphere.getRadius() * 1.2));
             sphereMap.put(name, new AbstractMap.SimpleEntry<>(sphere, label));
-            satAirspaces.addAirspace(sphere);
+            satAirspace.addAirspace(sphere);
         }
     }
 

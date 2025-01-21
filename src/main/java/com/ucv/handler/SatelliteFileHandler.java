@@ -2,6 +2,7 @@ package com.ucv.handler;
 
 import com.ucv.datamodel.satellite.CollisionData;
 import com.ucv.datamodel.satellite.SpatialObject;
+import com.ucv.util.FileHandler;
 import javafx.scene.control.TableView;
 import javafx.stage.FileChooser;
 import org.apache.logging.log4j.LogManager;
@@ -15,7 +16,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class SatelliteFileHandler {
+public class SatelliteFileHandler implements FileHandler {
 
     private final TableView<CollisionData> satelliteTable;
     private final List<String> listOfTle;
@@ -30,7 +31,7 @@ public class SatelliteFileHandler {
     }
 
 
-    public void extractTleToFile() {
+    public void generateFile() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select the location to save TLEs");
         fileChooser.setInitialFileName("ExtractedTLE.txt");

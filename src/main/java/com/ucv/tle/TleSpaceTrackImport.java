@@ -55,8 +55,8 @@ public class TleSpaceTrackImport extends ImportTle {
                 satelliteController.addSpatialObject(item.getTca(), item.getSat2Name(), tle);
             }
         }
-        TleFileHandler tleFileHandler = new TleFileHandler();
-        tleFileHandler.generateTleFile(satelliteTLEs);
+        TleFileHandler tleFileHandler = new TleFileHandler(satelliteTLEs);
+        tleFileHandler.generateFile();
         satelliteController.manageSatellites(days, startDate, endDate);
     }
 }

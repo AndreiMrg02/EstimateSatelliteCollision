@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 
 public class DateExtractor {
 
-
     private final List<SpacecraftState> spacecraftStatesOne;
     private final List<SpacecraftState> spacecraftStatesTwo;
 

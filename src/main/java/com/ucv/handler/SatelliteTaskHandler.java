@@ -63,7 +63,7 @@ public class SatelliteTaskHandler {
                     return null;
                 }
                 satelliteController.setListOfUniqueSatellite(satelliteData);
-                if (!tleService.downloadTLEs(satelliteData, tleData, collectSatelliteData, informationPane)) {
+                if (!tleService.downloadTLEs(satelliteData, tleData, collectSatelliteData,informationPane)) {
                     cancelTask(showSatellitesButton);
                     return null;
                 }

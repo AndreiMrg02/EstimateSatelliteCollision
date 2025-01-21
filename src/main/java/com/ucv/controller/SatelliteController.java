@@ -175,6 +175,6 @@ public class SatelliteController implements Initializable {
     }
 
     public void extractTleToFile() {
-        satelliteFileHandler.extractTleToFile();
+        satelliteFileHandler.generateFile();
     }
 }

@@ -1,5 +1,6 @@
 package com.ucv.tle;
 
+import com.ucv.util.FileHandler;
 import com.ucv.util.LoggerCustom;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
@@ -12,8 +13,13 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class TleFileHandler {
+public class TleFileHandler implements FileHandler {
     private static final Logger logger = Logger.getLogger(TleFileHandler.class);
+    private Map<String, String> satelliteTLEs;
+
+    public TleFileHandler(Map<String, String> satelliteTLEs) {
+        this.satelliteTLEs = satelliteTLEs;
+    }
 
     public Map<String, String[]> readTLEFile(String filePath) {
         Map<String, String[]> tleMap = new HashMap<>();
@@ -52,7 +58,7 @@ public class TleFileHandler {
         return tleData;
     }
 
-    public void generateTleFile(Map<String, String> satelliteTLEs) {
+    public void generateFile() {
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
         String fileName = "tle_output_" + timestamp + ".txt";
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {

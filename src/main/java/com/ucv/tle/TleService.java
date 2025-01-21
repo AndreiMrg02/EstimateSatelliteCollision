@@ -11,6 +11,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -36,7 +37,7 @@ public class TleService {
         this.days = days;
         this.startDate = startDate;
         this.endDate = endDate;
-        this.tleFileHandler = new TleFileHandler();
+        this.tleFileHandler = new TleFileHandler(new HashMap<>());
     }
 
     public boolean downloadTLEs(Map<String, Item> listOfUniqueSatellite,

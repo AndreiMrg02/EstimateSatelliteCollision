@@ -20,13 +20,14 @@ public class ComponentEarthInit {
 
     private final CustomGlobeAnnotation customGlobeAnnotation;
     private final Map<String, Map.Entry<SphereAirspace, GlobeAnnotation>> sphereMap;
-    private final AirspaceLayer satAirspaces;
+    private final AirspaceLayer satAirspace;
     private final AnnotationLayer labelLayer;
 
-    public ComponentEarthInit(CustomGlobeAnnotation customGlobeAnnotation, Map<String, Map.Entry<SphereAirspace, GlobeAnnotation>> sphereMap, AirspaceLayer satAirspaces, AnnotationLayer labelLayer) {
+    public ComponentEarthInit(CustomGlobeAnnotation customGlobeAnnotation, Map<String, Map.Entry<SphereAirspace, GlobeAnnotation>> sphereMap, AirspaceLayer satAirspace, AnnotationLayer labelLayer) {
+
         this.customGlobeAnnotation = customGlobeAnnotation;
         this.sphereMap = sphereMap;
-        this.satAirspaces = satAirspaces;
+        this.satAirspace = satAirspace;
         this.labelLayer = labelLayer;
     }
 
@@ -48,12 +49,12 @@ public class ComponentEarthInit {
             customGlobeAnnotation.attributeSatelliteNameLabel(label);
             sphereMap.put(entry.getKey(), new AbstractMap.SimpleEntry<>(sphere, label));
 
-            satAirspaces.addAirspace(sphere);
+            satAirspace.addAirspace(sphere);
             labelLayer.addAnnotation(label);
 
         }
 
-        wwd.getModel().getLayers().add(satAirspaces);
+        wwd.getModel().getLayers().add(satAirspace);
         wwd.getModel().getLayers().add(labelLayer);
         wwd.redraw();
     }

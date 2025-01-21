@@ -16,7 +16,5 @@ public class UtilConstant {
     public static final String UNKNOWN = "UNKNOWN";
 
     public static final String URL_SPACE_TRACK = "/ajaxauth/login";
-    public static final String TIMESTAMP_FILE = "et.dat";
-    public static final String KEY_FILE = "key.key";
 
 }
